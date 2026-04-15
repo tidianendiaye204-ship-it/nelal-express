@@ -7,7 +7,6 @@ import { signOut } from '@/actions/auth'
 interface NavLink {
   href: string
   label: string
-  icon: string
 }
 
 export default function MobileNav({ links }: { links: NavLink[] }) {

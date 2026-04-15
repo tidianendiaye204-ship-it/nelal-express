@@ -49,7 +49,7 @@ Merci de faire confiance à Nellal Express 🙏`
 
 Bonjour ${data.clientName},
 
-Votre colis *#${ref}* a été pris en charge par ${data.livreurName}.`
+Votre colis *#${ref}* a été pris en charge par ${data.livreurName}.
 
 📞 Contacter le livreur : ${data.livreurPhone}
 🔗 Suivre : ${data.trackingUrl}
@@ -76,7 +76,7 @@ Bonjour ${data.clientName},
 Votre commande *#${ref}* a été annulée.
 
 Si vous avez des questions, contactez-nous directement.
-_Nellal Express_`}]}
+_Nellal Express_`
   }
 }
 
