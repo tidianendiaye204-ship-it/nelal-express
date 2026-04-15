@@ -22,23 +22,37 @@ export default function SignupPage() {
     const full_name = (form.elements.namedItem('full_name') as HTMLInputElement).value
     const phone = (form.elements.namedItem('phone') as HTMLInputElement).value
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name, phone },
-        emailRedirectTo: `${window.location.origin}/dashboard/client`,
-      },
-    })
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name, phone },
+          emailRedirectTo: `${window.location.origin}/dashboard/client`,
+        },
+      })
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+        return
+      }
+
+      // Si email confirmation est activée, Supabase ne retourne pas forcément une session
+      if (!data.session) {
+        setError('Veuillez vérifier vos e-mails pour confirmer votre compte.')
+        setLoading(false)
+        return
+      }
+
+      router.push('/dashboard/client')
+      setTimeout(() => setLoading(false), 5000)
+    } catch (err) {
+      console.error('Signup error:', err)
+      setError('Une erreur technique est survenue. Veuillez réessayer.')
       setLoading(false)
-      return
     }
-
-    router.push('/dashboard/client')
   }
 
   return (

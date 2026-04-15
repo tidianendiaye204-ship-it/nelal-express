@@ -27,14 +27,25 @@ export async function createClient() {
 
 export async function getProfile() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  
+  try {
+    const userPromise = supabase.auth.getUser()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), 3000)
+    )
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*, zone:zones(*)')
-    .eq('id', user.id)
-    .single()
+    const { data: { user } } = await Promise.race([userPromise, timeoutPromise]) as any
+    if (!user) return null
 
-  return profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*, zone:zones(*)')
+      .eq('id', user.id)
+      .single()
+
+    return profile
+  } catch (err) {
+    console.error('getProfile Error:', err)
+    return null
+  }
 }

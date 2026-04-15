@@ -20,23 +20,45 @@ export default function LoginPage() {
     const email = (form.elements.namedItem('email') as HTMLInputElement).value
     const password = (form.elements.namedItem('password') as HTMLInputElement).value
 
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      setError('Email ou mot de passe incorrect')
+      if (error) {
+        setError('Email ou mot de passe incorrect')
+        setLoading(false)
+        return
+      }
+
+      if (!data.user) {
+        setError('Une erreur est survenue lors de la connexion')
+        setLoading(false)
+        return
+      }
+
+      // Récupérer rôle avec timeout ou erreur gérée
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError)
+        // On redirige quand même vers client par défaut si le profil n'est pas trouvé
+      }
+
+      const role = profile?.role || 'client'
+      router.push(`/dashboard/${role}`)
+      
+      // On ne met pas setLoading(false) ici car router.push va changer de page
+      // Mais on l'ajoute au cas où le push échoue ou met trop de temps
+      setTimeout(() => setLoading(false), 5000)
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('Une erreur technique est survenue. Veuillez réessayer.')
       setLoading(false)
-      return
     }
-
-    // Récupérer rôle
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    router.push(`/dashboard/${profile?.role || 'client'}`)
   }
 
   return (

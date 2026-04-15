@@ -17,11 +17,25 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: 'Nellal Express — Livraison Élite au Sénégal',
-  description: 'Le standard de l\'excellence logistique à Dakar et dans les régions.',
+  description: 'Le standard de l\'excellence logistique à Dakar et dans les régions. Livraison rapide, sécurisée et professionnelle.',
   manifest: '/manifest.json',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://nellal-express-k81j.vercel.app'),
   icons: {
     icon: '/icon.svg',
     apple: '/icon.svg',
+  },
+  openGraph: {
+    title: 'Nellal Express — Livraison Élite au Sénégal',
+    description: 'Le standard de l\'excellence logistique à Dakar et dans les régions.',
+    url: '/',
+    siteName: 'Nellal Express',
+    locale: 'fr_SN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nellal Express',
+    description: 'Le standard de l\'excellence logistique au Sénégal.',
   },
   appleWebApp: {
     capable: true,

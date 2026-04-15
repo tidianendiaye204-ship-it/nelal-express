@@ -35,8 +35,19 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
+    // Timeout pour getUser pour éviter de bloquer l'app
+    const userPromise = supabase.auth.getUser()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), 3000)
+    )
+
+    const { data: { user } } = await Promise.race([userPromise, timeoutPromise]) as any
     const pathname = request.nextUrl.pathname
+
+    // Routes publiques directes (on ne fait rien de spécial)
+    if (pathname === '/') {
+      return supabaseResponse
+    }
 
     // Protéger les routes dashboard
     if (pathname.startsWith('/dashboard') && !user) {
@@ -45,13 +56,22 @@ export async function middleware(request: NextRequest) {
 
     // Rediriger vers dashboard si déjà connecté
     if ((pathname === '/auth/login' || pathname === '/auth/signup') && user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      let role = 'client'
+      
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile?.role) {
+          role = profile.role
+        }
+      } catch (profileErr) {
+        console.error('Middleware profile fetch error:', profileErr)
+      }
 
-      const role = profile?.role || 'client'
       return NextResponse.redirect(new URL(`/dashboard/${role}`, request.url))
     }
   } catch (e) {
