@@ -19,12 +19,19 @@ export const metadata: Metadata = {
   title: 'Nellal Express — Livraison Élite au Sénégal',
   description: 'Le standard de l\'excellence logistique à Dakar et dans les régions.',
   manifest: '/manifest.json',
-  themeColor: '#F97316',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Nellal Express',
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#F97316',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
