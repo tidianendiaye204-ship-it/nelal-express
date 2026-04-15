@@ -79,6 +79,7 @@ export default function SignupPage() {
                   name="full_name"
                   type="text"
                   required
+                  autoComplete="name"
                   placeholder="Prénom Nom"
                   className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl px-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
                 />
@@ -90,6 +91,7 @@ export default function SignupPage() {
                   name="phone"
                   type="tel"
                   required
+                  autoComplete="tel"
                   placeholder="77 XXX XX XX"
                   className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl px-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
                 />
@@ -102,6 +104,7 @@ export default function SignupPage() {
                 name="email"
                 type="email"
                 required
+                autoComplete="email"
                 placeholder="votre@email.com"
                 className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl px-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
               />
@@ -114,6 +117,7 @@ export default function SignupPage() {
                 type="password"
                 required
                 minLength={8}
+                autoComplete="new-password"
                 placeholder="Min. 8 caractères"
                 className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl px-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
               />

@@ -86,6 +86,7 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   placeholder="votre@email.com"
                   className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl pl-12 pr-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
                 />
@@ -100,6 +101,7 @@ export default function LoginPage() {
                   name="password"
                   type="password"
                   required
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl pl-12 pr-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
                 />
