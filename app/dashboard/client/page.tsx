@@ -27,74 +27,74 @@ export default async function ClientDashboard() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-24">
-      <div className="mb-12 flex items-end justify-between px-2">
+    <div className="max-w-2xl mx-auto pb-24 px-1">
+      <div className="mb-8 flex items-end justify-between px-2">
         <div>
-          <h1 className="font-display font-black text-5xl text-slate-900 tracking-tighter uppercase leading-none">Activité</h1>
-          <div className="h-1.5 w-12 bg-orange-500 mt-4 rounded-full"></div>
+          <h1 className="font-display font-black text-3xl text-slate-900 tracking-tight uppercase leading-none">Activité</h1>
+          <div className="h-1 w-8 bg-orange-500 mt-3 rounded-full"></div>
         </div>
         <div className="hidden md:block text-right">
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">Votre compte Élite</p>
-          <p className="text-slate-900 font-bold text-lg">{profile?.full_name}</p>
+          <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Compte Élite</p>
+          <p className="text-slate-900 font-bold text-sm">{profile?.full_name}</p>
         </div>
       </div>
 
-      {/* QUICK ACTIONS - Premium Design */}
-      <div className="grid grid-cols-2 gap-4 mb-12">
+      {/* QUICK ACTIONS - Ultra Compact */}
+      <div className="grid grid-cols-2 gap-2 mb-6">
         <Link
           href="/dashboard/client/nouvelle-commande"
-          className="relative group overflow-hidden bg-slate-900 rounded-[2.5rem] p-8 min-h-[180px] flex flex-col justify-between shadow-2xl shadow-slate-900/20 active:scale-95 transition-all"
+          className="relative group overflow-hidden bg-slate-900 rounded-2xl p-4 min-h-[100px] flex flex-col justify-between shadow-lg shadow-slate-900/10 active:scale-95 transition-all"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 rounded-full blur-[40px] -mr-16 -mt-16"></div>
-          <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-inner">🚀</div>
+          <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-full blur-xl -mr-8 -mt-8"></div>
+          <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center text-base border border-white/10 shadow-inner">🚀</div>
           <div className="relative z-10">
-            <h3 className="text-white font-display font-black text-lg uppercase leading-tight">Envoyer</h3>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Nouveau Colis</p>
+            <h3 className="text-white font-display font-black text-xs uppercase leading-tight tracking-tight">Envoyer</h3>
+            <p className="text-slate-400 text-[6px] font-bold uppercase tracking-widest mt-0.5">Nouveau Colis</p>
           </div>
         </Link>
 
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 flex flex-col justify-between shadow-sm">
-          <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-2xl text-orange-500">💳</div>
+        <div className="bg-white rounded-2xl p-4 border border-slate-100 flex flex-col justify-between shadow-sm min-h-[100px]">
+          <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center text-base text-orange-500">💳</div>
           <div>
-            <h3 className="text-slate-900 font-display font-black text-lg uppercase leading-tight">Portefeuille</h3>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Solde: 0 F</p>
+            <h3 className="text-slate-900 font-display font-black text-xs uppercase leading-tight tracking-tight">Solde</h3>
+            <p className="text-slate-400 text-[6px] font-bold uppercase tracking-widest mt-0.5">0 FCFA</p>
           </div>
         </div>
       </div>
 
-      {/* STATS - Glassmorphism */}
-      <div className="grid grid-cols-3 gap-3 mb-12 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+      {/* STATS - Slimmer */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
         {[
           { label: 'Total', value: stats.total, icon: '📦' },
           { label: 'En cours', value: stats.en_cours, icon: '🚴' },
           { label: 'Livrées', value: stats.livres, icon: '✅' },
         ].map((stat) => (
-          <div key={stat.label} className="flex-shrink-0 min-w-[120px] bg-white rounded-[2rem] border border-slate-100 p-5 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group">
-            <div className="text-xl mb-3 group-hover:scale-110 transition-transform">{stat.icon}</div>
-            <div className="font-display font-black text-2xl text-slate-900 leading-none">{stat.value}</div>
-            <div className="text-slate-400 text-[8px] font-black uppercase tracking-[0.2em] mt-3">{stat.label}</div>
+          <div key={stat.label} className="flex-shrink-0 min-w-[85px] bg-white rounded-xl border border-slate-100 p-3 shadow-sm hover:shadow-md transition-all group">
+            <div className="text-base mb-1.5 group-hover:scale-110 transition-transform">{stat.icon}</div>
+            <div className="font-display font-black text-lg text-slate-900 leading-none">{stat.value}</div>
+            <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* ACTIVE ORDERS - With Live Tracker */}
-      <div className="flex items-center justify-between mb-6 px-2">
-        <h2 className="font-display font-black text-sm text-slate-400 uppercase tracking-[0.2em]">Suivi en direct</h2>
-        {stats.en_cours > 0 && <span className="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>}
+      {/* ACTIVE ORDERS - Slim Cards */}
+      <div className="flex items-center justify-between mb-4 px-2">
+        <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Suivi des colis</h2>
+        {stats.en_cours > 0 && <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>}
       </div>
 
       {!orders?.length ? (
-        <div className="bg-slate-50 rounded-[3rem] p-16 text-center border-2 border-dashed border-slate-200">
-          <div className="text-5xl mb-6 opacity-30">📭</div>
-          <h3 className="font-display font-black text-sm text-slate-400 mb-2 uppercase tracking-widest">Aucune commande active</h3>
+        <div className="bg-slate-50 rounded-[2rem] p-12 text-center border border-slate-100">
+          <div className="text-3xl mb-4 opacity-20">📭</div>
+          <h3 className="font-display font-black text-[9px] text-slate-400 uppercase tracking-widest">Aucun colis en route</h3>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {orders.map((order: any) => {
             const steps = [
-              { key: 'en_attente', label: 'Enregistré', icon: '📝' },
+              { key: 'en_attente', label: 'Reçu', icon: '📝' },
               { key: 'confirme', label: 'Assigné', icon: '👤' },
-              { key: 'en_cours', label: 'En route', icon: '🚴' },
+              { key: 'en_cours', label: 'Route', icon: '🚴' },
               { key: 'livre', label: 'Livré', icon: '✨' },
             ]
             
@@ -102,32 +102,29 @@ export default async function ClientDashboard() {
             const isCancelled = order.status === 'annule'
 
             return (
-              <div key={order.id} className={`bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm transition-all hover:shadow-xl hover:shadow-slate-200/50 ${isCancelled ? 'opacity-50 grayscale' : ''}`}>
-                <div className="flex items-start justify-between mb-8">
-                  <div>
-                    <h3 className="text-slate-900 font-black text-xl mb-1 uppercase tracking-tight">{order.description}</h3>
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <div key={order.id} className={`bg-white rounded-2xl border border-slate-100 p-4 shadow-sm transition-all active:scale-[0.98] ${isCancelled ? 'opacity-50 grayscale' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-slate-900 font-black text-xs mb-0.5 uppercase truncate tracking-tight">{order.description}</h3>
+                    <div className="flex items-center gap-1 text-[7px] font-black text-slate-400 uppercase tracking-widest">
                       <span>{order.zone_from?.name}</span>
                       <span className="text-orange-500">→</span>
                       <span>{order.zone_to?.name}</span>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-display font-black text-orange-600 text-2xl leading-none">
-                      {order.price.toLocaleString('fr-FR')} <span className="text-xs">F</span>
-                    </div>
-                    <div className="mt-2 inline-flex px-2 py-1 bg-slate-50 text-slate-400 rounded-lg text-[8px] font-black uppercase tracking-widest">
-                      {order.payment_method}
+                  <div className="text-right ml-3">
+                    <div className="font-display font-black text-orange-600 text-sm leading-none">
+                      {order.price.toLocaleString('fr-FR')} <span className="text-[8px]">F</span>
                     </div>
                   </div>
                 </div>
 
-                {/* PROGRESS TRACKER */}
+                {/* COMPACT TRACKER */}
                 {!isCancelled ? (
-                  <div className="relative pt-2 pb-8">
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2 rounded-full overflow-hidden">
+                  <div className="relative pt-1 pb-3">
+                    <div className="absolute top-3.5 left-0 w-full h-0.5 bg-slate-50 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-orange-500 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(249,115,22,0.5)]"
+                        className="h-full bg-orange-500 transition-all duration-1000 ease-out"
                         style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
                       ></div>
                     </div>
@@ -136,16 +133,16 @@ export default async function ClientDashboard() {
                         const isCompleted = idx <= currentStepIndex
                         const isCurrent = idx === currentStepIndex
                         return (
-                          <div key={step.key} className="flex flex-col items-center group">
-                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-sm transition-all duration-500 z-10 ${
+                          <div key={step.key} className="flex flex-col items-center">
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[9px] transition-all duration-500 z-10 ${
                               isCompleted 
-                                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' 
-                                : 'bg-white border-2 border-slate-100 text-slate-300'
-                            } ${isCurrent ? 'scale-125 ring-4 ring-orange-500/10' : ''}`}>
+                                ? 'bg-orange-500 text-white shadow-sm' 
+                                : 'bg-white border border-slate-50 text-slate-200'
+                            } ${isCurrent ? 'ring-2 ring-orange-500/10' : ''}`}>
                               {isCompleted ? '✓' : step.icon}
                             </div>
-                            <span className={`absolute -bottom-6 whitespace-nowrap text-[8px] font-black uppercase tracking-widest transition-all ${
-                              isCompleted ? 'text-slate-900' : 'text-slate-300'
+                            <span className={`mt-1.5 text-[5px] font-black uppercase tracking-widest ${
+                              isCompleted ? 'text-slate-800' : 'text-slate-200'
                             }`}>
                               {step.label}
                             </span>
@@ -155,53 +152,34 @@ export default async function ClientDashboard() {
                     </div>
                   </div>
                 ) : (
-                  <div className="py-4 text-center bg-red-50 rounded-2xl">
-                    <span className="text-red-500 text-[10px] font-black uppercase tracking-widest">Commande Annulée</span>
+                  <div className="py-1.5 text-center bg-red-50 rounded-lg">
+                    <span className="text-red-500 text-[7px] font-black uppercase tracking-widest">Annulée</span>
                   </div>
                 )}
 
-                {/* COURIER INFO & RATING - If assigned */}
+                {/* COURIER MINI CARD */}
                 {order.livreur && order.status !== 'livre' && (
-                  <div className="mt-12 p-4 bg-slate-50 rounded-[1.5rem] flex items-center justify-between group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">🚴</div>
-                      <div>
-                        <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">Votre Coursier</p>
-                        <p className="text-sm font-bold text-slate-800">{order.livreur.full_name}</p>
+                  <div className="mt-3 p-2 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-100">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm border border-slate-100">🚴</div>
+                      <div className="min-w-0">
+                        <p className="text-[5px] font-black uppercase tracking-widest text-slate-400">Coursier</p>
+                        <p className="text-[9px] font-bold text-slate-800 truncate">{order.livreur.full_name}</p>
                       </div>
                     </div>
-                    <a href={`tel:${order.livreur.phone}`} className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm hover:bg-orange-500 hover:text-white transition-all">📞</a>
+                    <a href={`tel:${order.livreur.phone}`} className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm text-[10px] active:bg-orange-500 active:text-white transition-colors">📞</a>
                   </div>
                 )}
 
-                {/* RATING UI - Only for delivered orders */}
+                {/* RATING MINI */}
                 {order.status === 'livre' && (
-                  <div className="mt-8 pt-8 border-t border-slate-50 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Notez votre expérience</p>
-                    <div className="flex justify-center gap-2">
+                  <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+                    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Noter la course</p>
+                    <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <button key={star} className="w-10 h-10 bg-slate-50 rounded-xl hover:bg-orange-50 text-slate-300 hover:text-orange-500 transition-all text-xl">
-                          ★
-                        </button>
+                        <button key={star} className="w-6 h-6 bg-slate-50 rounded-md text-slate-300 text-[10px]">★</button>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {/* ACTIONS */}
-                {order.status === 'en_attente' && (
-                  <div className="mt-8 pt-8 border-t border-slate-50">
-                    <form action={async () => {
-                      'use server'
-                      await cancelOrder(order.id)
-                    }}>
-                      <button
-                        type="submit"
-                        className="w-full py-4 text-[10px] font-black text-red-400 uppercase tracking-widest hover:bg-red-50 rounded-2xl transition-colors"
-                      >
-                        Annuler la commande
-                      </button>
-                    </form>
                   </div>
                 )}
               </div>

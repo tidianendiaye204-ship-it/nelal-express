@@ -35,88 +35,82 @@ export default async function LivreurDashboard() {
     .limit(10)
 
   return (
-    <div className="max-w-2xl mx-auto pb-10">
-      <div className="mb-8">
-        <h1 className="font-display font-black text-3xl text-slate-900 tracking-tight uppercase">Livraisons</h1>
-        <p className="text-slate-500 text-sm mt-1">Gérez vos courses du jour</p>
+    <div className="max-w-2xl mx-auto pb-10 px-1">
+      <div className="mb-6 px-2">
+        <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Livraisons</h1>
+        <div className="h-1 w-6 bg-orange-500 mt-2 rounded-full"></div>
       </div>
 
       {/* STATS - App style */}
-      <div className="grid grid-cols-3 gap-3 mb-10">
+      <div className="grid grid-cols-3 gap-2 mb-8 px-2">
         {[
           { label: 'En cours', value: orders?.length || 0, emoji: '🚴', color: 'bg-orange-50 text-orange-600' },
           { label: 'Livrées', value: historique?.filter(o => o.status === 'livre').length || 0, emoji: '✅', color: 'bg-green-50 text-green-600' },
           { label: 'Total', value: `${(historique?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + o.price, 0) || 0).toLocaleString('fr-FR')} F`, emoji: '💰', color: 'bg-blue-50 text-blue-600' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-            <div className="text-lg mb-1">{stat.emoji}</div>
-            <div className="font-display font-black text-lg text-slate-900 leading-none">{stat.value}</div>
-            <div className="text-slate-400 text-[8px] font-black uppercase tracking-widest mt-1">{stat.label}</div>
+          <div key={stat.label} className="bg-white rounded-xl border border-slate-100 p-3 shadow-sm">
+            <div className="text-base mb-1">{stat.emoji}</div>
+            <div className="font-display font-black text-sm text-slate-900 leading-none">{stat.value}</div>
+            <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
           </div>
         ))}
       </div>
 
       {/* COMMANDES ACTIVES */}
-      <h2 className="font-display font-black text-sm text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">À effectuer</h2>
+      <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] mb-4 ml-3">À effectuer</h2>
 
       {!orders?.length ? (
-        <div className="bg-slate-50 rounded-[2.5rem] p-12 text-center border-2 border-dashed border-slate-200 mb-10">
-          <div className="text-4xl mb-4">🎉</div>
-          <p className="text-slate-500 text-sm font-bold uppercase tracking-tight">Tout est à jour !</p>
+        <div className="mx-2 bg-slate-50 rounded-[1.5rem] p-10 text-center border border-slate-100 mb-8">
+          <div className="text-3xl mb-3 opacity-20">🎉</div>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Tout est à jour !</p>
         </div>
       ) : (
-        <div className="space-y-4 mb-12">
+        <div className="space-y-3 mb-10 px-2">
           {orders.map((order: any) => (
-            <div key={order.id} className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm">
-              <div className="flex flex-col gap-6">
+            <div key={order.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm active:scale-[0.98] transition-all">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                  <div className="flex-1 min-w-0">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest mb-2 ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
                       {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
                     </span>
-                    <h3 className="text-slate-900 font-black text-xl leading-tight mb-2">{order.description}</h3>
+                    <h3 className="text-slate-900 font-black text-sm leading-tight mb-1 truncate uppercase tracking-tight">{order.description}</h3>
+                    <div className="flex items-center gap-1.5 text-[7px] font-black text-slate-400 uppercase tracking-widest">
+                      <span>{order.zone_from?.name}</span>
+                      <span className="text-orange-500">→</span>
+                      <span>{order.zone_to?.name}</span>
+                    </div>
                   </div>
-                  <div className="font-display font-black text-orange-600 text-xl">{order.price.toLocaleString('fr-FR')} F</div>
-                </div>
-
-                {/* ROUTE */}
-                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                    <div className="w-0.5 h-4 bg-slate-200"></div>
-                    <div className="w-2 h-2 rounded-full border-2 border-orange-500 bg-white"></div>
-                  </div>
-                  <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <div className="text-xs font-black text-slate-700 truncate uppercase">{order.zone_from?.name}</div>
-                    <div className="text-xs font-black text-slate-700 truncate uppercase">{order.zone_to?.name}</div>
+                  <div className="font-display font-black text-orange-600 text-base leading-none ml-3">
+                    {order.price.toLocaleString('fr-FR')} <span className="text-[10px]">F</span>
                   </div>
                 </div>
 
-                {/* CONTACTS - Big buttons for thumbs */}
-                <div className="grid grid-cols-2 gap-3">
-                  <a href={`tel:${order.recipient_phone}`} className="flex items-center justify-center gap-2 bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform">
+                {/* CONTACTS - Compact & Pro */}
+                <div className="grid grid-cols-2 gap-2">
+                  <a href={`tel:${order.recipient_phone}`} className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest active:bg-slate-800 transition-colors">
                     <span>📞</span> Appeler
                   </a>
                   <a 
                     href={getWhatsAppDirectLink(order.recipient_phone, `Bonjour ${order.recipient_name}, c'est le livreur Nellal Express.`)} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 bg-green-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"
+                    className="flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest active:bg-green-600 transition-colors"
                   >
                     <span>💬</span> WhatsApp
                   </a>
                 </div>
 
                 {/* ACTION */}
-                <div className="pt-2">
+                <div className="pt-1">
                   {order.status === 'confirme' && (
                     <form action={async () => {
                       'use server'
                       await updateOrderStatus(order.id, 'en_cours', 'Prise en charge')
                     }}>
                       <button type="submit"
-                        className="w-full bg-orange-500 text-white py-5 rounded-[1.5rem] font-black text-lg uppercase tracking-widest shadow-xl shadow-orange-500/20 active:scale-95 transition-all">
-                        Commencer la course 🚀
+                        className="w-full bg-orange-500 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-500/10 active:bg-orange-600 transition-all">
+                        Prendre le colis 🚀
                       </button>
                     </form>
                   )}
@@ -127,8 +121,8 @@ export default async function LivreurDashboard() {
                       await updateOrderStatus(order.id, 'livre', 'Livraison confirmée')
                     }}>
                       <button type="submit"
-                        className="w-full bg-green-500 text-white py-5 rounded-[1.5rem] font-black text-lg uppercase tracking-widest shadow-xl shadow-green-500/20 active:scale-95 transition-all">
-                        Terminer la course ✅
+                        className="w-full bg-green-500 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-green-500/10 active:bg-green-600 transition-all">
+                        Colis livré ✅
                       </button>
                     </form>
                   )}
@@ -141,18 +135,18 @@ export default async function LivreurDashboard() {
 
       {/* HISTORIQUE */}
       {!!historique?.length && (
-        <section>
-          <h2 className="font-display font-black text-sm text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">Récent</h2>
-          <div className="space-y-3">
+        <section className="px-2">
+          <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] mb-4 ml-1">Récent</h2>
+          <div className="space-y-2">
             {historique.map((order: any) => (
-              <div key={order.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between opacity-60">
+              <div key={order.id} className="bg-white rounded-xl border border-slate-100 p-3 flex items-center justify-between opacity-60">
                 <div className="flex-1 min-w-0">
-                  <p className="text-slate-800 font-bold text-sm truncate">{order.description}</p>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight">{order.zone_from?.name} → {order.zone_to?.name}</p>
+                  <p className="text-slate-800 font-bold text-[10px] truncate uppercase">{order.description}</p>
+                  <p className="text-[6px] font-black text-slate-400 uppercase tracking-tight">{order.zone_from?.name} → {order.zone_to?.name}</p>
                 </div>
                 <div className="text-right ml-4">
-                  <div className="text-xs font-black text-slate-900">{order.price.toLocaleString('fr-FR')} F</div>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-green-500">LIVRÉ</span>
+                  <div className="text-[10px] font-black text-slate-900">{order.price.toLocaleString('fr-FR')} F</div>
+                  <span className="text-[6px] font-black uppercase tracking-widest text-green-500">LIVRÉ</span>
                 </div>
               </div>
             ))}

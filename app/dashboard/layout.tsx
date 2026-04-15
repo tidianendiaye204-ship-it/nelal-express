@@ -93,17 +93,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </aside>
 
       {/* MOBILE HEADER */}
-      <div className="md:hidden bg-white/50 backdrop-blur-2xl px-6 py-6 flex items-center justify-between sticky top-0 z-30 border-b border-white/20">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-active:scale-90 transition-transform">
-            <span className="text-white font-display font-black text-lg">N</span>
+      <div className="md:hidden bg-white/80 backdrop-blur-xl px-5 py-4 flex items-center justify-between sticky top-0 z-30 border-b border-slate-100">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <span className="text-white font-display font-black text-base">N</span>
           </div>
-          <span className="font-display font-black text-slate-900 text-xl tracking-tighter">Nellal Express</span>
+          <span className="font-display font-black text-slate-900 text-lg tracking-tight">Nellal Express</span>
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm font-black text-xs uppercase tracking-tighter">
-            {profile.full_name.charAt(0)}
-          </div>
+        <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm font-black text-[10px] uppercase tracking-tighter">
+          {profile.full_name.charAt(0)}
         </div>
       </div>
 
