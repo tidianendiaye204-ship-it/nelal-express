@@ -16,14 +16,14 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Nelal Express — Livraison Dakar & Intérieur',
-  description: 'Service de livraison organisé entre Dakar, sa banlieue et les villes de l\'intérieur du Sénégal.',
+  title: 'Nellal Express — Livraison Élite au Sénégal',
+  description: 'Le standard de l\'excellence logistique à Dakar et dans les régions.',
   manifest: '/manifest.json',
   themeColor: '#F97316',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Nelal Express',
+    title: 'Nellal Express',
   },
 }
 

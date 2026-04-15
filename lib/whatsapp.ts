@@ -29,7 +29,7 @@ export function buildMessage(type: WaNotifType, data: OrderNotifData): string {
 
   switch (type) {
     case 'order_confirmed':
-      return `✅ *Nelal Express — Commande confirmée*
+      return `✅ *Nellal Express — Commande confirmée*
 
 Bonjour ${data.clientName} 👋
 
@@ -42,14 +42,14 @@ Votre commande *#${ref}* a été confirmée et un livreur a été assigné.
 
 🔗 Suivre votre commande : ${data.trackingUrl}
 
-Merci de faire confiance à Nelal Express 🙏`
+Merci de faire confiance à Nellal Express 🙏`
 
     case 'order_picked_up':
-      return `🚴 *Nelal Express — En route !*
+      return `🚴 *Nellal Express — En route !*
 
 Bonjour ${data.clientName},
 
-Votre colis *#${ref}* a été pris en charge par ${data.livreurName}.
+Votre colis *#${ref}* a été pris en charge par ${data.livreurName}.`
 
 📞 Contacter le livreur : ${data.livreurPhone}
 🔗 Suivre : ${data.trackingUrl}
@@ -57,7 +57,7 @@ Votre colis *#${ref}* a été pris en charge par ${data.livreurName}.
 Livraison en cours vers *${data.zoneTo}* 🗺️`
 
     case 'order_delivered':
-      return `🎉 *Nelal Express — Livré !*
+      return `🎉 *Nellal Express — Livré !*
 
 Bonjour ${data.clientName},
 
@@ -66,17 +66,17 @@ Votre colis *#${ref}* a été livré à *${data.recipientName}* avec succès ✅
 💰 Montant : *${data.price.toLocaleString('fr-FR')} FCFA*
 
 Merci pour votre confiance. N'hésitez pas à nous recommander ! 🙏
-_Nelal Express — Dakar & Intérieur_`
+_Nellal Express — Dakar & Intérieur_`
 
     case 'order_cancelled':
-      return `❌ *Nelal Express — Commande annulée*
+      return `❌ *Nellal Express — Commande annulée*
 
 Bonjour ${data.clientName},
 
 Votre commande *#${ref}* a été annulée.
 
 Si vous avez des questions, contactez-nous directement.
-_Nelal Express_`
+_Nellal Express_`}]}
   }
 }
 
@@ -85,7 +85,7 @@ _Nelal Express_`
 export function whatsappLink(phone: string, message: string): string {
   const cleaned = phone.replace(/\D/g, '')
   const international = cleaned.startsWith('221') ? cleaned : `221${cleaned}`
-  return `https://wa.me/${international}?text=${encodeURIComponent(message)}`
+  return `https://wa.me/${international}?text=${encodeURIComponent(message || 'Bonjour, c\'est le livreur Nellal Express.')}`
 }
 
 // ── Envoi via Twilio WhatsApp API ────────────────────────────────────────────

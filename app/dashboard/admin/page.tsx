@@ -35,7 +35,7 @@ export default async function AdminDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
         <div>
           <h1 className="font-display font-black text-3xl text-slate-900 tracking-tight uppercase">Tableau de Bord</h1>
-          <p className="text-slate-500 text-base mt-1">Gestion centrale de Nelal Express 🚀</p>
+          <p className="text-slate-500 text-base mt-1">Gestion centrale de Nellal Express 🚀</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">

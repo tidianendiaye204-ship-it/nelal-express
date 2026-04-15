@@ -98,7 +98,7 @@ export default async function LivreurDashboard() {
                     <span>📞</span> Appeler
                   </a>
                   <a 
-                    href={getWhatsAppDirectLink(order.recipient_phone, `Bonjour ${order.recipient_name}, c'est le livreur Nelal Express.`)} 
+                    href={getWhatsAppDirectLink(order.recipient_phone, `Bonjour ${order.recipient_name}, c'est le livreur Nellal Express.`)} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 bg-green-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"

@@ -12,7 +12,7 @@ export default function LandingPage() {
             <div className="w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:rotate-12 transition-all duration-500">
               <span className="text-white font-display font-black text-xl">N</span>
             </div>
-            <span className="font-display font-black text-2xl tracking-tighter text-slate-900 group-hover:text-orange-500 transition-colors">Nelal Express</span>
+            <span className="font-display font-black text-2xl tracking-tighter text-slate-900 group-hover:text-orange-500 transition-colors">Nellal Express</span>
           </div>
           <div className="hidden md:flex items-center gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
             <Link href="#comment-ca-marche" className="hover:text-orange-500 transition-colors relative group/link">
@@ -240,12 +240,12 @@ export default function LandingPage() {
             <div className="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center">
               <span className="text-white font-display font-black text-sm">N</span>
             </div>
-            <span className="font-display font-black text-xl text-slate-900">Nelal Express</span>
-          </div>
-          <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] italic">
-            L'excellence logistique au service du Sénégal
-          </p>
-          <p className="text-slate-400 text-sm font-medium">© 2026 Nelal Express</p>
+            <span className="font-display font-black text-xl text-slate-900">Nellal Express</span>
+            </div>
+            <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] italic">
+              L'excellence logistique au service du Sénégal
+            </p>
+            <p className="text-slate-400 text-sm font-medium">© 2026 Nellal Express</p>
         </div>
       </footer>
     </div>

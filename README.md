@@ -1,4 +1,4 @@
-# 🚀 Nelal Express
+# Nellal Express
 
 Service de livraison organisé entre **Dakar**, sa **banlieue** et les villes de l'**intérieur du Sénégal**.
 

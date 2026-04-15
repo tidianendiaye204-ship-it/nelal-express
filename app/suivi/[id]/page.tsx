@@ -42,7 +42,7 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
           <div className="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center">
             <span className="text-white font-display font-bold text-xs">N</span>
           </div>
-          <span className="font-display font-bold text-white">Nelal Express</span>
+          <span className="font-display font-bold text-white">Nellal Express</span>
         </Link>
         <span className="text-slate-400 text-sm">Suivi de commande</span>
       </nav>

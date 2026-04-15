@@ -46,7 +46,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:rotate-12 transition-transform">
             <span className="text-white font-display font-black text-2xl leading-none">N</span>
           </div>
-          <span className="font-display font-black text-3xl text-slate-900 tracking-tight">Nelal Express</span>
+          <span className="font-display font-black text-3xl text-slate-900 tracking-tight">Nellal Express</span>
         </Link>
 
         <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-slate-200/50">

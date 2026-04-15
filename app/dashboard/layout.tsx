@@ -43,7 +43,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:rotate-12 transition-transform">
               <span className="text-white font-display font-black text-xl">N</span>
             </div>
-            <span className="font-display font-black text-white text-xl tracking-tight">Nelal Express</span>
+            <span className="font-display font-black text-white text-xl tracking-tight">Nellal Express</span>
           </Link>
         </div>
 
@@ -98,7 +98,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-active:scale-90 transition-transform">
             <span className="text-white font-display font-black text-lg">N</span>
           </div>
-          <span className="font-display font-black text-slate-900 text-xl tracking-tighter">Nelal Express</span>
+          <span className="font-display font-black text-slate-900 text-xl tracking-tighter">Nellal Express</span>
         </Link>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm font-black text-xs uppercase tracking-tighter">
