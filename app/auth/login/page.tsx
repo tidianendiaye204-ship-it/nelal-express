@@ -36,22 +36,9 @@ export default function LoginPage() {
         return
       }
 
-      // Récupérer rôle avec timeout ou erreur gérée
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      if (profileError) {
-        console.error('Profile fetch error:', profileError)
-        // On redirige quand même vers client par défaut si le profil n'est pas trouvé
-      }
-
-      const role = profile?.role || 'client'
-      window.location.href = `/dashboard/${role}`
+      // Rediriger vers le dashboard racine, le serveur se chargera de la redirection selon le rôle
+      window.location.href = '/dashboard'
       
-      // On ne met pas setLoading(false) ici car on change de page
       return
     } catch (err) {
       console.error('Login error:', err)

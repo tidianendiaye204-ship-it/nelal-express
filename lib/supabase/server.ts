@@ -31,13 +31,12 @@ export async function getProfile() {
   const supabase = await createClient()
   
   try {
-    const userPromise = supabase.auth.getUser()
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout')), 3000)
-    )
-
-    const { data: { user } } = await Promise.race([userPromise, timeoutPromise]) as any
-    if (!user) return null
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      if (userError) console.error('getProfile getUser error:', userError)
+      return null
+    }
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')

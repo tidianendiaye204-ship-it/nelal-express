@@ -35,13 +35,13 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    // Timeout pour getUser pour éviter de bloquer l'app
-    const userPromise = supabase.auth.getUser()
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout')), 3000)
-    )
+    // Récupérer l'utilisateur de manière fiable sans timeout strict
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError) {
+      console.error('Middleware getUser error:', userError)
+    }
 
-    const { data: { user } } = await Promise.race([userPromise, timeoutPromise]) as any
     const pathname = request.nextUrl.pathname
 
     // Routes publiques directes (on ne fait rien de spécial)

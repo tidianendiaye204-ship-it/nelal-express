@@ -79,7 +79,7 @@ export default async function ClientDashboard() {
 
       {/* ACTIVE ORDERS - Slim Cards */}
       <div className="flex items-center justify-between mb-4 px-2">
-        <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Suivi des colis</h2>
+        <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Mes commandes</h2>
         {stats.en_cours > 0 && <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>}
       </div>
 
@@ -87,6 +87,9 @@ export default async function ClientDashboard() {
         <div className="bg-slate-50 rounded-[2rem] p-12 text-center border border-slate-100">
           <div className="text-3xl mb-4 opacity-20">📭</div>
           <h3 className="font-display font-black text-[9px] text-slate-400 uppercase tracking-widest">Aucun colis en route</h3>
+          <Link href="/dashboard/client/nouvelle-commande" className="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-xl text-xs font-bold shadow-lg shadow-orange-500/20">
+            Créer ma première commande
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">
@@ -116,6 +119,16 @@ export default async function ClientDashboard() {
                     <div className="font-display font-black text-orange-600 text-sm leading-none">
                       {order.price.toLocaleString('fr-FR')} <span className="text-[8px]">F</span>
                     </div>
+                    {order.status === 'en_attente' && (
+                      <form action={async () => {
+                        'use server'
+                        await cancelOrder(order.id)
+                      }} className="mt-2">
+                        <button type="submit" className="text-[8px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-md hover:bg-red-100 transition-colors">
+                          Annuler
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
 
