@@ -50,11 +50,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-[440px]">
-        <Link href="/" className="flex items-center justify-center gap-3 mb-10 group">
-          <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:rotate-12 transition-transform">
-            <span className="text-white font-display font-black text-2xl leading-none">N</span>
+        <Link href="/" className="flex items-center gap-3 mb-10 group">
+          <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:-rotate-12 transition-transform">
+            <span className="text-white font-display font-black text-2xl">N</span>
           </div>
-          <span className="font-display font-black text-3xl text-slate-900 tracking-tight">Nellal Express</span>
+          <span className="font-display font-black text-slate-900 text-3xl tracking-tight">Nelal Express</span>
         </Link>
 
         <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-slate-200/50">

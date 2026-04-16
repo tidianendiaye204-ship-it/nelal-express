@@ -4,6 +4,7 @@ import { signOut } from '@/actions/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import MobileNav from '@/components/MobileNav'
+import { Home, PlusCircle, Bike, BarChart3, Users, Map, LogOut } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile()
@@ -11,16 +12,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const navLinks = {
     client: [
-      { href: '/dashboard/client', label: '🏠 Accueil' },
-      { href: '/dashboard/client/nouvelle-commande', label: '➕ Commander' },
+      { href: '/dashboard/client', label: 'Accueil', icon: <Home className="w-5 h-5" /> },
+      { href: '/dashboard/client/nouvelle-commande', label: 'Commander', icon: <PlusCircle className="w-5 h-5" /> },
     ],
     livreur: [
-      { href: '/dashboard/livreur', label: '🚴 Livraisons' },
+      { href: '/dashboard/livreur', label: 'Livraisons', icon: <Bike className="w-5 h-5" /> },
     ],
     admin: [
-      { href: '/dashboard/admin', label: '📊 Stats' },
-      { href: '/dashboard/admin/livreurs', label: '👥 Livreurs' },
-      { href: '/dashboard/admin/zones', label: '🗺️ Zones' },
+      { href: '/dashboard/admin', label: 'Statistiques', icon: <BarChart3 className="w-5 h-5" /> },
+      { href: '/dashboard/admin/livreurs', label: 'Livreurs', icon: <Users className="w-5 h-5" /> },
+      { href: '/dashboard/admin/zones', label: 'Zones', icon: <Map className="w-5 h-5" /> },
     ],
   }
 
@@ -43,7 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div className="w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:rotate-12 transition-transform">
               <span className="text-white font-display font-black text-xl">N</span>
             </div>
-            <span className="font-display font-black text-white text-xl tracking-tight">Nellal Express</span>
+            <span className="font-display font-black text-white text-xl tracking-tight">Nelal Express</span>
           </Link>
         </div>
 
@@ -72,8 +73,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
               href={link.href}
               className="flex items-center gap-4 px-5 py-4 rounded-[1.5rem] text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all text-sm font-bold group"
             >
-              <span className="text-xl transition-transform group-hover:scale-110">{link.label.split(' ')[0]}</span>
-              <span className="tracking-tight">{link.label.split(' ').slice(1).join(' ')}</span>
+              <span className="transition-transform group-hover:scale-110">{link.icon}</span>
+              <span className="tracking-tight">{link.label}</span>
             </Link>
           ))}
         </nav>
@@ -85,7 +86,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               type="submit"
               className="w-full flex items-center gap-4 px-5 py-4 rounded-[1.5rem] text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all text-sm font-bold group"
             >
-              <span className="group-hover:rotate-12 transition-transform text-xl">🚪</span>
+              <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
               <span>Déconnexion</span>
             </button>
           </form>
@@ -98,7 +99,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-500/20">
             <span className="text-white font-display font-black text-base">N</span>
           </div>
-          <span className="font-display font-black text-slate-900 text-lg tracking-tight">Nellal Express</span>
+          <span className="font-display font-black text-slate-900 text-lg tracking-tight">Nelal Express</span>
         </Link>
         <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm font-black text-[10px] uppercase tracking-tighter">
           {profile.full_name.charAt(0)}

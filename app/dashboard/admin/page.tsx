@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { assignLivreur, updateOrderStatus } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
+import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User } from 'lucide-react'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -48,15 +49,15 @@ export default async function AdminDashboard() {
       {/* STATS - Compact Grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-10">
         {[
-          { label: 'Total', value: stats.total, emoji: '📦', color: 'bg-slate-50 text-slate-900', border: 'border-slate-100' },
-          { label: 'En attente', value: stats.en_attente, emoji: '⏳', color: 'bg-yellow-50 text-yellow-600', border: 'border-yellow-100' },
-          { label: 'En cours', value: stats.en_cours, emoji: '🚴', color: 'bg-blue-50 text-blue-600', border: 'border-blue-100' },
-          { label: 'Livrées', value: stats.livres, emoji: '✅', color: 'bg-green-50 text-green-600', border: 'border-green-100' },
-          { label: 'Revenus', value: `${stats.revenus.toLocaleString('fr-FR')} F`, emoji: '💰', color: 'bg-orange-50 text-orange-600', border: 'border-orange-100' },
+          { label: 'Total', value: stats.total, icon: <Package className="w-5 h-5" />, color: 'bg-slate-50 text-slate-900', border: 'border-slate-100' },
+          { label: 'En attente', value: stats.en_attente, icon: <Clock className="w-5 h-5" />, color: 'bg-yellow-50 text-yellow-600', border: 'border-yellow-100' },
+          { label: 'En cours', value: stats.en_cours, icon: <Bike className="w-5 h-5" />, color: 'bg-blue-50 text-blue-600', border: 'border-blue-100' },
+          { label: 'Livrées', value: stats.livres, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-50 text-green-600', border: 'border-green-100' },
+          { label: 'Revenus', value: `${stats.revenus.toLocaleString('fr-FR')} F`, icon: <Wallet className="w-5 h-5" />, color: 'bg-orange-50 text-orange-600', border: 'border-orange-100' },
         ].map((stat) => (
           <div key={stat.label} className={`bg-white rounded-2xl border ${stat.border} p-4 shadow-sm hover:shadow-md transition-all group`}>
-            <div className={`w-8 h-8 rounded-lg ${stat.color} flex items-center justify-center text-base mb-3 group-hover:scale-110 transition-transform`}>
-              {stat.emoji}
+            <div className={`w-8 h-8 rounded-lg ${stat.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+              {stat.icon}
             </div>
             <div className="font-display font-black text-lg text-slate-900 leading-none">{stat.value}</div>
             <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
@@ -95,13 +96,17 @@ export default async function AdminDashboard() {
 
                   <div className="space-y-2 mb-4 flex-1">
                     <div className="flex items-center gap-2 text-[9px]">
-                      <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center text-[10px]">📍</div>
+                      <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500">
+                        <MapPin className="w-3 h-3" />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-slate-700 font-bold truncate uppercase tracking-tight">{order.zone_from?.name} → {order.zone_to?.name}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-[9px]">
-                      <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center text-[10px]">👤</div>
+                      <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500">
+                        <User className="w-3 h-3" />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-slate-700 font-bold truncate uppercase tracking-tight">{order.client?.full_name}</p>
                       </div>
@@ -190,11 +195,15 @@ export default async function AdminDashboard() {
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4 bg-blue-50 rounded-md flex items-center justify-center text-[8px]">👤</div>
+                          <div className="w-4 h-4 bg-blue-50 rounded-md flex items-center justify-center text-blue-500">
+                            <User className="w-2.5 h-2.5" />
+                          </div>
                           <span className="text-[9px] font-bold text-slate-700 truncate max-w-[80px]">{order.client?.full_name}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4 bg-orange-50 rounded-md flex items-center justify-center text-[8px]">🚴</div>
+                          <div className="w-4 h-4 bg-orange-50 rounded-md flex items-center justify-center text-orange-500">
+                            <Bike className="w-2.5 h-2.5" />
+                          </div>
                           <span className="text-[9px] font-bold text-slate-700 truncate max-w-[80px]">{order.livreur?.full_name || '—'}</span>
                         </div>
                       </div>

@@ -57,6 +57,20 @@ create table order_status_history (
 -- ROW LEVEL SECURITY
 -- ============================================
 
+-- Create a secure function to check if current user is an admin
+-- This avoids the infinite recursion when selecting from profiles
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$;
+
 alter table zones enable row level security;
 alter table profiles enable row level security;
 alter table orders enable row level security;
@@ -77,9 +91,7 @@ create policy "profiles_update_own" on profiles
   for update using (auth.uid() = id);
 
 create policy "profiles_admin_select_all" on profiles
-  for select using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for select using (public.is_admin());
 
 -- Commandes — Client
 create policy "orders_client_select" on orders
@@ -100,9 +112,7 @@ create policy "orders_livreur_update_status" on orders
 
 -- Commandes — Admin (tout)
 create policy "orders_admin_all" on orders
-  for all using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for all using (public.is_admin());
 
 -- Historique
 create policy "history_select_own" on order_status_history
@@ -118,9 +128,7 @@ create policy "history_insert_auth" on order_status_history
   for insert with check (created_by = auth.uid());
 
 create policy "history_admin_all" on order_status_history
-  for all using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for all using (public.is_admin());
 
 -- ============================================
 -- TRIGGER : updated_at auto

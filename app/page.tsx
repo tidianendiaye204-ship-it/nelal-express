@@ -1,5 +1,6 @@
 // app/page.tsx
 import Link from 'next/link'
+import { MapPin, Zap, Wallet, Package, Bike, CheckCircle, Navigation, Home, Truck, ArrowRight } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -12,7 +13,7 @@ export default function LandingPage() {
             <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
               <span className="text-white font-display font-black text-lg">N</span>
             </div>
-            <span className="font-display font-black text-xl tracking-tight text-slate-900">Nellal Express</span>
+            <span className="font-display font-black text-xl tracking-tight text-slate-900">Nelal Express</span>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/auth/login" className="text-slate-600 text-xs font-bold px-3 py-2">
@@ -40,14 +41,14 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-slate-500 text-sm md:text-base max-w-lg mx-auto mb-8 leading-relaxed font-medium">
-            Envoyez vos colis en toute sécurité. Une expérience fluide conçue pour votre quotidien.
+            Envoyez vos colis en toute sécurité. Une expérience fluide conçue pour votre quotidien professionnel et personnel.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Link href="/auth/signup"
               className="w-full sm:w-auto bg-orange-500 text-white px-6 py-3.5 rounded-xl font-display font-black text-sm transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 group">
               Envoyer un colis
-              <span className="text-base group-hover:translate-x-1 transition-transform">→</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>
@@ -57,12 +58,12 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { value: '20+', label: 'Zones couvertes', icon: '📍', color: 'bg-blue-50 text-blue-600' },
-            { value: '24h', label: 'Délai moyen', icon: '⚡', color: 'bg-orange-50 text-orange-600' },
-            { value: 'Simple', label: 'Paiement Wave/Cash', icon: '💰', color: 'bg-green-50 text-green-600' },
+            { value: '20+', label: 'Zones couvertes', icon: <MapPin className="w-6 h-6" />, color: 'bg-blue-50 text-blue-600' },
+            { value: '24h', label: 'Délai moyen', icon: <Zap className="w-6 h-6" />, color: 'bg-orange-50 text-orange-600' },
+            { value: 'Simple', label: 'Paiement Wave/Cash', icon: <Wallet className="w-6 h-6" />, color: 'bg-green-50 text-green-600' },
           ].map((stat) => (
             <div key={stat.label} className="bg-white border border-slate-100 rounded-[2rem] p-6 flex flex-col items-center text-center hover:border-slate-200 transition-colors group">
-              <div className={`w-12 h-12 rounded-xl ${stat.color} flex items-center justify-center text-xl mb-4 shadow-inner group-hover:scale-110 transition-transform`}>
+              <div className={`w-12 h-12 rounded-xl ${stat.color} flex items-center justify-center mb-4 shadow-inner group-hover:scale-110 transition-transform`}>
                 {stat.icon}
               </div>
               <div className="font-display font-black text-2xl text-slate-900 mb-1 uppercase">{stat.value}</div>
@@ -77,10 +78,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-display font-black text-3xl md:text-5xl text-slate-900 mb-4 tracking-tight uppercase">
-              C'est super simple
+              Le Processus
             </h2>
             <p className="text-slate-500 text-sm md:text-base max-w-xl mx-auto font-medium">
-              Pas besoin de longues études, tout est pensé pour vous faciliter la vie.
+              Une infrastructure pensée pour la fiabilité et la rapidité.
             </p>
           </div>
 
@@ -88,29 +89,29 @@ export default function LandingPage() {
             {[
               {
                 step: '01',
-                title: 'Créez votre commande',
-                desc: 'Renseignez l\'adresse, le colis et le prix. Ça prend 1 minute.',
-                icon: '📦',
-                color: 'bg-orange-500'
+                title: 'Création de mission',
+                desc: 'Renseignez l\'adresse, les détails du colis et validez le tarif en quelques secondes.',
+                icon: <Package className="w-6 h-6 text-white" />,
+                color: 'bg-slate-900'
               },
               {
                 step: '02',
-                title: 'On trouve un livreur',
-                desc: 'On assigne immédiatement un livreur proche de chez vous.',
-                icon: '🚴',
-                color: 'bg-blue-500'
+                title: 'Assignation',
+                desc: 'Notre système dispatch immédiatement la course au livreur le plus proche.',
+                icon: <Bike className="w-6 h-6 text-white" />,
+                color: 'bg-orange-500'
               },
               {
                 step: '03',
-                title: 'Livré & Encaissé',
-                desc: 'Le colis arrive. Vous recevez votre argent par Wave ou cash.',
-                icon: '✅',
-                color: 'bg-green-500'
+                title: 'Livraison & Paiement',
+                desc: 'Le colis est remis contre signature. Paiement sécurisé via Wave ou en espèces.',
+                icon: <CheckCircle className="w-6 h-6 text-white" />,
+                color: 'bg-blue-600'
               },
             ].map((item) => (
               <div key={item.step} className="relative group">
                 <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 relative z-10 h-full transform group-hover:-translate-y-1 transition-transform">
-                  <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center text-xl mb-6 shadow-lg`}>
+                  <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center mb-6 shadow-lg`}>
                     {item.icon}
                   </div>
                   <div className="font-display font-black text-slate-100 text-5xl absolute top-4 right-8 -z-10">{item.step}</div>
@@ -127,37 +128,37 @@ export default function LandingPage() {
       <section id="zones" className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
           <h2 className="font-display font-black text-3xl md:text-5xl text-slate-900 mb-4 tracking-tight uppercase">
-            Nos Zones
+            Couverture
           </h2>
-          <p className="text-slate-500 text-sm font-medium uppercase tracking-widest opacity-60">On livre partout, même là où c'est difficile.</p>
+          <p className="text-slate-500 text-sm font-medium uppercase tracking-widest opacity-60">Un maillage territorial complet et efficace.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
               type: 'Dakar Centre',
-              emoji: '🏙️',
+              icon: <Navigation className="w-8 h-8 text-blue-500 mb-4" />,
               zones: ['Plateau', 'Médina', 'Yoff', 'Almadies', 'Ouakam'],
-              tarif: 'À partir de 1 000 F',
+              tarif: 'Dès 1 000 F',
               color: 'border-blue-100 bg-blue-50/30'
             },
             {
               type: 'Banlieue',
-              emoji: '🏘️',
+              icon: <Home className="w-8 h-8 text-orange-500 mb-4" />,
               zones: ['Pikine', 'Guédiawaye', 'Keur Massar', 'Rufisque'],
-              tarif: 'À partir de 2 000 F',
+              tarif: 'Dès 2 000 F',
               color: 'border-orange-100 bg-orange-50/30'
             },
             {
               type: 'Régions',
-              emoji: '🚌',
+              icon: <Truck className="w-8 h-8 text-purple-500 mb-4" />,
               zones: ['Saint-Louis', 'Touba', 'Thiès', 'Kaolack', 'Ziguinchor'],
-              tarif: 'À partir de 5 000 F',
+              tarif: 'Dès 5 000 F',
               color: 'border-purple-100 bg-purple-50/30'
             },
           ].map((section) => (
             <div key={section.type} className={`border border-slate-100 rounded-[2rem] p-8 ${section.color} hover:scale-[1.02] transition-transform`}>
-              <div className="text-3xl mb-4">{section.emoji}</div>
+              {section.icon}
               <h3 className="font-display font-black text-xl mb-4 text-slate-900 uppercase tracking-tight">{section.type}</h3>
               <div className="space-y-2 mb-6">
                 {section.zones.map((z) => (
@@ -182,14 +183,15 @@ export default function LandingPage() {
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-[80px]"></div>
           
           <h2 className="font-display font-black text-3xl md:text-5xl text-white mb-6 tracking-tighter uppercase leading-none">
-            On commence ?<br /><span className="text-orange-500">C'est gratuit.</span>
+            Prêt à expédier ?<br /><span className="text-orange-500">Rejoignez-nous.</span>
           </h2>
           <p className="text-slate-400 mb-8 text-sm md:text-base max-w-xl mx-auto font-medium">
-            Créez votre compte en 2 minutes et faites livrer votre premier colis aujourd'hui.
+            Créez votre compte en quelques secondes et lancez votre première mission logistique.
           </p>
           <Link href="/auth/signup"
             className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-display font-black text-lg shadow-2xl shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-3">
-            Créer mon compte 🚀
+            Démarrer maintenant
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
@@ -201,12 +203,12 @@ export default function LandingPage() {
             <div className="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center">
               <span className="text-white font-display font-black text-sm">N</span>
             </div>
-            <span className="font-display font-black text-xl text-slate-900">Nellal Express</span>
+            <span className="font-display font-black text-xl text-slate-900">Nelal Express</span>
             </div>
             <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] italic">
               L'excellence logistique au service du Sénégal
             </p>
-            <p className="text-slate-400 text-sm font-medium">© 2026 Nellal Express</p>
+            <p className="text-slate-400 text-sm font-medium">© 2026 Nelal Express</p>
         </div>
       </footer>
     </div>

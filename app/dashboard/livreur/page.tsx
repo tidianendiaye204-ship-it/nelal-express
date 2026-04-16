@@ -3,8 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/supabase/server'
 import { updateOrderStatus } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
-
 import { getWhatsAppDirectLink } from '@/lib/utils/phone'
+import { Bike, CheckCircle, Wallet, Phone, MessageCircle } from 'lucide-react'
 
 export default async function LivreurDashboard() {
   const supabase = await createClient()
@@ -45,12 +45,12 @@ export default async function LivreurDashboard() {
       {/* STATS - App style */}
       <div className="grid grid-cols-3 gap-2 mb-8 px-2">
         {[
-          { label: 'En cours', value: orders?.length || 0, emoji: '🚴', color: 'bg-orange-50 text-orange-600' },
-          { label: 'Livrées', value: historique?.filter(o => o.status === 'livre').length || 0, emoji: '✅', color: 'bg-green-50 text-green-600' },
-          { label: 'Total', value: `${(historique?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + o.price, 0) || 0).toLocaleString('fr-FR')} F`, emoji: '💰', color: 'bg-blue-50 text-blue-600' },
+          { label: 'En cours', value: orders?.length || 0, icon: <Bike className="w-5 h-5" />, color: 'bg-orange-50 text-orange-600' },
+          { label: 'Livrées', value: historique?.filter(o => o.status === 'livre').length || 0, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-50 text-green-600' },
+          { label: 'Total', value: `${(historique?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + o.price, 0) || 0).toLocaleString('fr-FR')} F`, icon: <Wallet className="w-5 h-5" />, color: 'bg-blue-50 text-blue-600' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-xl border border-slate-100 p-3 shadow-sm">
-            <div className="text-base mb-1">{stat.emoji}</div>
+            <div className="mb-2">{stat.icon}</div>
             <div className="font-display font-black text-sm text-slate-900 leading-none">{stat.value}</div>
             <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
           </div>
@@ -95,7 +95,7 @@ export default async function LivreurDashboard() {
                     <p className="text-sm font-bold text-slate-800">{order.zone_from?.name}</p>
                     <p className="text-xs text-slate-600 mt-1">Client: {order.client?.full_name}</p>
                     <div className="flex gap-2 mt-2">
-                      <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">📞 Appeler Client</a>
+                      <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><Phone className="w-3 h-3" /> Appeler Client</a>
                     </div>
                   </div>
 
@@ -107,8 +107,8 @@ export default async function LivreurDashboard() {
                     <p className="text-sm font-bold text-slate-800">{order.zone_to?.name}</p>
                     <p className="text-xs text-slate-600 mt-1">Destinataire: {order.recipient_name}</p>
                     <div className="flex gap-2 mt-2">
-                      <a href={`tel:${order.recipient_phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">📞 Appeler Dest.</a>
-                      <a href={getWhatsAppDirectLink(order.recipient_phone, `Bonjour ${order.recipient_name}, c'est le livreur Nellal Express. J'arrive avec votre colis.`)} target="_blank" rel="noopener noreferrer" className="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">💬 WhatsApp</a>
+                      <a href={`tel:${order.recipient_phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><Phone className="w-3 h-3" /> Appeler Dest.</a>
+                      <a href={getWhatsAppDirectLink(order.recipient_phone, `Bonjour ${order.recipient_name}, c'est le livreur Nelal Express. J'arrive avec votre colis.`)} target="_blank" rel="noopener noreferrer" className="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><MessageCircle className="w-3 h-3" /> WhatsApp</a>
                     </div>
                   </div>
                 </div>
@@ -134,7 +134,7 @@ export default async function LivreurDashboard() {
                     }}>
                       <button type="submit"
                         className="w-full bg-green-500 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-green-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                        <span>✅</span> Confirmer la livraison
+                        <CheckCircle className="w-4 h-4" /> Confirmer la livraison
                       </button>
                     </form>
                   )}

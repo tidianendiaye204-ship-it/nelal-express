@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createOrder } from '@/actions/orders'
 import { useRouter } from 'next/navigation'
 import { ZONE_TYPE_LABELS } from '@/lib/types'
+import { Package, User, Wallet, Navigation, MapPin } from 'lucide-react'
 
 export default function OrderForm({ zonesByType }: { zonesByType: any }) {
   const router = useRouter()
@@ -92,7 +93,9 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
       <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm space-y-6">
         <div className="flex items-center justify-between border-b border-slate-50 pb-4">
           <div className="flex items-center gap-3">
-            <span className="text-xl">📦</span>
+            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500">
+              <Package className="w-4 h-4" />
+            </div>
             <h2 className="font-display font-black text-sm text-slate-800 uppercase tracking-tight">Le Colis</h2>
           </div>
           <div className="flex items-center gap-2">
@@ -132,7 +135,9 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
       {/* RECIPIENT CARD */}
       <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
-          <span className="text-xl">👤</span>
+          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
+            <User className="w-4 h-4" />
+          </div>
           <h2 className="font-display font-black text-sm text-slate-800 uppercase tracking-tight">Destinataire</h2>
         </div>
 
@@ -157,7 +162,9 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
       {/* PAYMENT CARD */}
       <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-xl">💰</span>
+          <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-500">
+            <Wallet className="w-4 h-4" />
+          </div>
           <h2 className="font-display font-black text-sm text-slate-800 uppercase tracking-tight">Paiement</h2>
         </div>
         <div className="grid grid-cols-3 gap-2">

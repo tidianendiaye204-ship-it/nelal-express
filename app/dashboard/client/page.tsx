@@ -4,6 +4,7 @@ import { getProfile } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS, type Order } from '@/lib/types'
 import { cancelOrder } from '@/actions/orders'
+import { Send, Wallet, Package, Bike, CheckCircle, Clock, User, Phone, Star } from 'lucide-react'
 
 export default async function ClientDashboard() {
   const supabase = await createClient()
@@ -46,7 +47,9 @@ export default async function ClientDashboard() {
           className="relative group overflow-hidden bg-slate-900 rounded-2xl p-4 min-h-[100px] flex flex-col justify-between shadow-lg shadow-slate-900/10 active:scale-95 transition-all"
         >
           <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-full blur-xl -mr-8 -mt-8"></div>
-          <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center text-base border border-white/10 shadow-inner">🚀</div>
+          <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/10 shadow-inner">
+            <Send className="w-4 h-4 text-white" />
+          </div>
           <div className="relative z-10">
             <h3 className="text-white font-display font-black text-xs uppercase leading-tight tracking-tight">Envoyer</h3>
             <p className="text-slate-400 text-[6px] font-bold uppercase tracking-widest mt-0.5">Nouveau Colis</p>
@@ -54,7 +57,9 @@ export default async function ClientDashboard() {
         </Link>
 
         <div className="bg-white rounded-2xl p-4 border border-slate-100 flex flex-col justify-between shadow-sm min-h-[100px]">
-          <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center text-base text-orange-500">💳</div>
+          <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center text-orange-500">
+            <Wallet className="w-4 h-4" />
+          </div>
           <div>
             <h3 className="text-slate-900 font-display font-black text-xs uppercase leading-tight tracking-tight">Solde</h3>
             <p className="text-slate-400 text-[6px] font-bold uppercase tracking-widest mt-0.5">0 FCFA</p>
@@ -65,12 +70,12 @@ export default async function ClientDashboard() {
       {/* STATS - Slimmer */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
         {[
-          { label: 'Total', value: stats.total, icon: '📦' },
-          { label: 'En cours', value: stats.en_cours, icon: '🚴' },
-          { label: 'Livrées', value: stats.livres, icon: '✅' },
+          { label: 'Total', value: stats.total, icon: <Package className="w-4 h-4 text-slate-700" /> },
+          { label: 'En cours', value: stats.en_cours, icon: <Bike className="w-4 h-4 text-orange-600" /> },
+          { label: 'Livrées', value: stats.livres, icon: <CheckCircle className="w-4 h-4 text-green-600" /> },
         ].map((stat) => (
           <div key={stat.label} className="flex-shrink-0 min-w-[85px] bg-white rounded-xl border border-slate-100 p-3 shadow-sm hover:shadow-md transition-all group">
-            <div className="text-base mb-1.5 group-hover:scale-110 transition-transform">{stat.icon}</div>
+            <div className="mb-1.5 group-hover:scale-110 transition-transform">{stat.icon}</div>
             <div className="font-display font-black text-lg text-slate-900 leading-none">{stat.value}</div>
             <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
           </div>
@@ -95,10 +100,10 @@ export default async function ClientDashboard() {
         <div className="space-y-3">
           {orders.map((order: any) => {
             const steps = [
-              { key: 'en_attente', label: 'Reçu', icon: '📝' },
-              { key: 'confirme', label: 'Assigné', icon: '👤' },
-              { key: 'en_cours', label: 'Route', icon: '🚴' },
-              { key: 'livre', label: 'Livré', icon: '✨' },
+              { key: 'en_attente', label: 'Reçu', icon: <Clock className="w-4 h-4" /> },
+              { key: 'confirme', label: 'Assigné', icon: <User className="w-4 h-4" /> },
+              { key: 'en_cours', label: 'Route', icon: <Bike className="w-4 h-4" /> },
+              { key: 'livre', label: 'Livré', icon: <CheckCircle className="w-4 h-4" /> },
             ]
             
             const currentStepIndex = steps.findIndex(s => s.key === order.status)
@@ -174,13 +179,17 @@ export default async function ClientDashboard() {
                 {order.livreur && order.status !== 'livre' && (
                   <div className="mt-3 p-2 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-100">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-xs shadow-sm border border-slate-100">🚴</div>
+                      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm border border-slate-100 text-orange-500">
+                        <Bike className="w-3.5 h-3.5" />
+                      </div>
                       <div className="min-w-0">
                         <p className="text-[5px] font-black uppercase tracking-widest text-slate-400">Coursier</p>
                         <p className="text-[9px] font-bold text-slate-800 truncate">{order.livreur.full_name}</p>
                       </div>
                     </div>
-                    <a href={`tel:${order.livreur.phone}`} className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm text-[10px] active:bg-orange-500 active:text-white transition-colors">📞</a>
+                    <a href={`tel:${order.livreur.phone}`} className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm active:bg-orange-500 active:text-white transition-colors text-slate-600">
+                      <Phone className="w-3.5 h-3.5" />
+                    </a>
                   </div>
                 )}
 
@@ -190,7 +199,9 @@ export default async function ClientDashboard() {
                     <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Noter la course</p>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <button key={star} className="w-6 h-6 bg-slate-50 rounded-md text-slate-300 text-[10px]">★</button>
+                        <button key={star} className="w-6 h-6 bg-slate-50 rounded-md text-slate-300 hover:text-orange-400 flex items-center justify-center transition-colors">
+                          <Star className="w-3 h-3" />
+                        </button>
                       ))}
                     </div>
                   </div>
