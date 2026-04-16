@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createOrder } from '@/actions/orders'
 import { useRouter } from 'next/navigation'
 import { ZONE_TYPE_LABELS } from '@/lib/types'
-import { Package, User, Wallet, Navigation, MapPin } from 'lucide-react'
+import { Package, User, Wallet, Navigation, MapPin, CheckCircle, MessageCircle, ArrowRight, Copy } from 'lucide-react'
 
 export default function OrderForm({ zonesByType }: { zonesByType: any }) {
   const router = useRouter()
@@ -12,6 +12,68 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
   const [error, setError] = useState('')
   const [gpsLink, setGpsLink] = useState('')
   const [isLocating, setIsLocating] = useState(false)
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const trackingUrl = createdOrderId 
+    ? `${window.location.origin}/suivi/${createdOrderId}`
+    : ''
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(trackingUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (createdOrderId) {
+    return (
+      <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-2xl text-center space-y-8 animate-in fade-in zoom-in duration-500">
+        <div className="flex justify-center">
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-green-500">
+            <CheckCircle className="w-10 h-10" />
+          </div>
+        </div>
+        
+        <div>
+          <h2 className="font-display font-black text-2xl text-slate-900 uppercase tracking-tight">Commande Créée !</h2>
+          <p className="text-slate-500 text-sm mt-2">Votre colis est en attente de prise en charge.</p>
+        </div>
+
+        <div className="bg-slate-50 rounded-2xl p-6 space-y-4">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lien de suivi public</p>
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-3">
+            <input 
+              readOnly 
+              value={trackingUrl}
+              className="flex-1 bg-transparent border-none text-[10px] font-medium text-slate-600 focus:ring-0 truncate"
+            />
+            <button 
+              onClick={handleCopy}
+              className="p-2 hover:bg-slate-50 rounded-lg transition-colors text-slate-400 hover:text-orange-500"
+            >
+              {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+          
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Suivez mon colis Nelal Express ici : ${trackingUrl}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-95 transition-all"
+          >
+            <MessageCircle className="w-5 h-5" /> Partager sur WhatsApp
+          </a>
+        </div>
+
+        <button
+          onClick={() => router.push('/dashboard/client')}
+          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all"
+        >
+          Retour au tableau de bord <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    )
+  }
 
   const handleGetLocation = () => {
     setIsLocating(true)
@@ -51,9 +113,10 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
     
     try {
       const result = await createOrder(formData)
-      if (result?.success) {
-        router.push('/dashboard/client')
-        router.refresh()
+      if (result?.success && result.orderId) {
+        setCreatedOrderId(result.orderId)
+        setLoading(false)
+        // On ne redirige plus immédiatement pour laisser voir le lien de suivi
       } else if (result?.error) {
         setError(result.error)
         setLoading(false)

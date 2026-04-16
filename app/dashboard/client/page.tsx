@@ -4,11 +4,12 @@ import { getProfile } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS, type Order } from '@/lib/types'
 import { cancelOrder } from '@/actions/orders'
-import { Send, Wallet, Package, Bike, CheckCircle, Clock, User, Phone, Star } from 'lucide-react'
+import { Send, Wallet, Package, Bike, CheckCircle, Clock, User, Phone, Star, MessageCircle, ExternalLink } from 'lucide-react'
 
 export default async function ClientDashboard() {
   const supabase = await createClient()
   const profile = await getProfile()
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'
 
   const { data: orders } = await supabase
     .from('orders')
@@ -124,16 +125,32 @@ export default async function ClientDashboard() {
                     <div className="font-display font-black text-orange-600 text-sm leading-none">
                       {order.price.toLocaleString('fr-FR')} <span className="text-[8px]">F</span>
                     </div>
-                    {order.status === 'en_attente' && (
-                      <form action={async () => {
-                        'use server'
-                        await cancelOrder(order.id)
-                      }} className="mt-2">
-                        <button type="submit" className="text-[8px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-md hover:bg-red-100 transition-colors">
-                          Annuler
-                        </button>
-                      </form>
-                    )}
+                    <div className="mt-2 flex flex-col gap-1 items-end">
+                      <a 
+                        href={`https://wa.me/?text=${encodeURIComponent(`Suivez mon colis Nelal Express ici : ${BASE_URL}/suivi/${order.id}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[7px] font-black uppercase tracking-widest text-green-600 bg-green-50 px-2 py-1.5 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-1 w-fit"
+                      >
+                        <MessageCircle className="w-2.5 h-2.5" /> Partager
+                      </a>
+                      <Link 
+                        href={`/suivi/${order.id}`}
+                        className="text-[7px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1 w-fit"
+                      >
+                        <ExternalLink className="w-2.5 h-2.5" /> Suivre
+                      </Link>
+                      {order.status === 'en_attente' && (
+                        <form action={async () => {
+                          'use server'
+                          await cancelOrder(order.id)
+                        }}>
+                          <button type="submit" className="text-[7px] font-black uppercase tracking-widest text-red-500 bg-red-50 px-2 py-1.5 rounded-lg hover:bg-red-100 transition-colors w-fit">
+                            Annuler
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </div>
                 </div>
 

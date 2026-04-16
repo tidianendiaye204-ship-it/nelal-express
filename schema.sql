@@ -78,13 +78,13 @@ alter table profiles enable row level security;
 alter table orders enable row level security;
 alter table order_status_history enable row level security;
 
--- Zones : lecture publique (authentifié)
+-- Zones : lecture publique
 create policy "zones_select_all" on zones
-  for select to authenticated using (true);
+  for select using (true);
 
 -- Profils
-create policy "profiles_select_own" on profiles
-  for select using (auth.uid() = id);
+create policy "profiles_select_public" on profiles
+  for select using (true);
 
 create policy "profiles_insert_own" on profiles
   for insert with check (auth.uid() = id);
@@ -95,10 +95,11 @@ create policy "profiles_update_own" on profiles
 create policy "profiles_admin_select_all" on profiles
   for select using (public.is_admin());
 
--- Commandes — Client
-create policy "orders_client_select" on orders
-  for select using (client_id = auth.uid());
+-- Commandes — Public (Suivi)
+create policy "orders_public_select" on orders
+  for select using (true);
 
+-- Commandes — Client
 create policy "orders_client_insert" on orders
   for insert with check (client_id = auth.uid());
 
@@ -106,9 +107,6 @@ create policy "orders_client_cancel" on orders
   for update using (client_id = auth.uid() and status = 'en_attente');
 
 -- Commandes — Livreur
-create policy "orders_livreur_select" on orders
-  for select using (livreur_id = auth.uid());
-
 create policy "orders_livreur_update_status" on orders
   for update using (livreur_id = auth.uid());
 
@@ -116,15 +114,9 @@ create policy "orders_livreur_update_status" on orders
 create policy "orders_admin_all" on orders
   for all using (public.is_admin());
 
--- Historique
-create policy "history_select_own" on order_status_history
-  for select using (
-    exists (
-      select 1 from orders o
-      where o.id = order_id
-      and (o.client_id = auth.uid() or o.livreur_id = auth.uid())
-    )
-  );
+-- Historique — Public
+create policy "history_public_select" on order_status_history
+  for select using (true);
 
 create policy "history_insert_auth" on order_status_history
   for insert with check (created_by = auth.uid());
