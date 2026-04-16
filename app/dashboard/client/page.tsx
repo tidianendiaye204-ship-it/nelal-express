@@ -2,7 +2,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { STATUS_LABELS, STATUS_COLORS, type Order } from '@/lib/types'
 import { cancelOrder } from '@/actions/orders'
 import { Send, Wallet, Package, Bike, CheckCircle, Clock, User, Phone, Star, MessageCircle, ExternalLink } from 'lucide-react'
 

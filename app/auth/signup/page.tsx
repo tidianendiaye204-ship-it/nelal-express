@@ -3,11 +3,9 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function SignupPage() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -47,8 +45,7 @@ export default function SignupPage() {
       }
 
       window.location.href = '/dashboard/client'
-    } catch (err) {
-      console.error('Signup error:', err)
+    } catch {
       setError('Une erreur technique est survenue. Veuillez réessayer.')
       setLoading(false)
     }
@@ -154,7 +151,7 @@ export default function SignupPage() {
 
         <Link href="/" className="mt-8 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-600 transition-colors font-bold text-sm group">
           <span className="group-hover:-translate-x-1 transition-transform">←</span>
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
       </div>
     </div>

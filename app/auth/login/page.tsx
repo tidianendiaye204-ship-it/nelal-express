@@ -3,11 +3,9 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -40,8 +38,7 @@ export default function LoginPage() {
       window.location.href = '/dashboard'
       
       return
-    } catch (err) {
-      console.error('Login error:', err)
+    } catch {
       setError('Une erreur technique est survenue. Veuillez réessayer.')
       setLoading(false)
     }
@@ -109,7 +106,7 @@ export default function LoginPage() {
               {loading ? (
                 <span className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></span>
               ) : (
-                <>C'est parti ! 🚀</>
+                <>C&apos;est parti ! 🚀</>
               )}
             </button>
           </form>
@@ -118,7 +115,7 @@ export default function LoginPage() {
             <p className="text-slate-500 font-medium">
               Pas encore de compte ?{' '}
               <Link href="/auth/signup" className="text-orange-600 hover:text-orange-700 font-black underline decoration-orange-200 decoration-4 underline-offset-4">
-                S'inscrire gratuitement
+                S&apos;inscrire gratuitement
               </Link>
             </p>
           </div>
@@ -126,7 +123,7 @@ export default function LoginPage() {
 
         <Link href="/" className="mt-8 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-600 transition-colors font-bold text-sm group">
           <span className="group-hover:-translate-x-1 transition-transform">←</span>
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
       </div>
     </div>

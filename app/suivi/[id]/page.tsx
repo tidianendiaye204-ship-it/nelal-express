@@ -127,7 +127,6 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
               {steps.map((step, index) => {
                 const isDone = currentStep > index
                 const isCurrent = currentStep === index
-                const isPending = currentStep < index
 
                 return (
                   <div key={step.key} className="flex gap-4">

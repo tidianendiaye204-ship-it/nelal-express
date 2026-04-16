@@ -21,7 +21,7 @@ export default function LandingPage() {
             </Link>
             <Link href="/auth/signup"
               className="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95">
-              S'inscrire
+              S&apos;inscrire
             </Link>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function LandingPage() {
               {
                 step: '01',
                 title: 'Création de mission',
-                desc: 'Renseignez l\'adresse, les détails du colis et validez le tarif en quelques secondes.',
+                desc: 'Renseignez l&apos;adresse, les détails du colis et validez le tarif en quelques secondes.',
                 icon: <Package className="w-6 h-6 text-white" />,
                 color: 'bg-slate-900'
               },
@@ -206,7 +206,7 @@ export default function LandingPage() {
             <span className="font-display font-black text-xl text-slate-900">Nelal Express</span>
             </div>
             <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em] italic">
-              L'excellence logistique au service du Sénégal
+              L&apos;excellence logistique au service du Sénégal
             </p>
             <p className="text-slate-400 text-sm font-medium">© 2026 Nelal Express</p>
         </div>

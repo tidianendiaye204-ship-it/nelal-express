@@ -1,6 +1,6 @@
 // app/dashboard/admin/page.tsx
 import { createClient } from '@/lib/supabase/server'
-import { assignLivreur, updateOrderStatus } from '@/actions/orders'
+import { assignLivreur } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User } from 'lucide-react'
 
@@ -74,7 +74,7 @@ export default async function AdminDashboard() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
-              Besoin d'un livreur ({stats.en_attente})
+              Besoin d&apos;un livreur ({stats.en_attente})
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

@@ -121,7 +121,7 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
         setError(result.error)
         setLoading(false)
       }
-    } catch (err) {
+    } catch {
       setError('Une erreur est survenue lors de la création de la commande.')
       setLoading(false)
     }
@@ -151,7 +151,7 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
                 required
                 className="w-full bg-slate-50 border-none text-slate-900 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-orange-500 transition-all appearance-none cursor-pointer"
               >
-                <option value="">D'où part le colis ?</option>
+                <option value="">D&apos;où part le colis ?</option>
                 {Object.entries(zonesByType).map(([type, typeZones]: [string, any]) => (
                   <optgroup key={type} label={ZONE_TYPE_LABELS[type as keyof typeof ZONE_TYPE_LABELS]}>
                     {typeZones.map((zone: any) => (

@@ -135,7 +135,7 @@ export default async function LivreurDashboard() {
                     }}>
                       <button type="submit"
                         className="w-full bg-slate-900 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-slate-900/20 active:scale-95 transition-all">
-                        J'ai récupéré le colis
+                        J&apos;ai récupéré le colis
                       </button>
                     </form>
                   )}
