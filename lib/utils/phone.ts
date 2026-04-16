@@ -4,7 +4,7 @@
  */
 export function isValidSenegalPhone(phone: string): boolean {
   // Supprime les espaces, tirets et points
-  const cleanPhone = phone.replace(/[\s\-\.]/g, '')
+  const cleanPhone = phone.replace(/[\s.-]/g, '')
   
   // Regex pour les numéros de mobile au Sénégal (Orange, Free, Expresso, Promobile)
   const regex = /^(?:\+221|00221)?(7[05678]\d{7})$/
@@ -17,7 +17,7 @@ export function isValidSenegalPhone(phone: string): boolean {
  * Utile pour l'API WhatsApp / Twilio
  */
 export function formatSenegalPhone(phone: string): string {
-  const cleanPhone = phone.replace(/[\s\-\.]/g, '')
+  const cleanPhone = phone.replace(/[\s.-]/g, '')
   const match = cleanPhone.match(/^(?:\+221|00221)?(7[05678]\d{7})$/)
   
   if (!match) return cleanPhone // Retourne tel quel si invalide

@@ -49,11 +49,10 @@ export default function LoginPage() {
       }
 
       const role = profile?.role || 'client'
-      router.push(`/dashboard/${role}`)
+      window.location.href = `/dashboard/${role}`
       
-      // On ne met pas setLoading(false) ici car router.push va changer de page
-      // Mais on l'ajoute au cas où le push échoue ou met trop de temps
-      setTimeout(() => setLoading(false), 5000)
+      // On ne met pas setLoading(false) ici car on change de page
+      return
     } catch (err) {
       console.error('Login error:', err)
       setError('Une erreur technique est survenue. Veuillez réessayer.')

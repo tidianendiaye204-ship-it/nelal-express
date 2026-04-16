@@ -46,8 +46,7 @@ export default function SignupPage() {
         return
       }
 
-      router.push('/dashboard/client')
-      setTimeout(() => setLoading(false), 5000)
+      window.location.href = '/dashboard/client'
     } catch (err) {
       console.error('Signup error:', err)
       setError('Une erreur technique est survenue. Veuillez réessayer.')

@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
       let role = 'client'
       
       try {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
@@ -67,9 +67,13 @@ export async function middleware(request: NextRequest) {
         
         if (profile?.role) {
           role = profile.role
+        } else if (profileError) {
+          console.error('Middleware profile fetch error:', profileError)
+          // Si on a l'utilisateur mais pas de profil, on utilise les métadonnées
+          role = user.user_metadata?.role || 'client'
         }
       } catch (profileErr) {
-        console.error('Middleware profile fetch error:', profileErr)
+        console.error('Middleware profile critical error:', profileErr)
       }
 
       return NextResponse.redirect(new URL(`/dashboard/${role}`, request.url))

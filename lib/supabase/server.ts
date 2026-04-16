@@ -18,7 +18,9 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
-          } catch {}
+          } catch {
+            // Error silencing to prevent server-side cookie setting crashes
+          }
         },
       },
     }
@@ -37,15 +39,27 @@ export async function getProfile() {
     const { data: { user } } = await Promise.race([userPromise, timeoutPromise]) as any
     if (!user) return null
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*, zone:zones(*)')
       .eq('id', user.id)
       .single()
 
+    if (profileError) {
+      console.error('Profile fetch error:', profileError)
+      // Return a minimal profile if the db record is missing but user is authed
+      // to avoid infinite redirect loops
+      return {
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || 'Utilisateur',
+        role: user.user_metadata?.role || 'client'
+      }
+    }
+
     return profile
   } catch (err) {
-    console.error('getProfile Error:', err)
+    console.error('getProfile Critical Error:', err)
     return null
   }
 }
