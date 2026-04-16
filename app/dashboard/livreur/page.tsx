@@ -4,7 +4,7 @@ import { getProfile } from '@/lib/supabase/server'
 import { updateOrderStatus } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import { getWhatsAppDirectLink } from '@/lib/utils/phone'
-import { Bike, CheckCircle, Wallet, Phone, MessageCircle } from 'lucide-react'
+import { Bike, CheckCircle, Wallet, Phone, MessageCircle, MapPin, Navigation } from 'lucide-react'
 
 export default async function LivreurDashboard() {
   const supabase = await createClient()
@@ -93,9 +93,20 @@ export default async function LivreurDashboard() {
                       1. Ramassage
                     </p>
                     <p className="text-sm font-bold text-slate-800">{order.zone_from?.name}</p>
-                    <p className="text-xs text-slate-600 mt-1">Client: {order.client?.full_name}</p>
+                    <p className="text-xs text-slate-700 font-medium">{order.pickup_address}</p>
+                    {order.address_landmark && (
+                      <p className="text-[10px] text-orange-600 font-bold mt-1 flex items-center gap-1">
+                        <Navigation className="w-2.5 h-2.5" /> {order.address_landmark}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-600 mt-2">Client: {order.client?.full_name}</p>
                     <div className="flex gap-2 mt-2">
-                      <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><Phone className="w-3 h-3" /> Appeler Client</a>
+                      <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><Phone className="w-3 h-3" /> Appeler</a>
+                      {order.gps_link ? (
+                        <a href={order.gps_link} target="_blank" rel="noopener noreferrer" className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><MapPin className="w-3 h-3" /> GPS</a>
+                      ) : (
+                        <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.pickup_address + ', ' + order.zone_from?.name + ', Dakar, Senegal')}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><MapPin className="w-3 h-3" /> Carte</a>
+                      )}
                     </div>
                   </div>
 
@@ -105,9 +116,11 @@ export default async function LivreurDashboard() {
                       2. Livraison
                     </p>
                     <p className="text-sm font-bold text-slate-800">{order.zone_to?.name}</p>
-                    <p className="text-xs text-slate-600 mt-1">Destinataire: {order.recipient_name}</p>
+                    <p className="text-xs text-slate-700 font-medium">{order.delivery_address}</p>
+                    <p className="text-xs text-slate-600 mt-2">Destinataire: {order.recipient_name}</p>
                     <div className="flex gap-2 mt-2">
                       <a href={`tel:${order.recipient_phone}`} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><Phone className="w-3 h-3" /> Appeler Dest.</a>
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.delivery_address + ', ' + order.zone_to?.name + ', Dakar, Senegal')}`} target="_blank" rel="noopener noreferrer" className="bg-slate-50 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><MapPin className="w-3 h-3" /> Carte</a>
                       <a href={getWhatsAppDirectLink(order.recipient_phone, `Bonjour ${order.recipient_name}, c'est le livreur Nelal Express. J'arrive avec votre colis.`)} target="_blank" rel="noopener noreferrer" className="bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1"><MessageCircle className="w-3 h-3" /> WhatsApp</a>
                     </div>
                   </div>

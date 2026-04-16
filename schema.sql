@@ -31,6 +31,8 @@ create table orders (
   zone_to_id uuid references zones(id) not null,
   type text check (type in ('particulier', 'vendeur')) not null,
   description text not null,
+  pickup_address text not null default 'Non spécifié',
+  delivery_address text not null default 'Non spécifié',
   recipient_name text not null,
   recipient_phone text not null,
   address_landmark text, -- Point de repère (ex: "En face pharmacie")

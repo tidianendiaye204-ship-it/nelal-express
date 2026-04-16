@@ -67,10 +67,20 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
             <div>
               <div className="text-slate-500 text-xs mb-1">Départ</div>
               <div className="text-white font-medium">{order.zone_from?.name}</div>
+              <div className="text-slate-400 text-[10px] mt-1">{order.pickup_address}</div>
+              {order.address_landmark && (
+                <div className="text-orange-400/80 text-[10px] italic mt-0.5">📍 {order.address_landmark}</div>
+              )}
+              {order.gps_link && (
+                <a href={order.gps_link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-blue-400 text-[10px] underline">
+                  Voir sur Google Maps
+                </a>
+              )}
             </div>
             <div>
               <div className="text-slate-500 text-xs mb-1">Destination</div>
               <div className="text-white font-medium">{order.zone_to?.name}</div>
+              <div className="text-slate-400 text-[10px] mt-1">{order.delivery_address}</div>
             </div>
             <div>
               <div className="text-slate-500 text-xs mb-1">Destinataire</div>

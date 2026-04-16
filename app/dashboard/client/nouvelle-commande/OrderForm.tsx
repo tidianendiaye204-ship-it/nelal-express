@@ -10,6 +10,37 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [gpsLink, setGpsLink] = useState('')
+  const [isLocating, setIsLocating] = useState(false)
+
+  const handleGetLocation = () => {
+    setIsLocating(true)
+    setError('')
+    
+    if (!navigator.geolocation) {
+      setError("La géolocalisation n'est pas supportée par votre navigateur.")
+      setIsLocating(false)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+        const link = `https://www.google.com/maps?q=${latitude},${longitude}`
+        setGpsLink(link)
+        setIsLocating(false)
+      },
+      (err) => {
+        setIsLocating(false)
+        if (err.code === 1) {
+          setError("Veuillez autoriser l'accès à votre position.")
+        } else {
+          setError("Impossible de récupérer votre position.")
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -66,6 +97,48 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
                   </optgroup>
                 ))}
               </select>
+              <div className="relative group">
+                <input
+                  type="text"
+                  name="pickup_address"
+                  required
+                  placeholder="Adresse exacte (ex: Unité 15, Villa 123...)"
+                  className="w-full mt-2 bg-white border border-slate-200 text-slate-900 rounded-xl pl-4 pr-24 py-3 text-sm font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 transition-all"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1 mt-1">
+                  {gpsLink && (
+                    <a
+                      href={gpsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                      title="Voir sur la carte"
+                    >
+                      <Navigation className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
+                    disabled={isLocating}
+                    className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors"
+                    title="Utiliser ma position GPS"
+                  >
+                    {isLocating ? (
+                      <span className="w-4 h-4 border-2 border-slate-400 border-t-orange-500 rounded-full animate-spin"></span>
+                    ) : (
+                      <MapPin className={`w-4 h-4 ${gpsLink ? 'text-orange-500' : ''}`} />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <input
+                type="text"
+                name="address_landmark"
+                placeholder="Point de repère (ex: À côté de la mosquée)"
+                className="w-full mt-2 bg-white border border-slate-100 text-slate-700 rounded-xl px-4 py-2 text-xs font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 transition-all"
+              />
+              <input type="hidden" name="gps_link" value={gpsLink} />
             </div>
             <div className="h-px bg-slate-50"></div>
             <div>
@@ -84,6 +157,13 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
                   </optgroup>
                 ))}
               </select>
+              <input
+                type="text"
+                name="delivery_address"
+                required
+                placeholder="Adresse exacte (ex: Médina Rue 11 x 8...)"
+                className="w-full mt-2 bg-white border border-slate-200 text-slate-900 rounded-xl px-4 py-3 text-sm font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 transition-all"
+              />
             </div>
           </div>
         </div>
