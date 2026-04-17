@@ -1,18 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { assignLivreur } from '@/actions/orders'
-import { MapPin, Bike, Package, Check, Clock, ShieldAlert } from 'lucide-react'
+import { MapPin, Bike, Package, Check, ShieldAlert } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AssignOrderPage({ params }: { params: { id: string } }) {
+export default async function AssignOrderPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const supabase = await createClient()
 
   // 1. Infos Commande
   const { data: order } = await supabase
     .from('orders')
     .select(` *, client:profiles!orders_client_id_fkey(full_name, phone), zone_from:zones!orders_zone_from_id_fkey(name), zone_to:zones!orders_zone_to_id_fkey(name) `)
-    .eq('id', params.id).single()
+    .eq('id', resolvedParams.id).single()
 
   if (!order || order.status !== 'en_attente') {
     redirect('/dashboard/admin') // Déjà assignée ou n'existe pas

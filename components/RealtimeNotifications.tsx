@@ -36,10 +36,10 @@ export function RealtimeProvider({ children, role, userId }: { children: React.R
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'orders' },
-        (payload) => {
+        () => {
           if (role === 'admin') {
             setNewOrders(prev => prev + 1)
-            try { new Audio('/notification.mp3').play() } catch {}
+            try { new Audio('/notification.mp3').play() } catch (e) { console.error('Audio log', e) }
             sendBrowserNotification('🚨 Nouvelle commande', 'Une nouvelle commande a été ajoutée sur Nelal Express.')
             router.refresh()
           }
@@ -58,7 +58,7 @@ export function RealtimeProvider({ children, role, userId }: { children: React.R
 
           // Assignation d'un livreur spécifique
           if (role === 'livreur' && payload.new?.livreur_id === userId && newStatus === 'confirme' && oldStatus !== 'confirme') {
-            try { new Audio('/notification.mp3').play() } catch {}
+            try { new Audio('/notification.mp3').play() } catch (e) { console.error('Audio log', e) }
             sendBrowserNotification('🚀 Nouvelle course !', 'Une course vient de vous être assignée.')
             router.refresh()
           }
