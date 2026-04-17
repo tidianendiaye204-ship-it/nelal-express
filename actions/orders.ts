@@ -247,22 +247,39 @@ export async function assignLivreur(orderId: string, livreurId: string) {
 export async function createLivreur(formData: FormData) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase.auth.admin.createUser({
+  // 1. Vérifier que c'est bien l'Admin qui fait ça
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return { error: 'Seul un administrateur peut créer un livreur' }
+
+  // 2. Créer un client "Super-Admin" qui a les droits de forcer la création d'un compte
+  const { createClient: createSupabaseClient } = require('@supabase/supabase-js')
+  const adminAuthClient = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // 3. Créer l'utilisateur dans l'Auth Supabase
+  const { data, error } = await adminAuthClient.auth.admin.createUser({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     user_metadata: {
       full_name: formData.get('full_name') as string,
       phone: formData.get('phone') as string,
+      role: 'livreur'
     },
     email_confirm: true,
   })
 
   if (error) return { error: error.message }
 
-  await supabase.from('profiles').update({
+  // 4. Mettre à jour sa zone et son rôle dans la table `profiles`
+  await adminAuthClient.from('profiles').update({
     role: 'livreur',
     zone_id: (formData.get('zone_id') as string) || null,
-  }).eq('id', data.user.id)
+  }).eq('id', data?.user?.id)
 
   revalidatePath('/dashboard/admin/livreurs')
   return { success: true }
