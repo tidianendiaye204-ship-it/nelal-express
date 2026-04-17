@@ -2,7 +2,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { assignLivreur } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
-import LiveAdminUpdater from '@/components/LiveAdminUpdater'
 import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap, Users } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -55,7 +54,6 @@ export default async function AdminDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto px-1 pb-24">
-      <LiveAdminUpdater />
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 px-2 md:px-0">

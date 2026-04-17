@@ -3,6 +3,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { RealtimeBadgeAbsolute } from '@/components/RealtimeNotifications'
 
 interface NavLink {
   href: string
@@ -40,11 +41,15 @@ export default function MobileNav({ links, activeBadge }: { links: NavLink[]; ac
 
             <span className={`relative transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
               {link.icon}
-              {/* Notification badge */}
+              {/* Notification badge frontend activeBadge */}
               {showBadge && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-[8px] font-black text-white leading-none px-1">{activeBadge}</span>
                 </span>
+              )}
+              {/* Realtime push badge */}
+              {(link.href === '/dashboard/admin' || link.href === '/dashboard/livreur/disponibles') && (
+                <RealtimeBadgeAbsolute />
               )}
             </span>
 

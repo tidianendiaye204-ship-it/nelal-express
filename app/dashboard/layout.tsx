@@ -5,6 +5,7 @@ import { signOut } from '@/actions/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import MobileNav from '@/components/MobileNav'
+import { RealtimeProvider, RealtimeBadge } from '@/components/RealtimeNotifications'
 import { Home, PlusCircle, Bike, BarChart3, Users, Map, LogOut, Package, User, ClipboardList } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -51,9 +52,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }[role]
 
   return (
-    <div className="min-h-screen bg-white md:bg-slate-50 flex flex-col md:flex-row">
-      {/* SIDEBAR (Desktop) */}
-      <aside className="hidden md:flex w-72 bg-[#0F172A] min-h-screen flex-col sticky left-0 top-0 z-10 shadow-2xl">
+    <RealtimeProvider role={role} userId={profile.id}>
+      <div className="min-h-screen bg-white md:bg-slate-50 flex flex-col md:flex-row">
+        {/* SIDEBAR (Desktop) */}
+        <aside className="hidden md:flex w-72 bg-[#0F172A] min-h-screen flex-col sticky left-0 top-0 z-10 shadow-2xl">
         {/* Logo */}
         <div className="px-8 py-8 border-b border-slate-800/50">
           <Link href="/" className="flex items-center gap-3 group">
@@ -91,6 +93,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             >
               <span className="transition-transform group-hover:scale-110">{link.icon}</span>
               <span className="tracking-tight">{link.label}</span>
+              {(link.href === '/dashboard/admin' || link.href === '/dashboard/livreur/disponibles') && (
+                <RealtimeBadge />
+              )}
             </Link>
           ))}
         </nav>
@@ -131,7 +136,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* MAIN */}
       <main className="flex-1 p-4 md:p-12 pb-20 md:pb-12 overflow-y-auto">
         {children}
-      </main>
-    </div>
+        </main>
+      </div>
+    </RealtimeProvider>
   )
 }

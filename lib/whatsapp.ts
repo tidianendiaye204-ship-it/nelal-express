@@ -6,6 +6,8 @@ export type WaNotifType =
   | 'order_picked_up'
   | 'order_delivered'
   | 'order_cancelled'
+  | 'new_order_admin'
+  | 'new_order_livreur'
 
 interface OrderNotifData {
   orderId: string
@@ -19,7 +21,9 @@ interface OrderNotifData {
   livreurName?: string
   livreurPhone?: string
   price: number
-  trackingUrl: string
+  paymentMethod?: string
+  trackingUrl?: string
+  assignUrl?: string
 }
 
 // ── Messages WhatsApp ────────────────────────────────────────────────────────
@@ -28,6 +32,32 @@ export function buildMessage(type: WaNotifType, data: OrderNotifData): string {
   const ref = data.orderId.slice(0, 8).toUpperCase()
 
   switch (type) {
+    case 'new_order_admin':
+      return `🚨 *Nouvelle commande Nelal !*
+
+📦 ${data.description}
+📍 ${data.zoneFrom} → ${data.zoneTo}
+👤 Client : ${data.clientName} · ${data.clientPhone}
+🎯 Livrer à : ${data.recipientName} · ${data.recipientPhone}
+💰 ${data.price.toLocaleString('fr-FR')} FCFA · 💳 ${data.paymentMethod}
+
+⚡ Action rapide :
+👉 ${data.assignUrl}
+
+────────────────
+Réf : #${ref}`
+
+    case 'new_order_livreur':
+      return `🔔 *Course dispo dans ta zone !*
+
+📦 ${data.description}
+📍 ${data.zoneFrom} → ${data.zoneTo}
+💰 ${data.price.toLocaleString('fr-FR')} FCFA
+
+👉 Réponds "OK" pour la prendre ou clique ici : ${data.assignUrl}
+
+Réf : #${ref}`
+
     case 'order_confirmed':
       return `✅ *Nelal Express — Commande confirmée*
 
@@ -101,9 +131,8 @@ export async function sendWhatsAppNotification(
 
   // Mode développement : juste logger le message
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
-    console.log('[WhatsApp Notif - DEV MODE]')
-    console.log(`To: ${phone}`)
-    console.log(message)
+    console.warn('[WhatsApp Notif - DEV MODE] Twilio keys missing. Message not sent via SMS.')
+    console.warn(`To: ${phone}\nMessage:\n${message}`)
     return { success: true }
   }
 

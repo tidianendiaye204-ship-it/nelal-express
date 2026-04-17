@@ -22,6 +22,7 @@ export interface Profile {
   zone_id?: string
   avatar_url?: string
   created_at: string
+  last_seen_at?: string
   zone?: Zone
 }
 

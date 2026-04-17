@@ -65,9 +65,89 @@ export async function createOrder(formData: FormData) {
     incrementOrAddRepere(zone_to_id, deliveryRepere).catch(console.error)
   }
 
+  // 🌍 Notifications : On prévient les admins et les livreurs dispos (sans bloquer la requête HTTP)
+  notifyAdminsOnOrder(order.id).catch(console.error)
+
   revalidatePath('/dashboard/client')
   revalidatePath('/dashboard/admin')
   return { success: true, orderId: order.id }
+}
+
+async function notifyAdminsOnOrder(orderId: string) {
+  const supabase = await createClient()
+  
+  // Retrieve the full order with relations
+  const { data: order } = await supabase
+    .from('orders')
+    .select(`*, client:profiles!orders_client_id_fkey(full_name, phone), zone_from:zones!orders_zone_from_id_fkey(name), zone_to:zones!orders_zone_to_id_fkey(name)`)
+    .eq('id', orderId).single()
+    
+  if (!order) return
+
+  // Format tracking links
+  const assignUrl = `${BASE_URL}/dashboard/admin/orders/${order.id}/assign`
+
+  const msgData = {
+    orderId: order.id,
+    clientName: order.client?.full_name || 'Client',
+    clientPhone: order.client?.phone || '',
+    recipientName: order.recipient_name,
+    recipientPhone: order.recipient_phone,
+    description: order.description,
+    zoneFrom: order.zone_from?.name || '',
+    zoneTo: order.zone_to?.name || '',
+    price: order.price,
+    paymentMethod: order.payment_method,
+    assignUrl,
+  }
+
+  const msgAdmin = buildMessage('new_order_admin', msgData)
+
+  // 1. Notify Admins
+  const { data: admins } = await supabase.from('profiles').select('phone').eq('role', 'admin')
+  const fallbackPhone = process.env.ADMIN_WHATSAPP_PHONE
+
+  let adminPhones: string[] = []
+  if (admins && admins.length > 0) {
+    adminPhones = admins.map(a => a.phone).filter(Boolean)
+  } else if (fallbackPhone) {
+    adminPhones.push(fallbackPhone)
+  }
+
+  for (const phone of adminPhones) {
+    await sendWhatsAppNotification(phone, msgAdmin)
+  }
+
+  // 2. Notify Livreurs (in zone and online recently)
+  // last_seen_at > 5 mins ago
+  const fiveMinsAgo = new Date(Date.now() - 5 * 60000).toISOString()
+  
+  const { data: livreurs } = await supabase
+    .from('profiles')
+    .select('id, phone')
+    .eq('role', 'livreur')
+    .eq('zone_id', order.zone_from_id)
+    .gte('last_seen_at', fiveMinsAgo)
+    
+  if (livreurs && livreurs.length > 0) {
+    // Verification: they shouldn't have active orders
+    const livreurIds = livreurs.map(l => l.id)
+    const { data: activeOrders } = await supabase
+      .from('orders')
+      .select('livreur_id')
+      .in('livreur_id', livreurIds)
+      .in('status', ['confirme', 'en_cours'])
+      
+    const busyLivreurIds = activeOrders?.map(o => o.livreur_id) || []
+    const availableLivreurs = livreurs.filter(l => !busyLivreurIds.includes(l.id))
+    
+    const msgLivreur = buildMessage('new_order_livreur', msgData)
+    for (const livreur of availableLivreurs) {
+      if (livreur.phone) {
+        await sendWhatsAppNotification(livreur.phone, msgLivreur)
+      }
+    }
+  }
 }
 
 export async function cancelOrder(orderId: string) {
