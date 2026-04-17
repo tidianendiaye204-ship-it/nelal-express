@@ -39,7 +39,7 @@ export default async function LivreurDashboard() {
       zone_to:zones!orders_zone_to_id_fkey(name)
     `)
     .eq('livreur_id', profile?.id)
-    .in('status', ['annule', 'livre'])
+    .in('status', ['annule', 'livre', 'livre_partiel'])
     .order('created_at', { ascending: false })
     .limit(20)
 
@@ -56,8 +56,8 @@ export default async function LivreurDashboard() {
     .eq('status', 'en_attente')
     .is('livreur_id', null)
 
-  const totalEarnings = allStatsOrders?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + (o.price || 0), 0) || 0
-  const deliveredCount = allStatsOrders?.filter(o => o.status === 'livre').length || 0
+  const totalEarnings = allStatsOrders?.filter(o => ['livre', 'livre_partiel'].includes(o.status)).reduce((sum: number, o: any) => sum + (o.price || 0), 0) || 0
+  const deliveredCount = allStatsOrders?.filter(o => ['livre', 'livre_partiel'].includes(o.status)).length || 0
 
   return (
     <div className="max-w-2xl mx-auto pb-10 px-1">
@@ -299,9 +299,9 @@ export default async function LivreurDashboard() {
                 <div className="text-right ml-4">
                   <div className="text-[10px] font-black text-slate-900">{order.price.toLocaleString('fr-FR')} F</div>
                   <span className={`text-[6px] font-black uppercase tracking-widest ${
-                    order.status === 'livre' ? 'text-green-500' : 'text-red-400'
+                    ['livre', 'livre_partiel'].includes(order.status) ? 'text-green-500' : 'text-red-400'
                   }`}>
-                    {order.status === 'livre' ? 'LIVRÉ' : 'ANNULÉ'}
+                    {['livre', 'livre_partiel'].includes(order.status) ? 'LIVRÉ' : 'ANNULÉ'}
                   </span>
                 </div>
               </div>

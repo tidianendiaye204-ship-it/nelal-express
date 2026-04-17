@@ -21,7 +21,7 @@ export default function MobileNav({ links, activeBadge }: { links: NavLink[]; ac
           (link.href !== '/dashboard/client' && pathname.startsWith(link.href))
 
         // Show badge on the "Commandes" tab (index 1 for client)
-        const showBadge = index === 1 && activeBadge && activeBadge > 0
+        const showBadge = index === 1 && (activeBadge ?? 0) > 0
 
         return (
           <Link

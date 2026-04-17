@@ -29,7 +29,7 @@ export default async function AdminLivreursPage() {
 
   const statsByLivreur = (livreurs || []).map(l => {
     const myOrders = orderStats?.filter(o => o.livreur_id === l.id) || []
-    const livres = myOrders.filter(o => o.status === 'livre')
+    const livres = myOrders.filter(o => ['livre', 'livre_partiel'].includes(o.status))
     return {
       ...l,
       total: myOrders.length,

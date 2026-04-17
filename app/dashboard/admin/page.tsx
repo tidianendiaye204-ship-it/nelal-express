@@ -14,8 +14,8 @@ export default async function AdminDashboard() {
   const [{ count: totalOrders }, { count: inProgressOrders }, { count: deliveredOrders }, { data: deliveredPrices }] = await Promise.all([
     supabase.from('orders').select('*', { count: 'exact', head: true }),
     supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['confirme', 'en_cours']),
-    supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'livre'),
-    supabase.from('orders').select('price').eq('status', 'livre')
+    supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['livre', 'livre_partiel']),
+    supabase.from('orders').select('price').in('status', ['livre', 'livre_partiel'])
   ])
 
   const revenus = deliveredPrices?.reduce((sum, o) => sum + (o.price || 0), 0) || 0
