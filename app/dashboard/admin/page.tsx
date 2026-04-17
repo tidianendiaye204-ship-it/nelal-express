@@ -2,12 +2,40 @@
 import { createClient } from '@/lib/supabase/server'
 import { assignLivreur } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
-import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User } from 'lucide-react'
+import LiveAdminUpdater from '@/components/LiveAdminUpdater'
+import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
-  const { data: orders } = await supabase
+  // 1. STATS (optimized queries)
+  const [{ count: totalOrders }, { count: inProgressOrders }, { count: deliveredOrders }, { data: deliveredPrices }] = await Promise.all([
+    supabase.from('orders').select('*', { count: 'exact', head: true }),
+    supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['confirme', 'en_cours']),
+    supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'livre'),
+    supabase.from('orders').select('price').eq('status', 'livre')
+  ])
+
+  const revenus = deliveredPrices?.reduce((sum, o) => sum + (o.price || 0), 0) || 0
+
+  // 2. PENDING ORDERS (Needs assignments)
+  const { data: pendingOrders } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      client:profiles!orders_client_id_fkey(full_name, phone),
+      zone_from:zones!orders_zone_from_id_fkey(name, type),
+      zone_to:zones!orders_zone_to_id_fkey(name, type)
+    `)
+    .eq('status', 'en_attente')
+    .order('created_at', { ascending: true }) // Oldest first for assignments
+
+  const en_attente = pendingOrders?.length || 0
+
+  // 3. RECENT ORDERS (limit 50 for the table)
+  const { data: recentOrders } = await supabase
     .from('orders')
     .select(`
       *,
@@ -17,127 +45,141 @@ export default async function AdminDashboard() {
       zone_to:zones!orders_zone_to_id_fkey(name, type)
     `)
     .order('created_at', { ascending: false })
+    .limit(50)
 
+  // 4. LIVREURS (for assignment dropdown)
   const { data: livreurs } = await supabase
     .from('profiles')
     .select('id, full_name, phone')
     .eq('role', 'livreur')
 
-  const stats = {
-    total: orders?.length || 0,
-    en_attente: orders?.filter(o => o.status === 'en_attente').length || 0,
-    en_cours: orders?.filter(o => ['confirme', 'en_cours'].includes(o.status)).length || 0,
-    livres: orders?.filter(o => o.status === 'livre').length || 0,
-    revenus: orders?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + o.price, 0) || 0,
-  }
-
   return (
-    <div className="max-w-6xl mx-auto px-2 pb-20">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-8">
+    <div className="max-w-6xl mx-auto px-1 pb-24">
+      <LiveAdminUpdater />
+
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 px-2 md:px-0">
         <div>
-          <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Admin</h1>
-          <div className="h-1 w-6 bg-orange-500 mt-2 rounded-full"></div>
+          <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Administration</h1>
+          <div className="h-1 w-8 bg-slate-900 mt-2 rounded-full"></div>
+          <p className="text-slate-500 text-xs font-bold mt-2 tracking-wide">Centre de contrôle Nelal Express</p>
         </div>
-        <div className="hidden md:flex items-center gap-3">
-          <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live System</span>
+        <div className="flex items-center gap-3">
+          <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-2">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest hidden sm:inline-block">Système Actif</span>
           </div>
         </div>
       </div>
 
-      {/* STATS - Compact Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-10">
+      {/* HERO STATS */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-8 md:mb-12 px-2 md:px-0">
         {[
-          { label: 'Total', value: stats.total, icon: <Package className="w-5 h-5" />, color: 'bg-slate-50 text-slate-900', border: 'border-slate-100' },
-          { label: 'En attente', value: stats.en_attente, icon: <Clock className="w-5 h-5" />, color: 'bg-yellow-50 text-yellow-600', border: 'border-yellow-100' },
-          { label: 'En cours', value: stats.en_cours, icon: <Bike className="w-5 h-5" />, color: 'bg-blue-50 text-blue-600', border: 'border-blue-100' },
-          { label: 'Livrées', value: stats.livres, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-50 text-green-600', border: 'border-green-100' },
-          { label: 'Revenus', value: `${stats.revenus.toLocaleString('fr-FR')} F`, icon: <Wallet className="w-5 h-5" />, color: 'bg-orange-50 text-orange-600', border: 'border-orange-100' },
+          { label: 'Total Envois', value: totalOrders || 0, icon: <Package className="w-5 h-5" />, color: 'bg-slate-900 text-white', border: 'border-slate-800' },
+          { label: 'En attente', value: en_attente, icon: <Clock className="w-5 h-5" />, color: 'bg-amber-500 text-white', border: 'border-amber-500 shadow-lg shadow-amber-500/20' },
+          { label: 'En cours', value: inProgressOrders || 0, icon: <Bike className="w-5 h-5" />, color: 'bg-blue-500 text-white', border: 'border-blue-500 shadow-lg shadow-blue-500/20' },
+          { label: 'Livrées', value: deliveredOrders || 0, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-500 text-white', border: 'border-green-500 shadow-lg shadow-green-500/20' },
+          { label: 'Revenus', value: `${revenus.toLocaleString('fr-FR')} F`, icon: <Wallet className="w-5 h-5 text-orange-500" />, color: 'bg-orange-50 text-orange-600', border: 'border-orange-100 col-span-2 md:col-span-1' },
         ].map((stat) => (
-          <div key={stat.label} className={`bg-white rounded-2xl border ${stat.border} p-4 shadow-sm hover:shadow-md transition-all group`}>
-            <div className={`w-8 h-8 rounded-lg ${stat.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+          <div key={stat.label} className={`rounded-[2rem] border ${stat.border} ${stat.color} p-5 transition-transform hover:-translate-y-1 duration-300`}>
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 ${stat.color.includes('bg-slate-900') || stat.color.includes('bg-amber-500') || stat.color.includes('bg-blue-500') || stat.color.includes('bg-green-500') ? 'bg-white/20' : 'bg-white'} backdrop-blur-md`}>
               {stat.icon}
             </div>
-            <div className="font-display font-black text-lg text-slate-900 leading-none">{stat.value}</div>
-            <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
+            <div className="font-display font-black text-2xl leading-none tracking-tight">{stat.value}</div>
+            <div className="text-[9px] font-black uppercase tracking-widest mt-2 opacity-80">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* COMMANDES EN ATTENTE */}
-      {stats.en_attente > 0 && (
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-black text-[10px] text-orange-600 uppercase tracking-[0.2em] flex items-center gap-2">
-              <span className="flex h-2 w-2 relative">
+      {/* URGENT ASSIGNMENTS */}
+      {en_attente > 0 && (
+        <section className="mb-12 px-2 md:px-0">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display font-black text-xs text-orange-600 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
               </span>
-              Besoin d&apos;un livreur ({stats.en_attente})
+              Action Requise — Assignations ({en_attente})
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {orders?.filter(o => o.status === 'en_attente').map((order: any) => (
-              <div key={order.id} className="bg-white border border-orange-100 rounded-2xl p-5 shadow-lg shadow-orange-500/5 hover:border-orange-200 transition-all">
-                <div className="flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest">
-                      URGENT
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {pendingOrders?.map((order: any) => (
+              <div key={order.id} className="bg-white rounded-3xl border border-orange-100 p-6 shadow-xl shadow-orange-500/5 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row gap-6">
+                  {/* Info part */}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="bg-orange-50 text-orange-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                        À assigner
+                      </div>
+                      <div className="font-display font-black text-orange-600 text-lg">
+                        {order.price.toLocaleString('fr-FR')} <span className="text-[10px]">FCFA</span>
+                      </div>
                     </div>
-                    <div className="font-display font-black text-orange-600 text-sm leading-none">
-                      {order.price.toLocaleString('fr-FR')} <span className="text-[8px]">F</span>
+                    
+                    <h3 className="text-slate-900 font-bold text-sm mb-4 leading-tight">
+                      {order.description}
+                    </h3>
+                    
+                    <div className="space-y-2.5 flex-1">
+                      <div className="flex items-start gap-3">
+                        <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500 flex-shrink-0 mt-0.5">
+                          <MapPin className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-slate-800 text-[11px] font-bold uppercase tracking-tight truncate border-b border-slate-50 pb-1 mb-1">
+                            {order.zone_from?.name}
+                          </p>
+                          <p className="text-slate-800 text-[11px] font-bold uppercase tracking-tight truncate">
+                            {order.zone_to?.name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 flex-shrink-0">
+                          <User className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-slate-600 text-[11px] font-bold uppercase tracking-tight truncate">{order.client?.full_name}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <h3 className="text-slate-800 font-black text-xs mb-3 line-clamp-2 uppercase tracking-tight">
-                    {order.description}
-                  </h3>
-
-                  <div className="space-y-2 mb-4 flex-1">
-                    <div className="flex items-center gap-2 text-[9px]">
-                      <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500">
-                        <MapPin className="w-3 h-3" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-slate-700 font-bold truncate uppercase tracking-tight">{order.zone_from?.name} → {order.zone_to?.name}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-[9px]">
-                      <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500">
-                        <User className="w-3 h-3" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-slate-700 font-bold truncate uppercase tracking-tight">{order.client?.full_name}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-50">
+                  {/* Actions part */}
+                  <div className="md:w-48 flex flex-col justify-end pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-6">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 hidden md:block">Assigner un livreur</p>
                     {livreurs && livreurs.length > 0 ? (
                       <form action={async (formData: FormData) => {
                         'use server'
                         const livreurId = formData.get('livreur_id') as string
                         if (livreurId) await assignLivreur(order.id, livreurId)
-                      }} className="flex gap-2">
+                      }} className="flex flex-col gap-2">
                         <select
                           name="livreur_id"
                           required
-                          className="flex-1 bg-slate-50 border border-slate-100 text-slate-700 rounded-lg px-3 py-1.5 text-[10px] font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all appearance-none uppercase"
+                          className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all outline-none"
                         >
-                          <option value="">Livreur...</option>
+                          <option value="">Sélectionner...</option>
                           {livreurs.map((l: any) => (
-                            <option key={l.id} value={l.id}>{l.full_name}</option>
+                            <option key={l.id} value={l.id}>🚴 {l.full_name}</option>
                           ))}
                         </select>
                         <button type="submit"
-                          className="bg-orange-500 hover:bg-orange-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-lg transition-all shadow-md shadow-orange-500/10 active:scale-95">
-                          Assigner
+                          className="w-full bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest px-4 py-3 rounded-xl transition-all shadow-lg shadow-slate-900/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                          <Zap className="w-3.5 h-3.5" /> Assigner
                         </button>
                       </form>
                     ) : (
-                      <div className="text-center py-1.5 bg-slate-50 rounded-lg text-slate-400 text-[8px] font-black uppercase tracking-widest">
-                        Aucun livreur
+                      <div className="w-full text-center py-3 bg-red-50 text-red-500 rounded-xl text-[9px] font-black uppercase tracking-widest border border-red-100">
+                        Aucun livreur disponible
                       </div>
                     )}
                   </div>
@@ -148,81 +190,100 @@ export default async function AdminDashboard() {
         </section>
       )}
 
-      {/* TOUTES LES COMMANDES */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em] ml-1">Historique Global</h2>
-          <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-full">
-            {orders?.length || 0} colis
-          </div>
+      {/* RECENT HISTORIC */}
+      <section className="px-2 md:px-0">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-display font-black text-xs text-slate-400 uppercase tracking-[0.2em]">Historique Récent (50 derniers)</h2>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/50 border-b border-slate-50">
-                  <th className="px-4 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest">Colis</th>
-                  <th className="px-4 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest">Itinéraire</th>
-                  <th className="px-4 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest">Acteurs</th>
-                  <th className="px-4 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Statut</th>
-                  <th className="px-4 py-3 text-right text-[8px] font-black text-slate-400 uppercase tracking-widest">Montant</th>
+        {/* Desktop Table (Hidden on small screens) */}
+        <div className="hidden lg:block bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-50 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                <th className="px-6 py-4">Colis</th>
+                <th className="px-6 py-4">Trajet</th>
+                <th className="px-6 py-4">Intervenants</th>
+                <th className="px-6 py-4 text-center">Statut</th>
+                <th className="px-6 py-4 text-right">Montant</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {recentOrders?.map((order: any) => (
+                <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <p className="text-slate-900 font-bold text-[11px] mb-1 line-clamp-2 max-w-[200px]">
+                      {order.description}
+                    </p>
+                    <p className="text-[9px] font-black text-slate-400">
+                      {new Date(order.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        <span className="text-[10px] font-bold text-slate-700 truncate max-w-[150px]">{order.zone_from?.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full border border-slate-300"></span>
+                        <span className="text-[10px] font-bold text-slate-700 truncate max-w-[150px]">{order.zone_to?.name}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-blue-50 text-blue-500 rounded flex items-center justify-center"><User className="w-2.5 h-2.5" /></div>
+                        <span className="text-[10px] font-bold text-slate-700 truncate max-w-[120px]">{order.client?.full_name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-orange-50 text-orange-500 rounded flex items-center justify-center"><Bike className="w-2.5 h-2.5" /></div>
+                        <span className="text-[10px] font-bold text-slate-500 truncate max-w-[120px]">{order.livreur?.full_name || '—'}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`inline-block px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                      {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="font-display font-black text-slate-900 text-sm">
+                      {order.price.toLocaleString('fr-FR')} F
+                    </span>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {orders?.map((order: any) => (
-                  <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-4 py-3">
-                      <p className="text-slate-800 font-bold text-[10px] mb-0.5 uppercase truncate max-w-[120px]">
-                        {order.description}
-                      </p>
-                      <p className="text-[6px] font-black text-slate-400 uppercase tracking-tight">
-                        {new Date(order.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
-                      </p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                          <span className="text-[9px] font-bold text-slate-600 truncate max-w-[80px]">{order.zone_from?.name}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1 h-1 rounded-full border border-slate-300"></span>
-                          <span className="text-[9px] font-bold text-slate-600 truncate max-w-[80px]">{order.zone_to?.name}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4 bg-blue-50 rounded-md flex items-center justify-center text-blue-500">
-                            <User className="w-2.5 h-2.5" />
-                          </div>
-                          <span className="text-[9px] font-bold text-slate-700 truncate max-w-[80px]">{order.client?.full_name}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-4 h-4 bg-orange-50 rounded-md flex items-center justify-center text-orange-500">
-                            <Bike className="w-2.5 h-2.5" />
-                          </div>
-                          <span className="text-[9px] font-bold text-slate-700 truncate max-w-[80px]">{order.livreur?.full_name || '—'}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
-                        {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-display font-black text-slate-900 text-xs">
-                        {order.price.toLocaleString('fr-FR')} F
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile List (Visible only on small screens) */}
+        <div className="lg:hidden space-y-3">
+          {recentOrders?.map((order: any) => (
+            <div key={order.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+              <div className="flex justify-between items-start mb-3">
+                <span className={`inline-block px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                  {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                </span>
+                <span className="font-display font-black text-slate-900 text-sm">
+                  {order.price.toLocaleString('fr-FR')} F
+                </span>
+              </div>
+              <h3 className="text-slate-800 font-bold text-xs mb-3 line-clamp-2">
+                {order.description}
+              </h3>
+              <div className="flex items-center justify-between text-[10px] pt-3 border-t border-slate-50">
+                <span className="text-slate-400 font-medium">
+                  {new Date(order.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                </span>
+                <span className="text-slate-600 font-bold uppercase truncate max-w-[150px]">
+                  {order.zone_from?.name} → {order.zone_to?.name}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>
