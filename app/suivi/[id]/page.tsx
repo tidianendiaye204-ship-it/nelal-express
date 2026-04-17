@@ -1,27 +1,43 @@
 // app/suivi/[id]/page.tsx
 import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+
 import Link from 'next/link'
 import { STATUS_LABELS } from '@/lib/types'
+
+export const dynamic = 'force-dynamic'
 
 export default async function SuiviPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
   const { id } = await params
 
-  const { data: order } = await supabase
+  const { data: order, error } = await supabase
     .from('orders')
     .select(`
       *,
-      client:profiles!orders_client_id_fkey(full_name, phone),
-      livreur:profiles!orders_livreur_id_fkey(full_name, phone),
-      zone_from:zones!orders_zone_from_id_fkey(name, type),
-      zone_to:zones!orders_zone_to_id_fkey(name, type),
+      client:profiles!client_id(full_name, phone),
+      livreur:profiles!livreur_id(full_name, phone),
+      zone_from:zones!zone_from_id(name, type),
+      zone_to:zones!zone_to_id(name, type),
       history:order_status_history(status, note, created_at)
     `)
     .eq('id', id)
     .single()
 
-  if (!order) notFound()
+  if (error || !order) {
+    return (
+      <div className="min-h-screen bg-[#0F172A] text-white flex flex-col items-center justify-center p-4 text-center">
+        <div className="text-6xl mb-4">🔍</div>
+        <h1 className="text-2xl font-bold mb-2">Commande introuvable</h1>
+        <p className="text-slate-400 max-w-xs mb-8">
+          Désolé, nous ne trouvons aucune commande avec la référence : <br/>
+          <span className="text-orange-400 font-mono text-sm">{id}</span>
+        </p>
+        <Link href="/" className="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold">
+          Retour à l&apos;accueil
+        </Link>
+      </div>
+    )
+  }
 
   const steps = [
     { key: 'en_attente', label: 'Commande reçue', icon: '📥', desc: 'Votre commande a été enregistrée' },

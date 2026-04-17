@@ -17,6 +17,7 @@ export async function createOrder(formData: FormData) {
 
   const zone_from_id = formData.get('zone_from_id') as string
   const zone_to_id = formData.get('zone_to_id') as string
+  const isExpress = formData.get('is_express') === '1'
 
   // Récupérer les tarifs des deux zones
   const { data: zones } = await supabase
@@ -24,10 +25,13 @@ export async function createOrder(formData: FormData) {
     .select('id, tarif_base')
     .in('id', [zone_from_id, zone_to_id])
 
-  // Le prix est le maximum entre le tarif de départ et d'arrivée
-  const price = zones && zones.length > 0 
+  // Le prix est le maximum entre le tarif de départ et d'arrivée + express
+  let price = zones && zones.length > 0 
     ? Math.max(...zones.map(z => z.tarif_base)) 
     : 2000
+  
+  // Majoration express
+  if (isExpress) price += 1000
 
   const { data: order, error } = await supabase.from('orders').insert({
     client_id: user.id,
@@ -35,20 +39,21 @@ export async function createOrder(formData: FormData) {
     zone_to_id,
     type: formData.get('type') as OrderType,
     description: formData.get('description') as string,
-    pickup_address: formData.get('pickup_address') as string,
-    delivery_address: formData.get('delivery_address') as string,
-    gps_link: formData.get('gps_link') as string,
+    pickup_address: formData.get('pickup_address') as string || 'Non spécifié',
+    delivery_address: formData.get('delivery_address') as string || 'Non spécifié',
+    gps_link: (formData.get('gps_link') as string) || null,
     recipient_name: formData.get('recipient_name') as string,
     recipient_phone: formData.get('recipient_phone') as string,
-    address_landmark: formData.get('address_landmark') as string,
+    address_landmark: (formData.get('address_landmark') as string) || null,
     payment_method: formData.get('payment_method') as PaymentMethod,
-    notes: formData.get('notes') as string,
+    notes: (formData.get('notes') as string) || null,
     price,
   }).select().single()
 
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/client')
+  revalidatePath('/dashboard/admin')
   return { success: true, orderId: order.id }
 }
 
@@ -80,6 +85,10 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, no
   await supabase.from('order_status_history').insert({
     order_id: orderId, status, note, created_by: user.id,
   })
+
+  revalidatePath(`/suivi/${orderId}`)
+  revalidatePath('/dashboard/livreur')
+  revalidatePath('/dashboard/admin')
 
   // Notification WhatsApp
   const { data: order } = await supabase

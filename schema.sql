@@ -3,7 +3,7 @@
 -- ============================================
 
 -- ZONES DE LIVRAISON
-create table zones (
+create table if not exists zones (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   type text check (type in ('dakar_centre', 'banlieue', 'interieur')) not null,
@@ -12,7 +12,7 @@ create table zones (
 );
 
 -- PROFILS UTILISATEURS
-create table profiles (
+create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
   phone text not null,
@@ -23,7 +23,7 @@ create table profiles (
 );
 
 -- COMMANDES
-create table orders (
+create table if not exists orders (
   id uuid primary key default gen_random_uuid(),
   client_id uuid references profiles(id) not null,
   livreur_id uuid references profiles(id),
@@ -46,7 +46,7 @@ create table orders (
 );
 
 -- HISTORIQUE STATUTS
-create table order_status_history (
+create table if not exists order_status_history (
   id uuid primary key default gen_random_uuid(),
   order_id uuid references orders(id) on delete cascade not null,
   status text not null,
@@ -79,48 +79,61 @@ alter table orders enable row level security;
 alter table order_status_history enable row level security;
 
 -- Zones : lecture publique
+drop policy if exists "zones_select_all" on zones;
 create policy "zones_select_all" on zones
   for select using (true);
 
 -- Profils
+drop policy if exists "profiles_select_public" on profiles;
 create policy "profiles_select_public" on profiles
   for select using (true);
 
+drop policy if exists "profiles_insert_own" on profiles;
 create policy "profiles_insert_own" on profiles
   for insert with check (auth.uid() = id);
 
+drop policy if exists "profiles_update_own" on profiles;
 create policy "profiles_update_own" on profiles
   for update using (auth.uid() = id);
 
+drop policy if exists "profiles_admin_select_all" on profiles;
 create policy "profiles_admin_select_all" on profiles
   for select using (public.is_admin());
 
 -- Commandes — Public (Suivi)
+drop policy if exists "orders_public_select" on orders;
 create policy "orders_public_select" on orders
   for select using (true);
 
 -- Commandes — Client
+drop policy if exists "orders_client_insert" on orders;
 create policy "orders_client_insert" on orders
   for insert with check (client_id = auth.uid());
 
+drop policy if exists "orders_client_cancel" on orders;
 create policy "orders_client_cancel" on orders
   for update using (client_id = auth.uid() and status = 'en_attente');
 
 -- Commandes — Livreur
+drop policy if exists "orders_livreur_update_status" on orders;
 create policy "orders_livreur_update_status" on orders
   for update using (livreur_id = auth.uid());
 
 -- Commandes — Admin (tout)
+drop policy if exists "orders_admin_all" on orders;
 create policy "orders_admin_all" on orders
   for all using (public.is_admin());
 
 -- Historique — Public
+drop policy if exists "history_public_select" on order_status_history;
 create policy "history_public_select" on order_status_history
   for select using (true);
 
+drop policy if exists "history_insert_auth" on order_status_history;
 create policy "history_insert_auth" on order_status_history
   for insert with check (created_by = auth.uid());
 
+drop policy if exists "history_admin_all" on order_status_history;
 create policy "history_admin_all" on order_status_history
   for all using (public.is_admin());
 
@@ -137,6 +150,7 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists orders_updated_at on orders;
 create trigger orders_updated_at
   before update on orders
   for each row execute function update_updated_at();
@@ -160,6 +174,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
@@ -167,13 +182,13 @@ create trigger on_auth_user_created
 -- ============================================
 -- SEED : ZONES
 -- ============================================
-insert into zones (name, type, tarif_base) values
-  -- Dakar Centre
+-- On utilise ON CONFLICT pour éviter les doublons si on relance le script
+insert into zones (name, type, tarif_base) 
+values
   ('Plateau / Centre-ville', 'dakar_centre', 1000),
   ('Médina', 'dakar_centre', 1000),
   ('Yoff / Almadies', 'dakar_centre', 1500),
   ('Les Mamelles / Ouakam', 'dakar_centre', 1500),
-  -- Banlieue
   ('Pikine', 'banlieue', 2000),
   ('Guédiawaye', 'banlieue', 2000),
   ('Parcelles Assainies', 'banlieue', 2000),
@@ -183,7 +198,6 @@ insert into zones (name, type, tarif_base) values
   ('Rufisque', 'banlieue', 3000),
   ('Keur Massar', 'banlieue', 2500),
   ('Malika', 'banlieue', 2500),
-  -- Intérieur
   ('Saint-Louis', 'interieur', 8000),
   ('Ndioum', 'interieur', 10000),
   ('Podor', 'interieur', 12000),
@@ -191,4 +205,5 @@ insert into zones (name, type, tarif_base) values
   ('Thiès', 'interieur', 6000),
   ('Touba', 'interieur', 7000),
   ('Kaolack', 'interieur', 7000),
-  ('Ziguinchor', 'interieur', 15000);
+  ('Ziguinchor', 'interieur', 15000)
+on conflict do nothing;

@@ -2,13 +2,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { cancelOrder } from '@/actions/orders'
-import { Send, Wallet, Package, Bike, CheckCircle, Clock, User, Phone, Star, MessageCircle, ExternalLink } from 'lucide-react'
+import LiveClientUpdater from '@/components/LiveClientUpdater'
+import { Send, Package, Bike, CheckCircle, Clock, Phone, ChevronRight, Sparkles, ArrowRight } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 export default async function ClientDashboard() {
   const supabase = await createClient()
   const profile = await getProfile()
-  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'
 
   const { data: orders } = await supabase
     .from('orders')
@@ -20,6 +21,7 @@ export default async function ClientDashboard() {
     `)
     .eq('client_id', profile?.id)
     .order('created_at', { ascending: false })
+    .limit(10)
 
   const stats = {
     total: orders?.length || 0,
@@ -27,205 +29,226 @@ export default async function ClientDashboard() {
     livres: orders?.filter(o => o.status === 'livre').length || 0,
   }
 
+  const activeOrders = orders?.filter(o => ['en_attente', 'confirme', 'en_cours'].includes(o.status)) || []
+  const recentDelivered = orders?.filter(o => o.status === 'livre').slice(0, 3) || []
+
+  // Time-based greeting
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir'
+  const firstName = profile?.full_name?.split(' ')[0] || 'Client'
+
   return (
     <div className="max-w-2xl mx-auto pb-24 px-1">
-      <div className="mb-8 flex items-end justify-between px-2">
-        <div>
-          <h1 className="font-display font-black text-3xl text-slate-900 tracking-tight uppercase leading-none">Activité</h1>
-          <div className="h-1 w-8 bg-orange-500 mt-3 rounded-full"></div>
-        </div>
-        <div className="hidden md:block text-right">
-          <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Compte Élite</p>
-          <p className="text-slate-900 font-bold text-sm">{profile?.full_name}</p>
-        </div>
+      <LiveClientUpdater clientId={profile?.id} />
+
+      {/* GREETING */}
+      <div className="mb-6 px-2">
+        <p className="text-slate-400 text-xs font-bold mb-0.5">{greeting} 👋</p>
+        <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight leading-none">
+          {firstName}
+        </h1>
+        <div className="h-1 w-6 bg-orange-500 mt-2 rounded-full"></div>
       </div>
 
-      {/* QUICK ACTIONS - Ultra Compact */}
-      <div className="grid grid-cols-2 gap-2 mb-6">
-        <Link
-          href="/dashboard/client/nouvelle-commande"
-          className="relative group overflow-hidden bg-slate-900 rounded-2xl p-4 min-h-[100px] flex flex-col justify-between shadow-lg shadow-slate-900/10 active:scale-95 transition-all"
-        >
-          <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-full blur-xl -mr-8 -mt-8"></div>
-          <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/10 shadow-inner">
-            <Send className="w-4 h-4 text-white" />
-          </div>
-          <div className="relative z-10">
-            <h3 className="text-white font-display font-black text-xs uppercase leading-tight tracking-tight">Envoyer</h3>
-            <p className="text-slate-400 text-[6px] font-bold uppercase tracking-widest mt-0.5">Nouveau Colis</p>
-          </div>
-        </Link>
+      {/* HERO CTA — Envoyer un colis */}
+      <Link
+        href="/dashboard/client/nouvelle-commande"
+        className="block mx-2 mb-6 relative group overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 shadow-xl shadow-slate-900/10 active:scale-[0.98] transition-all"
+      >
+        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -ml-12 -mb-12"></div>
 
-        <div className="bg-white rounded-2xl p-4 border border-slate-100 flex flex-col justify-between shadow-sm min-h-[100px]">
-          <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center text-orange-500">
-            <Wallet className="w-4 h-4" />
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <Send className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-white font-display font-black text-base uppercase tracking-tight">
+                Envoyer un colis
+              </h3>
+              <p className="text-slate-400 text-[10px] font-bold mt-0.5">
+                Dakar · Banlieue · Intérieur du pays
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-slate-900 font-display font-black text-xs uppercase leading-tight tracking-tight">Solde</h3>
-            <p className="text-slate-400 text-[6px] font-bold uppercase tracking-widest mt-0.5">0 FCFA</p>
+          <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:bg-orange-500 transition-colors">
+            <ArrowRight className="w-4.5 h-4.5 text-white" />
           </div>
         </div>
-      </div>
+      </Link>
 
-      {/* STATS - Slimmer */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+      {/* STATS STRIP */}
+      <div className="flex gap-2 mb-6 px-2">
         {[
-          { label: 'Total', value: stats.total, icon: <Package className="w-4 h-4 text-slate-700" /> },
-          { label: 'En cours', value: stats.en_cours, icon: <Bike className="w-4 h-4 text-orange-600" /> },
-          { label: 'Livrées', value: stats.livres, icon: <CheckCircle className="w-4 h-4 text-green-600" /> },
+          { label: 'Total', value: stats.total, icon: <Package className="w-4 h-4" />, color: 'text-slate-700 bg-slate-50' },
+          { label: 'En cours', value: stats.en_cours, icon: <Bike className="w-4 h-4" />, color: 'text-orange-600 bg-orange-50', pulse: stats.en_cours > 0 },
+          { label: 'Livrés', value: stats.livres, icon: <CheckCircle className="w-4 h-4" />, color: 'text-green-600 bg-green-50' },
         ].map((stat) => (
-          <div key={stat.label} className="flex-shrink-0 min-w-[85px] bg-white rounded-xl border border-slate-100 p-3 shadow-sm hover:shadow-md transition-all group">
-            <div className="mb-1.5 group-hover:scale-110 transition-transform">{stat.icon}</div>
-            <div className="font-display font-black text-lg text-slate-900 leading-none">{stat.value}</div>
-            <div className="text-slate-400 text-[6px] font-black uppercase tracking-widest mt-1.5">{stat.label}</div>
+          <div key={stat.label} className="flex-1 bg-white rounded-2xl border border-slate-100 p-3.5 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className={`w-8 h-8 rounded-xl ${stat.color} flex items-center justify-center`}>
+                {stat.icon}
+              </div>
+              {stat.pulse && (
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                </span>
+              )}
+            </div>
+            <div className="font-display font-black text-xl text-slate-900 leading-none">{stat.value}</div>
+            <div className="text-[7px] font-black uppercase tracking-widest text-slate-400 mt-1">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* ACTIVE ORDERS - Slim Cards */}
-      <div className="flex items-center justify-between mb-4 px-2">
-        <h2 className="font-display font-black text-[10px] text-slate-400 uppercase tracking-[0.2em]">Mes commandes</h2>
-        {stats.en_cours > 0 && <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>}
-      </div>
+      {/* ACTIVE ORDERS */}
+      {activeOrders.length > 0 && (
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-3 px-3">
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+              En cours ({activeOrders.length})
+            </h2>
+            <Link href="/dashboard/client/commandes?status=en_cours" className="text-[10px] font-black text-orange-500 uppercase tracking-widest">
+              Tout voir
+            </Link>
+          </div>
 
-      {!orders?.length ? (
-        <div className="bg-slate-50 rounded-[2rem] p-12 text-center border border-slate-100">
-          <div className="text-3xl mb-4 opacity-20">📭</div>
-          <h3 className="font-display font-black text-[9px] text-slate-400 uppercase tracking-widest">Aucun colis en route</h3>
-          <Link href="/dashboard/client/nouvelle-commande" className="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-xl text-xs font-bold shadow-lg shadow-orange-500/20">
-            Créer ma première commande
+          <div className="space-y-2 px-2">
+            {activeOrders.slice(0, 3).map((order: any) => {
+              const statusSteps = ['en_attente', 'confirme', 'en_cours', 'livre']
+              const currentIdx = statusSteps.indexOf(order.status)
+              const progress = Math.max(0, (currentIdx / (statusSteps.length - 1)) * 100)
+
+              const statusInfo: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+                en_attente: { label: 'En attente', color: 'text-amber-600 bg-amber-50', icon: <Clock className="w-3 h-3" /> },
+                confirme: { label: 'Assigné', color: 'text-blue-600 bg-blue-50', icon: <Bike className="w-3 h-3" /> },
+                en_cours: { label: 'En route', color: 'text-orange-600 bg-orange-50', icon: <Bike className="w-3 h-3" /> },
+              }
+
+              const info = statusInfo[order.status] || statusInfo.en_attente
+
+              return (
+                <Link
+                  key={order.id}
+                  href={`/dashboard/client/commandes/${order.id}`}
+                  className="block bg-white rounded-2xl border border-slate-100 p-4 shadow-sm active:scale-[0.98] hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest ${info.color}`}>
+                          {info.icon} {info.label}
+                        </span>
+                      </div>
+                      <h3 className="text-slate-900 font-bold text-sm truncate">{order.description}</h3>
+                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                        {order.zone_from?.name} <span className="text-orange-500">→</span> {order.zone_to?.name}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-display font-black text-orange-600 text-sm">
+                        {order.price.toLocaleString('fr-FR')} <span className="text-[8px]">F</span>
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-orange-500 transition-colors" />
+                    </div>
+                  </div>
+
+                  {/* Mini progress */}
+                  <div className="relative h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-1000"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+
+                  {/* Courier chip */}
+                  {order.livreur && (
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-orange-50 rounded-lg flex items-center justify-center text-orange-500">
+                          <Bike className="w-3 h-3" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500">{order.livreur.full_name}</span>
+                      </div>
+                      <a
+                        href={`tel:${order.livreur.phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-7 h-7 bg-green-50 rounded-lg flex items-center justify-center text-green-600 active:bg-green-100 transition-colors"
+                      >
+                        <Phone className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* EMPTY STATE (no orders at all) */}
+      {stats.total === 0 && (
+        <div className="mx-2 bg-gradient-to-br from-slate-50 to-orange-50/30 rounded-2xl p-10 text-center border border-slate-100">
+          <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-2xl flex items-center justify-center">
+            <Sparkles className="w-7 h-7 text-orange-500" />
+          </div>
+          <h3 className="font-display font-black text-lg text-slate-900 uppercase tracking-tight mb-2">
+            Bienvenue sur Nelal Express !
+          </h3>
+          <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">
+            Envoyez votre premier colis en quelques secondes. Dakar, banlieue et intérieur du pays.
+          </p>
+          <Link
+            href="/dashboard/client/nouvelle-commande"
+            className="inline-flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-xl text-sm font-black shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+          >
+            <Send className="w-4 h-4" /> Envoyer mon premier colis
           </Link>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {orders.map((order: any) => {
-            const steps = [
-              { key: 'en_attente', label: 'Reçu', icon: <Clock className="w-4 h-4" /> },
-              { key: 'confirme', label: 'Assigné', icon: <User className="w-4 h-4" /> },
-              { key: 'en_cours', label: 'Route', icon: <Bike className="w-4 h-4" /> },
-              { key: 'livre', label: 'Livré', icon: <CheckCircle className="w-4 h-4" /> },
-            ]
-            
-            const currentStepIndex = steps.findIndex(s => s.key === order.status)
-            const isCancelled = order.status === 'annule'
+      )}
 
-            return (
-              <div key={order.id} className={`bg-white rounded-2xl border border-slate-100 p-4 shadow-sm transition-all active:scale-[0.98] ${isCancelled ? 'opacity-50 grayscale' : ''}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-slate-900 font-black text-xs mb-0.5 uppercase truncate tracking-tight">{order.description}</h3>
-                    <div className="flex items-center gap-1 text-[7px] font-black text-slate-400 uppercase tracking-widest">
-                      <span>{order.zone_from?.name}</span>
-                      <span className="text-orange-500">→</span>
-                      <span>{order.zone_to?.name}</span>
-                    </div>
+      {/* RECENT DELIVERED */}
+      {recentDelivered.length > 0 && (
+        <section className="px-2">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+              Récemment livrés
+            </h2>
+            <Link href="/dashboard/client/commandes?status=livre" className="text-[10px] font-black text-orange-500 uppercase tracking-widest">
+              Tout voir
+            </Link>
+          </div>
+
+          <div className="space-y-1.5">
+            {recentDelivered.map((order: any) => (
+              <Link
+                key={order.id}
+                href={`/dashboard/client/commandes/${order.id}`}
+                className="flex items-center justify-between bg-white rounded-xl border border-slate-50 px-4 py-3 group active:scale-[0.98] transition-all"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
                   </div>
-                  <div className="text-right ml-3">
-                    <div className="font-display font-black text-orange-600 text-sm leading-none">
-                      {order.price.toLocaleString('fr-FR')} <span className="text-[8px]">F</span>
-                    </div>
-                    <div className="mt-2 flex flex-col gap-1 items-end">
-                      <a 
-                        href={`https://wa.me/?text=${encodeURIComponent(`Suivez mon colis Nelal Express ici : ${BASE_URL}/suivi/${order.id}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[7px] font-black uppercase tracking-widest text-green-600 bg-green-50 px-2 py-1.5 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-1 w-fit"
-                      >
-                        <MessageCircle className="w-2.5 h-2.5" /> Partager
-                      </a>
-                      <Link 
-                        href={`/suivi/${order.id}`}
-                        className="text-[7px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1 w-fit"
-                      >
-                        <ExternalLink className="w-2.5 h-2.5" /> Suivre
-                      </Link>
-                      {order.status === 'en_attente' && (
-                        <form action={async () => {
-                          'use server'
-                          await cancelOrder(order.id)
-                        }}>
-                          <button type="submit" className="text-[7px] font-black uppercase tracking-widest text-red-500 bg-red-50 px-2 py-1.5 rounded-lg hover:bg-red-100 transition-colors w-fit">
-                            Annuler
-                          </button>
-                        </form>
-                      )}
-                    </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-700 truncate">{order.description}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">
+                      {new Date(order.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                      {' · '}{order.zone_to?.name}
+                    </p>
                   </div>
                 </div>
-
-                {/* COMPACT TRACKER */}
-                {!isCancelled ? (
-                  <div className="relative pt-1 pb-3">
-                    <div className="absolute top-3.5 left-0 w-full h-0.5 bg-slate-50 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-orange-500 transition-all duration-1000 ease-out"
-                        style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
-                      ></div>
-                    </div>
-                    <div className="relative flex justify-between">
-                      {steps.map((step, idx) => {
-                        const isCompleted = idx <= currentStepIndex
-                        const isCurrent = idx === currentStepIndex
-                        return (
-                          <div key={step.key} className="flex flex-col items-center">
-                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[9px] transition-all duration-500 z-10 ${
-                              isCompleted 
-                                ? 'bg-orange-500 text-white shadow-sm' 
-                                : 'bg-white border border-slate-50 text-slate-200'
-                            } ${isCurrent ? 'ring-2 ring-orange-500/10' : ''}`}>
-                              {isCompleted ? '✓' : step.icon}
-                            </div>
-                            <span className={`mt-1.5 text-[5px] font-black uppercase tracking-widest ${
-                              isCompleted ? 'text-slate-800' : 'text-slate-200'
-                            }`}>
-                              {step.label}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="py-1.5 text-center bg-red-50 rounded-lg">
-                    <span className="text-red-500 text-[7px] font-black uppercase tracking-widest">Annulée</span>
-                  </div>
-                )}
-
-                {/* COURIER MINI CARD */}
-                {order.livreur && order.status !== 'livre' && (
-                  <div className="mt-3 p-2 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-100">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm border border-slate-100 text-orange-500">
-                        <Bike className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[5px] font-black uppercase tracking-widest text-slate-400">Coursier</p>
-                        <p className="text-[9px] font-bold text-slate-800 truncate">{order.livreur.full_name}</p>
-                      </div>
-                    </div>
-                    <a href={`tel:${order.livreur.phone}`} className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm active:bg-orange-500 active:text-white transition-colors text-slate-600">
-                      <Phone className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                )}
-
-                {/* RATING MINI */}
-                {order.status === 'livre' && (
-                  <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
-                    <p className="text-[7px] font-black uppercase tracking-widest text-slate-400">Noter la course</p>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button key={star} className="w-6 h-6 bg-slate-50 rounded-md text-slate-300 hover:text-orange-400 flex items-center justify-center transition-colors">
-                          <Star className="w-3 h-3" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+                <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                  <span className="text-xs font-bold text-slate-500">{order.price.toLocaleString('fr-FR')} F</span>
+                  <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-slate-400 transition-colors" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   )

@@ -1,22 +1,38 @@
 // app/dashboard/layout.tsx
 import { getProfile } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/actions/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import MobileNav from '@/components/MobileNav'
-import { Home, PlusCircle, Bike, BarChart3, Users, Map, LogOut } from 'lucide-react'
+import { Home, PlusCircle, Bike, BarChart3, Users, Map, LogOut, Package, User, ClipboardList } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile()
   if (!profile) redirect('/auth/login')
 
+  // Count active orders for client badge
+  let activeBadge = 0
+  if (profile.role === 'client') {
+    const supabase = await createClient()
+    const { count } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('client_id', profile.id)
+      .in('status', ['en_attente', 'confirme', 'en_cours'])
+    activeBadge = count || 0
+  }
+
   const navLinks = {
     client: [
       { href: '/dashboard/client', label: 'Accueil', icon: <Home className="w-5 h-5" /> },
-      { href: '/dashboard/client/nouvelle-commande', label: 'Commander', icon: <PlusCircle className="w-5 h-5" /> },
+      { href: '/dashboard/client/commandes', label: 'Commandes', icon: <ClipboardList className="w-5 h-5" /> },
+      { href: '/dashboard/client/nouvelle-commande', label: 'Envoyer', icon: <PlusCircle className="w-5 h-5" /> },
+      { href: '/dashboard/client/profil', label: 'Profil', icon: <User className="w-5 h-5" /> },
     ],
     livreur: [
-      { href: '/dashboard/livreur', label: 'Livraisons', icon: <Bike className="w-5 h-5" /> },
+      { href: '/dashboard/livreur', label: 'Missions', icon: <Bike className="w-5 h-5" /> },
+      { href: '/dashboard/livreur/disponibles', label: 'Disponibles', icon: <Package className="w-5 h-5" /> },
     ],
     admin: [
       { href: '/dashboard/admin', label: 'Statistiques', icon: <BarChart3 className="w-5 h-5" /> },
@@ -94,23 +110,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </aside>
 
       {/* MOBILE HEADER */}
-      <div className="md:hidden bg-white/80 backdrop-blur-xl px-5 py-4 flex items-center justify-between sticky top-0 z-30 border-b border-slate-100">
+      <div className="md:hidden bg-white/95 backdrop-blur-xl px-5 py-3.5 flex items-center justify-between sticky top-0 z-30 border-b border-slate-100">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-500/20">
+          <div className="w-8 h-8 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
             <span className="text-white font-display font-black text-base">N</span>
           </div>
           <span className="font-display font-black text-slate-900 text-lg tracking-tight">Nelal Express</span>
         </Link>
-        <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm font-black text-[10px] uppercase tracking-tighter">
-          {profile.full_name.charAt(0)}
-        </div>
+        <Link 
+          href={role === 'client' ? '/dashboard/client/profil' : '#'}
+          className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-md shadow-orange-500/20"
+        >
+          {profile.full_name.charAt(0).toUpperCase()}
+        </Link>
       </div>
 
       {/* MOBILE BOTTOM NAV */}
-      <MobileNav links={links} />
+      <MobileNav links={links} activeBadge={activeBadge} />
 
       {/* MAIN */}
-      <main className="flex-1 p-4 md:p-12 pb-24 md:pb-12 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-12 pb-20 md:pb-12 overflow-y-auto">
         {children}
       </main>
     </div>
