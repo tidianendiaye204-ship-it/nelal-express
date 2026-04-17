@@ -3,7 +3,7 @@
 export type Role = 'client' | 'livreur' | 'admin'
 export type ZoneType = 'dakar_centre' | 'banlieue' | 'interieur'
 export type OrderType = 'particulier' | 'vendeur'
-export type OrderStatus = 'en_attente' | 'confirme' | 'en_cours' | 'livre' | 'annule'
+export type OrderStatus = 'en_attente' | 'confirme' | 'en_cours' | 'livre' | 'livre_partiel' | 'annule'
 export type PaymentMethod = 'wave' | 'orange_money' | 'cash'
 
 export interface Zone {
@@ -41,6 +41,9 @@ export interface Order {
   price: number
   payment_method: PaymentMethod
   notes?: string
+  articles?: any[]
+  ardoise_livreur?: number
+  encaissement_reel?: number
   created_at: string
   updated_at: string
   // Relations
@@ -66,6 +69,7 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
   confirme: 'Confirmé',
   en_cours: 'En cours',
   livre: 'Livré',
+  livre_partiel: 'Livré Partiellement',
   annule: 'Annulé',
 }
 
@@ -74,6 +78,7 @@ export const STATUS_COLORS: Record<OrderStatus, string> = {
   confirme: 'bg-blue-100 text-blue-800',
   en_cours: 'bg-orange-100 text-orange-800',
   livre: 'bg-green-100 text-green-800',
+  livre_partiel: 'bg-teal-100 text-teal-800',
   annule: 'bg-red-100 text-red-800',
 }
 

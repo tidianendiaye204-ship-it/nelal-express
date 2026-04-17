@@ -1,8 +1,8 @@
 // app/dashboard/livreur/page.tsx
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/server'
+import { createClient, getProfile } from '@/lib/supabase/server'
 import LiveOrderUpdater from '@/components/LiveOrderUpdater'
 import StatusUpdateButton from '@/components/StatusUpdateButton'
+import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
 import { getWhatsAppDirectLink } from '@/lib/utils/phone'
 import { getFullRouteLink, getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
@@ -260,13 +260,7 @@ export default async function LivreurDashboard() {
                     )}
 
                     {order.status === 'en_cours' && (
-                      <StatusUpdateButton
-                        orderId={order.id}
-                        nextStatus="livre"
-                        note="Livraison confirmée"
-                        label="Confirmer la livraison"
-                        variant="deliver"
-                      />
+                      <DeliveryCompletionForm order={order} />
                     )}
                   </div>
                 </div>

@@ -244,9 +244,16 @@ export default async function AdminDashboard() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`inline-block px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
-                      {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
-                    </span>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className={`inline-block px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                        {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                      </span>
+                      {(order.ardoise_livreur || 0) > 0 && (
+                        <span className="text-[8px] font-black text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                          ARDOISE : {order.ardoise_livreur}F
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span className="font-display font-black text-slate-900 text-sm">
@@ -264,9 +271,16 @@ export default async function AdminDashboard() {
           {recentOrders?.map((order: any) => (
             <div key={order.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
               <div className="flex justify-between items-start mb-3">
-                <span className={`inline-block px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
-                  {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-block px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                    {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                  </span>
+                  {(order.ardoise_livreur || 0) > 0 && (
+                    <span className="font-black text-red-500 text-[8px]">
+                      ❗ARDOISE {order.ardoise_livreur}F
+                    </span>
+                  )}
+                </div>
                 <span className="font-display font-black text-slate-900 text-sm">
                   {order.price.toLocaleString('fr-FR')} F
                 </span>

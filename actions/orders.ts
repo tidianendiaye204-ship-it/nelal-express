@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { sendWhatsAppNotification, buildMessage } from '@/lib/whatsapp'
+import { incrementOrAddRepere } from '@/actions/reperes'
 import type { OrderStatus, PaymentMethod, OrderType } from '@/lib/types'
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'
@@ -51,6 +52,18 @@ export async function createOrder(formData: FormData) {
   }).select().single()
 
   if (error) return { error: error.message }
+
+  // 🌍 Crowdsourcing : On alimente l'algorithme avec les repères saisis par le client
+  const pickupRepere = formData.get('pickup_repere') as string
+  const deliveryRepere = formData.get('delivery_repere') as string
+  
+  if (pickupRepere) {
+    // Fire and forget (ne bloque pas la réponse client)
+    incrementOrAddRepere(zone_from_id, pickupRepere).catch(console.error)
+  }
+  if (deliveryRepere) {
+    incrementOrAddRepere(zone_to_id, deliveryRepere).catch(console.error)
+  }
 
   revalidatePath('/dashboard/client')
   revalidatePath('/dashboard/admin')
@@ -121,6 +134,69 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, no
   }
 
   revalidatePath('/dashboard/livreur')
+  return { success: true }
+}
+
+export async function completeDelivery(orderId: string, ardoise: number, totalExpected: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+
+  // Calcul du cash réellement mis en poche = totalExpected + l'ardoise (l'argent supplémentaire gardé)
+  // Ou plutôt : encaissement = totalExpected - ardoise si client n'a pas payé, 
+  // Mais la logique de l'ardoise c'est : Client donne 10.000, Prix 7.000, livreur rend 2.000 au lieu de 3.000. 
+  // Le livreur a pris 8.000. L'ardoise est 1.000. Encaissement = 8.000.
+  const encaissementReel = totalExpected + ardoise
+  const statusToSet: OrderStatus = ardoise > 0 ? 'livre_partiel' : 'livre'
+
+  await supabase.from('orders').update({ 
+    status: statusToSet,
+    ardoise_livreur: ardoise > 0 ? ardoise : 0,
+    encaissement_reel: encaissementReel
+  }).eq('id', orderId)
+
+  await supabase.from('order_status_history').insert({
+    order_id: orderId, 
+    status: statusToSet, 
+    note: ardoise > 0 ? `Livraison avec ardoise (${ardoise} F) par manque de monnaie` : 'Livraison sans ardoise', 
+    created_by: user.id,
+  })
+
+  revalidatePath(`/suivi/${orderId}`)
+  revalidatePath('/dashboard/livreur')
+  revalidatePath('/dashboard/admin')
+
+  // Notification WhatsApp
+  const { data: order } = await supabase
+    .from('orders')
+    .select(`*, client:profiles!orders_client_id_fkey(full_name, phone), livreur:profiles!orders_livreur_id_fkey(full_name, phone), zone_from:zones!orders_zone_from_id_fkey(name), zone_to:zones!orders_zone_to_id_fkey(name)`)
+    .eq('id', orderId).single()
+
+  if (order) {
+    const msg = buildMessage('order_delivered', {
+      orderId: order.id,
+      clientName: order.client.full_name,
+      clientPhone: order.client.phone,
+      recipientName: order.recipient_name,
+      recipientPhone: order.recipient_phone,
+      description: order.description,
+      zoneFrom: order.zone_from.name,
+      zoneTo: order.zone_to.name,
+      livreurName: order.livreur?.full_name,
+      livreurPhone: order.livreur?.phone,
+      price: order.price,
+      trackingUrl: `${BASE_URL}/suivi/${order.id}`,
+    })
+    
+    // Si ardoise, on ajoute une ligne perso au message
+    let finalMsg = msg
+    if (ardoise > 0) {
+      finalMsg += `\n\n📌 *Note* : Un manque de monnaie de ${ardoise} FCFA a été signalé par le livreur. Ce montant a été crédité en votre faveur sur votre compte Nelal Express.`
+    }
+    
+    await sendWhatsAppNotification(order.client.phone, finalMsg)
+  }
+
   return { success: true }
 }
 

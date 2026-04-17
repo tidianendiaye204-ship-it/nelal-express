@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { createOrder } from '@/actions/orders'
 import { useRouter } from 'next/navigation'
 import { ZONE_TYPE_LABELS } from '@/lib/types'
+import RepereAutocomplete from '@/components/RepereAutocomplete'
 import {
   Package, User, Wallet, Navigation, MapPin, CheckCircle,
   MessageCircle, ArrowRight, Copy, Zap, Info
@@ -238,13 +239,13 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
               />
 
               <div className="relative mt-2">
-                <input
-                  type="text"
+                <RepereAutocomplete
                   name="pickup_repere"
-                  placeholder="Repère connu (ex: Face à Touba Gaz, Marché Zinc...)"
-                  className="w-full bg-white border border-slate-100 text-slate-700 rounded-xl pl-4 pr-20 py-2.5 text-xs font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 transition-all"
+                  zoneId={selectedZoneFrom}
+                  placeholder="Repère connu (ex: Face à Touba Gaz...)"
+                  className="!pl-4 !pr-20 !py-2.5 !text-xs"
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1 z-10">
                   {gpsLink && (
                     <a
                       href={gpsLink}
@@ -308,12 +309,14 @@ export default function OrderForm({ zonesByType }: { zonesByType: any }) {
                 className="w-full mt-2 bg-white border border-slate-200 text-slate-900 rounded-xl px-4 py-3 text-sm font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 transition-all"
               />
 
-              <input
-                type="text"
-                name="delivery_repere"
-                placeholder="Repère connu (ex: Derrière la mosquée, Station Total...)"
-                className="w-full mt-2 bg-white border border-slate-100 text-slate-700 rounded-xl px-4 py-2.5 text-xs font-medium placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 transition-all"
-              />
+              <div className="mt-2">
+                <RepereAutocomplete
+                  name="delivery_repere"
+                  zoneId={selectedZoneTo}
+                  placeholder="Repère connu (ex: Derrière la mosquée...)"
+                  className="!px-4 !py-2.5 !text-xs"
+                />
+              </div>
             </div>
           </div>
         </div>
