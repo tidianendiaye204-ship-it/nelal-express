@@ -152,7 +152,7 @@ export default async function AssignOrderPage({ params }: { params: { id: string
                   </span>
                   <span className="text-slate-300">•</span>
                   <span className="text-slate-500 truncate max-w-[100px]">
-                    {livreur.zone?.name || 'Toutes zones'}
+                    {(Array.isArray(livreur.zone) ? livreur.zone[0]?.name : (livreur.zone as any)?.name) || 'Toutes zones'}
                   </span>
                 </div>
               </div>
