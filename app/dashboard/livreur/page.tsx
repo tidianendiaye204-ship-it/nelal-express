@@ -43,6 +43,12 @@ export default async function LivreurDashboard() {
     .order('created_at', { ascending: false })
     .limit(20)
 
+  // Pour les stats globales sans limite
+  const { data: allStatsOrders } = await supabase
+    .from('orders')
+    .select('id, status, price')
+    .eq('livreur_id', profile?.id)
+
   // Count available orders for the badge
   const { count: availableCount } = await supabase
     .from('orders')
@@ -50,8 +56,8 @@ export default async function LivreurDashboard() {
     .eq('status', 'en_attente')
     .is('livreur_id', null)
 
-  const totalEarnings = historique?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + o.price, 0) || 0
-  const deliveredCount = historique?.filter(o => o.status === 'livre').length || 0
+  const totalEarnings = allStatsOrders?.filter(o => o.status === 'livre').reduce((sum: number, o: any) => sum + (o.price || 0), 0) || 0
+  const deliveredCount = allStatsOrders?.filter(o => o.status === 'livre').length || 0
 
   return (
     <div className="max-w-2xl mx-auto pb-10 px-1">
@@ -97,7 +103,7 @@ export default async function LivreurDashboard() {
         {[
           { label: 'En cours', value: orders?.length || 0, icon: <Bike className="w-5 h-5" />, color: 'text-orange-600' },
           { label: 'Livrées', value: deliveredCount, icon: <CheckCircle className="w-5 h-5" />, color: 'text-green-600' },
-          { label: 'Gains', value: `${totalEarnings.toLocaleString('fr-FR')} F`, icon: <Wallet className="w-5 h-5" />, color: 'text-blue-600' },
+          { label: 'Gains', value: `${totalEarnings.toLocaleString('fr-FR')} FCFA`, icon: <Wallet className="w-5 h-5" />, color: 'text-blue-600' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-xl border border-slate-100 p-3 shadow-sm">
             <div className={`mb-2 ${stat.color}`}>{stat.icon}</div>

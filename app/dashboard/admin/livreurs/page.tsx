@@ -24,16 +24,18 @@ export default async function AdminLivreursPage() {
   // Stats livraisons par livreur
   const { data: orderStats } = await supabase
     .from('orders')
-    .select('livreur_id, status')
+    .select('livreur_id, status, price')
     .not('livreur_id', 'is', null)
 
   const statsByLivreur = (livreurs || []).map(l => {
     const myOrders = orderStats?.filter(o => o.livreur_id === l.id) || []
+    const livres = myOrders.filter(o => o.status === 'livre')
     return {
       ...l,
       total: myOrders.length,
-      livres: myOrders.filter(o => o.status === 'livre').length,
+      livres: livres.length,
       en_cours: myOrders.filter(o => ['confirme', 'en_cours'].includes(o.status)).length,
+      montant: livres.reduce((sum, o) => sum + (o.price || 0), 0),
     }
   })
 
@@ -90,12 +92,12 @@ export default async function AdminLivreursPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center gap-4 py-3 md:py-0 border-y md:border-y-0 border-slate-50">
-                      <div className="bg-green-50 px-4 py-2 rounded-xl flex-1 md:flex-none text-center">
+                    <div className="flex items-center gap-3 py-3 md:py-0 border-y md:border-y-0 border-slate-50">
+                      <div className="bg-green-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[70px]">
                         <div className="font-display font-black text-green-600 text-xl leading-none">{l.livres}</div>
                         <div className="text-[8px] font-black uppercase tracking-widest text-green-500 mt-1">Livrées</div>
                       </div>
-                      <div className="bg-blue-50 px-4 py-2 rounded-xl flex-1 md:flex-none text-center relative">
+                      <div className="bg-blue-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center relative min-w-[70px]">
                         {l.en_cours > 0 && (
                           <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -104,6 +106,10 @@ export default async function AdminLivreursPage() {
                         )}
                         <div className="font-display font-black text-blue-600 text-xl leading-none">{l.en_cours}</div>
                         <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-1">Actives</div>
+                      </div>
+                      <div className="bg-orange-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[80px]">
+                        <div className="font-display font-black text-orange-600 text-lg leading-none">{l.montant.toLocaleString('fr-FR')}</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-1">FCFA</div>
                       </div>
                     </div>
 

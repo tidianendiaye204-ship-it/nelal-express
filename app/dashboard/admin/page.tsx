@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { assignLivreur } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import LiveAdminUpdater from '@/components/LiveAdminUpdater'
-import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap } from 'lucide-react'
+import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap, Users } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,13 +76,14 @@ export default async function AdminDashboard() {
       </div>
 
       {/* HERO STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 mb-8 md:mb-12 px-2 md:px-0">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2.5 mb-8 md:mb-12 px-2 md:px-0">
         {[
           { label: 'Total Envois', value: totalOrders || 0, icon: <Package className="w-5 h-5" />, color: 'bg-slate-900 text-white', border: 'border-slate-800' },
           { label: 'En attente', value: en_attente, icon: <Clock className="w-5 h-5" />, color: 'bg-amber-500 text-white', border: 'border-amber-500 shadow-lg shadow-amber-500/20' },
           { label: 'En cours', value: inProgressOrders || 0, icon: <Bike className="w-5 h-5" />, color: 'bg-blue-500 text-white', border: 'border-blue-500 shadow-lg shadow-blue-500/20' },
           { label: 'Livrées', value: deliveredOrders || 0, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-500 text-white', border: 'border-green-500 shadow-lg shadow-green-500/20' },
-          { label: 'Revenus', value: `${revenus.toLocaleString('fr-FR')} F`, icon: <Wallet className="w-5 h-5 text-orange-500" />, color: 'bg-orange-50 text-orange-600', border: 'border-orange-100 col-span-2 md:col-span-1' },
+          { label: 'Livreurs', value: livreurs?.length || 0, icon: <Users className="w-5 h-5 text-purple-600" />, color: 'bg-purple-50 text-purple-700', border: 'border-purple-100' },
+          { label: 'CA Global', value: `${revenus.toLocaleString('fr-FR')} FCFA`, icon: <Wallet className="w-5 h-5 text-orange-500" />, color: 'bg-orange-50 text-orange-600', border: 'border-orange-100 col-span-2 md:col-span-1' },
         ].map((stat) => (
           <div key={stat.label} className={`rounded-[2rem] border ${stat.border} ${stat.color} p-5 transition-transform hover:-translate-y-1 duration-300`}>
             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-4 ${stat.color.includes('bg-slate-900') || stat.color.includes('bg-amber-500') || stat.color.includes('bg-blue-500') || stat.color.includes('bg-green-500') ? 'bg-white/20' : 'bg-white'} backdrop-blur-md`}>
