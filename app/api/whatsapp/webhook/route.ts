@@ -33,14 +33,18 @@ export async function POST(req: NextRequest) {
     // CAS 2 : ENVOI DE MESSAGE (Humain / Instance -> Client)
     // Si l'administrateur répond manuellement depuis son téléphone, on met le bot en PAUSE
     if (body.typeWebhook === 'outgoingMessageReceived') {
-      const chatId = body.chatId // Format: 221... @c.us
+      const chatId = body.chatId 
       if (chatId) {
         const waId = chatId.split('@')[0]
         console.log(`[Bot] Human takeover detected for ${waId}. Pausing bot.`)
-        // On met à jour l'état de la conversation à PAUSED
-        // On récupère les data existantes d'abord
-        const { handleWhatsAppMessage, updateConvo } = await import('@/lib/conversation')
-        await updateConvo(waId, 'PAUSED', {}) 
+        
+        // On récupère la conversation actuelle pour ne pas écraser les datas
+        const { createAdminClient } = await import('@/lib/supabase/server')
+        const adminSupabase = createAdminClient()
+        await adminSupabase
+          .from('conversations')
+          .update({ state: 'PAUSED' })
+          .eq('wa_id', waId)
       }
     }
 

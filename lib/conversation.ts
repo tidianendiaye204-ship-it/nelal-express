@@ -60,20 +60,25 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     convo = newConvo
   }
 
-  // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise)
-  // Si l'utilisateur veut recommencer, on reset l'état. 
-  // Cela permet aussi de sortir de l'état PAUSED.
-  if (['commande', 'recommencer', 'reset', 'nouveau', 'livraison'].some(k => lowerText.includes(k))) {
-     await updateConvo(waId, 'AWAITING_DEPART', {})
-     return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* pour cette nouvelle livraison ?"
-  }
-
   const state = convo?.state as BotState
   const data = (convo?.data || {}) as ConversationData
 
+  // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise)
+  const isGreeting = ['bonjour', 'salut', 'allo', 'hello', 'hey', 'hi', 'wesh', 'na ngade', 'coucou'].some(k => lowerText.includes(k))
+  const isOrderIntent = ['commande', 'recommencer', 'reset', 'nouveau', 'livraison', 'envoi'].some(k => lowerText.includes(k))
+
+  if (isOrderIntent || isGreeting) {
+     if (state === 'PAUSED' || isOrderIntent) {
+        // Si commande => Reset complet. Si bonjour => On reprend sans effacer les données.
+        await updateConvo(waId, isOrderIntent ? 'AWAITING_DEPART' : 'IDLE', isOrderIntent ? {} : data)
+        if (isOrderIntent) return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* ?"
+        return "👋 Bonjour ! Je suis de retour. Tapez *'commande'* pour envoyer un colis ou posez votre question."
+     }
+  }
+
   // 3. GESTION DU MODE PAUSE
   if (state === 'PAUSED') {
-    return null // Le bot ne répond rien, il laisse l'humain gérer
+    return null 
   }
 
   // 4. Machine à états
