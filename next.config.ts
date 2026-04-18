@@ -16,7 +16,7 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'nellal-express.vercel.app'],
+      allowedOrigins: ['localhost:3000', 'nelal-express.vercel.app'],
     },
   },
 }
