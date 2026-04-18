@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { sendWhatsAppNotification, buildMessage } from '@/lib/whatsapp'
+import { sendPushToRole, sendPushToLivreursInZone, sendPushToUser } from '@/lib/web-push'
 import { incrementOrAddRepere } from '@/actions/reperes'
 import type { OrderStatus, PaymentMethod, OrderType } from '@/lib/types'
 
@@ -86,6 +87,7 @@ async function notifyAdminsOnOrder(orderId: string) {
 
   // Format tracking links
   const assignUrl = `${BASE_URL}/dashboard/admin/orders/${order.id}/assign`
+  const ref = order.id.slice(0, 8).toUpperCase()
 
   const msgData = {
     orderId: order.id,
@@ -101,9 +103,29 @@ async function notifyAdminsOnOrder(orderId: string) {
     assignUrl,
   }
 
+  // ─── 🔔 WEB PUSH (gratuit, fonctionne même app fermée) ───────────
+  // Push à tous les admins
+  sendPushToRole('admin', {
+    title: '🚨 Nouvelle commande !',
+    body: `📦 ${order.description} — ${order.zone_from?.name || ''} → ${order.zone_to?.name || ''} — ${order.price.toLocaleString('fr-FR')} FCFA`,
+    url: `/dashboard/admin`,
+    tag: `new-order-${ref}`,
+  }).catch(err => console.error('[Push Admin Error]', err))
+
+  // Push aux livreurs de la zone de départ
+  if (order.zone_from_id) {
+    sendPushToLivreursInZone(order.zone_from_id, {
+      title: '🔔 Course dispo !',
+      body: `📦 ${order.description} — ${order.zone_from?.name || ''} → ${order.zone_to?.name || ''} — ${order.price.toLocaleString('fr-FR')} FCFA`,
+      url: `/dashboard/livreur/disponibles`,
+      tag: `new-order-livreur-${ref}`,
+    }).catch(err => console.error('[Push Livreur Error]', err))
+  }
+
+  // ─── 📱 WHATSAPP (quand Twilio sera configuré) ───────────────────
   const msgAdmin = buildMessage('new_order_admin', msgData)
 
-  // 1. Notify Admins
+  // 1. Notify Admins via WhatsApp
   const { data: admins } = await supabase.from('profiles').select('phone').eq('role', 'admin')
   const fallbackPhone = process.env.ADMIN_WHATSAPP_PHONE
 
@@ -118,8 +140,7 @@ async function notifyAdminsOnOrder(orderId: string) {
     await sendWhatsAppNotification(phone, msgAdmin)
   }
 
-  // 2. Notify Livreurs (in zone and online recently)
-  // last_seen_at > 5 mins ago
+  // 2. Notify Livreurs via WhatsApp (in zone and online recently)
   const fiveMinsAgo = new Date(Date.now() - 5 * 60000).toISOString()
   
   const { data: livreurs } = await supabase
@@ -130,7 +151,6 @@ async function notifyAdminsOnOrder(orderId: string) {
     .gte('last_seen_at', fiveMinsAgo)
     
   if (livreurs && livreurs.length > 0) {
-    // Verification: they shouldn't have active orders
     const livreurIds = livreurs.map(l => l.id)
     const { data: activeOrders } = await supabase
       .from('orders')
@@ -382,7 +402,17 @@ export async function assignLivreur(orderId: string, livreurId: string) {
       trackingUrl: `${BASE_URL}/suivi/${order.id}`,
     })
     await sendWhatsAppNotification(order.client.phone, msg)
+    
   }
+
+  // Push notification au livreur assigné
+  const ref = orderId.slice(0, 8).toUpperCase()
+  sendPushToUser(livreurId, {
+    title: '🚀 Nouvelle course assignée !',
+    body: `Le colis #${ref} vous a été attribué. Cliquez pour voir les détails.`,
+    url: `/dashboard/livreur`,
+    tag: `assign-${ref}`,
+  }).catch(err => console.error('[Push Assign Error]', err))
 
   revalidatePath('/dashboard/admin')
   return { success: true }
