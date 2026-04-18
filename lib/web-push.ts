@@ -7,11 +7,15 @@ const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY!
 
 // Configuration VAPID
-webpush.setVapidDetails(
-  'mailto:contact@nelal-express.com',
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-)
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:contact@nelal-express.com',
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+  )
+} else {
+  console.warn('[Push] VAPID keys missing. Push notifications will be disabled.')
+}
 
 interface PushPayload {
   title: string

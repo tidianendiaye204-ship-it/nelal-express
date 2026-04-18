@@ -45,9 +45,13 @@ export default async function CommanderPage() {
 
       {/* CONTENT */}
       <main className="flex-1 max-w-md mx-auto w-full px-4 pt-8 pb-32">
-        <div className="mb-8 text-center space-y-2">
+        <div className="mb-8 text-center space-y-3">
+           <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-slate-900/20">
+              <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+              Axe Stratégique : Dakar ↔ Ndioum
+           </div>
            <h1 className="font-display font-black text-3xl text-slate-900 tracking-tight leading-none">Nouvelle Frappe 🚀</h1>
-           <p className="text-sm text-slate-500">Dites-nous d&apos;où à où, on s&apos;occupe du reste.</p>
+           <p className="text-sm text-slate-500">Service premium opéré localement à Yeumbeul, Dakar et Ndioum.</p>
         </div>
 
         <QuickOrderForm />
