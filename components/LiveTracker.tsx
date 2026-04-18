@@ -1,10 +1,9 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 export default function LiveTracker({ orderId }: { orderId: string }) {
-  const [status, setStatus] = useState<string>('')
   const supabase = createClient()
 
   useEffect(() => {
@@ -34,7 +33,7 @@ export default function LiveTracker({ orderId }: { orderId: string }) {
   return (
     <div className="flex items-center gap-1.5">
        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-       <span className="text-[9px] font-black text-slate-400 tracking-tighter uppercase uppercase">Direct</span>
+       <span className="text-[9px] font-black text-slate-400 tracking-tighter uppercase">Direct</span>
     </div>
   )
 }

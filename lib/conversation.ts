@@ -1,6 +1,6 @@
 // lib/conversation.ts
 import { createClient } from '@/lib/supabase/server'
-import { sendMetaWhatsAppMessage } from '@/lib/whatsapp'
+
 
 export type BotState = 
   | 'IDLE' 
@@ -24,7 +24,6 @@ async function findQuartier(name: string) {
   // Utilisation de la recherche floue pg_trgm (similitude > 0.3)
   const { data } = await supabase
     .rpc('search_quartiers', { search_query: name })
-    .catch(() => ({ data: null }))
   
   // Fallback sur ILIKE si RPC non dispo ou pas de match flou
   if (!data) {

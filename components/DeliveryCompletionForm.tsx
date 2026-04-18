@@ -36,7 +36,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
     <div className="w-full space-y-4 mt-4 border-t border-slate-100 pt-4">
       {/* SÉCURITÉ : CODE DE LIVRAISON */}
       <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
-        <label className="block text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+        <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5" /> Code de confirmation (4 chiffres)
         </label>
         <input
