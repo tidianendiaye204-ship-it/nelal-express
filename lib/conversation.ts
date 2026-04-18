@@ -48,7 +48,7 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     .from('conversations')
     .select('*')
     .eq('wa_id', waId)
-    .single()
+    .maybeSingle()
 
   if (!convo) {
     const { data: newConvo } = await supabase
@@ -59,10 +59,17 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     convo = newConvo
   }
 
+  // 2. INTERCEPTION PRIORITAIRE (Reset)
+  // Si l'utilisateur veut recommencer ou annuler, on reset l'état peu importe où il est
+  if (['commande', 'recommencer', 'annuler', 'reset', 'quitter'].some(k => lowerText === k)) {
+     await updateConvo(waId, 'AWAITING_DEPART', {})
+     return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* pour cette nouvelle livraison ?"
+  }
+
   const state = convo?.state as BotState
   const data = (convo?.data || {}) as ConversationData
 
-  // 2. Machine à états
+  // 3. Machine à états
   switch (state) {
     case 'IDLE': {
       if (['commande', 'colis', 'envoyer', 'livraison', 'nouveau', 'salut', 'bonjour'].some(k => lowerText.includes(k))) {
@@ -201,24 +208,27 @@ async function createBotOrder(waId: string, data: ConversationData) {
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
-      client_id: clientId, // Peut être null si création profil échoue
+      client_id: clientId, 
       quartier_depart_id: data.quartierDepartId,
       quartier_arrivee_id: data.quartierArriveeId,
       zone_from_id: qDepart?.zone_id || null,
       zone_to_id: qArrivee?.zone_id || null,
+      pickup_address: data.quartierDepart || 'Non spécifié', // Ajouté car souvent obligatoire
+      delivery_address: data.quartierArrivee || 'Non spécifié', // Ajouté car souvent obligatoire
       description: `Commande WhatsApp (${data.quartierDepart} → ${data.quartierArrivee})`,
       recipient_name: data.recipientName || 'Destinataire',
       recipient_phone: data.recipientPhone,
       delivery_code: deliveryCode,
       status: 'en_attente',
       type: 'particulier',
+      payment_method: 'cash', // OBLIGATOIRE en BDD (enum: cash, wave, orange_money)
       price: 2000 
     })
     .select('id, delivery_code')
     .single()
 
   if (orderError) {
-    console.error('[Supabase Order Insert Error]', orderError)
+    console.error('[Supabase Order Insert Error DETAIL]', JSON.stringify(orderError, null, 2))
     throw orderError
   }
 
