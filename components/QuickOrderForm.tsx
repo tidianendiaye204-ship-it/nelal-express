@@ -6,7 +6,7 @@ import RepereAutocomplete from './RepereAutocomplete'
 import { Quartier } from '@/lib/types'
 import { createQuickOrder } from '@/actions/orders'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, Route, ArrowRight, Wallet, Package, Zap, X } from 'lucide-react'
+import { CheckCircle, Route, ArrowRight, Zap, X, MapPin } from 'lucide-react'
 
 export default function QuickOrderForm() {
   const router = useRouter()

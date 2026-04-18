@@ -47,7 +47,7 @@ export default async function CommanderPage() {
       <main className="flex-1 max-w-md mx-auto w-full px-4 pt-8 pb-32">
         <div className="mb-8 text-center space-y-2">
            <h1 className="font-display font-black text-3xl text-slate-900 tracking-tight leading-none">Nouvelle Frappe 🚀</h1>
-           <p className="text-sm text-slate-500">Dites-nous d'où à où, on s'occupe du reste.</p>
+           <p className="text-sm text-slate-500">Dites-nous d&apos;où à où, on s&apos;occupe du reste.</p>
         </div>
 
         <QuickOrderForm />
