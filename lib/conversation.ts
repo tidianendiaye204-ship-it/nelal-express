@@ -67,81 +67,89 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     case 'IDLE': {
       if (['commande', 'colis', 'envoyer', 'livraison', 'nouveau', 'salut', 'bonjour'].some(k => lowerText.includes(k))) {
         await updateConvo(waId, 'AWAITING_DEPART', {})
-        return "📍 Bonjour ! C'est parti pour votre commande. Quel est le *quartier de départ* ? (Ex: Médina, Point E, Keur Massar...)"
+        return "👋 *Bienvenue chez Nelal Express.*\n\nNous allons préparer votre demande de livraison ensemble.\n\n📍 Pour commencer, quel est le *quartier de départ* ?\n_(Exemple : Médina, Point E, Keur Massar...)_"
       }
-      return "Bonjour ! Tapez *'commande'* pour envoyer un colis. 📦"
+      return "🤝 *Nelal Express* à votre service.\n\nTapez *'commande'* pour initier un nouvel envoi."
     }
 
     case 'AWAITING_DEPART': {
       const quartierFrom = await findQuartier(cleanText)
       if (!quartierFrom) {
-        return `🤔 Je ne reconnais pas le quartier "${cleanText}". Pouvez-vous reformuler ? (Ex: Médina, Point E, Keur Massar...)`
+        return `🧐 Nous ne parvenons pas à localiser le quartier "${cleanText}".\n\nPourriez-vous préciser ou corriger l'orthographe ?`
       }
       await updateConvo(waId, 'AWAITING_ARRIVEE', { 
         ...data, 
         quartierDepart: quartierFrom.nom,
         quartierDepartId: quartierFrom.id 
       })
-      return `📍 Reçu : Départ de *${quartierFrom.nom}*.\n\nQuelle est la *destination* ?`
+      return `✅ *Départ enregistré* : ${quartierFrom.nom}.\n\n🎯 Quelle est la *destination* du colis ?`
     }
 
     case 'AWAITING_ARRIVEE': {
       const quartierTo = await findQuartier(cleanText)
       if (!quartierTo) {
-        return `🤔 Je ne reconnais pas le quartier "${cleanText}". Pouvez-vous reformuler ?`
+        return `🧐 Nous ne parvenons pas à localiser le quartier "${cleanText}".\n\nVeuillez préciser le quartier de destination.`
       }
       await updateConvo(waId, 'AWAITING_NAME', { 
         ...data, 
         quartierArrivee: quartierTo.nom,
         quartierArriveeId: quartierTo.id 
       })
-      return `👤 Parfait. Quel est le *Nom complet* du destinataire ?`
+      return `👤 Très bien. Quel est le *nom complet* du destinataire ?`
     }
 
     case 'AWAITING_NAME': {
       await updateConvo(waId, 'AWAITING_PHONE', { ...data, recipientName: cleanText })
-      return `📞 Quel est le *numéro WhatsApp* du destinataire ? (Format: 77XXXXXXX)`
+      return `📞 Merci. Quel est le *numéro WhatsApp* du destinataire ?\n_(Format : 77XXXXXXX)_`
     }
 
     case 'AWAITING_PHONE': {
-      const phoneMatch = cleanText.replace(/\s/g, '').match(/^(70|75|76|77|78)\d{7}$/)
+      const cleaned = cleanText.replace(/[\s+\-\.]/g, '')
+      const phoneMatch = cleaned.match(/^(?:221)?(70|75|76|77|78)\d{7}$/)
+      
       if (!phoneMatch) {
-        return "⚠️ Format invalide. Veuillez saisir un numéro sénégalais valide à 9 chiffres (ex: 771234567)."
+        return "⚠️ Le format du numéro semble incorrect.\n\nVeuillez saisir un numéro sénégalais valide (ex: 771234567)."
       }
-      const phone = phoneMatch[0]
+      
+      const phone = cleaned.slice(-9)
       await updateConvo(waId, 'AWAITING_CONFIRMATION', { ...data, recipientPhone: phone })
       
-      return `📦 *RÉCAPITULATIF* :\n\n` +
-             `🏠 Départ : ${data.quartierDepart || 'Non détecté'}\n` +
-             `🎯 Arrivée : ${data.quartierArrivee || 'Non détecté'}\n` +
-             `👤 Destinataire : ${data.recipientName || 'Non précisé'} (${phone})\n\n` +
-             `Confirmez-vous cette commande ? (Répondez *OUI* ou *NON*)`
+      return `📝 *RÉSUMÉ DE VOTRE COMMANDE*\n` +
+             `────────────────────\n` +
+             `🏠 *Départ* : ${data.quartierDepart || '-'}\n` +
+             `🎯 *Arrivée* : ${data.quartierArrivee || '-'}\n` +
+             `👤 *Destinataire* : ${data.recipientName || '-'} (${phone})\n` +
+             `────────────────────\n\n` +
+             `Confirmez-vous l'envoi de ce colis ?\n\n` +
+             `👉 Répondez *OUI* pour valider ou *NON* pour annuler.`
     }
 
     case 'AWAITING_CONFIRMATION': {
-      if (lowerText === 'oui' || lowerText === 'ok') {
+      if (lowerText === 'oui' || lowerText === 'ok' || lowerText === 'valider') {
         try {
-          // 1. Création de la commande
-          const { order, trackingToken } = await createBotOrder(waId, data)
-          
+          const result = await createBotOrder(waId, data)
+          if (!result || !result.order) throw new Error('Order creation failed')
+
+          const { order, trackingToken } = result
           await updateConvo(waId, 'IDLE', {})
           
-          return `✅ *COMMANDE CONFIRMÉE !*\n\n` +
-                 `📦 Votre commande a été enregistrée.\n` +
-                 `🔢 Code de suivi : *NEL-${order.id.slice(0, 4).toUpperCase()}*\n` +
-                 `🔐 Code de livraison : *${order.delivery_code}* (À donner au livreur).\n\n` +
-                 `🔗 Suivez votre colis ici :\n` +
+          return `✨ *COMMANDE VALIDÉE AVEC SUCCÈS !*\n\n` +
+                 `Votre demande a été prise en charge par notre équipe.\n\n` +
+                 `🆔 Référence : *NEL-${order.id.slice(0, 4).toUpperCase()}*\n` +
+                 `🔐 Code de sécurité : *${order.delivery_code}*\n\n` +
+                 `⚠️ *Important* : Communiquez le code de sécurité au destinataire. Il sera indispensable pour valider la livraison.\n\n` +
+                 `📍 *Suivi en temps réel* :\n` +
                  `https://nelal-express.vercel.app/t/${trackingToken}\n\n` +
-                 `Un livreur vous contactera pour la récupération.`
+                 `Merci de faire confiance à *Nelal Express* ! 🌍`
         } catch (err: any) {
           console.error('[Bot Order Error]', err)
-          return "❌ Désolé, une erreur est survenue lors de la création de la commande. Veuillez réessayer plus tard."
+          return "❌ Nous rencontrons une difficulté technique temporaire. Veuillez nous excuser et réessayer dans quelques instants."
         }
       } else if (lowerText === 'non' || lowerText === 'annuler') {
         await updateConvo(waId, 'IDLE', {})
-        return "Commande annulée. N'hésitez pas si vous avez besoin d'autre chose ! 😊"
+        return "🚫 *Commande annulée.*\n\nNous restons à votre disposition si vous changez d'avis. À bientôt !"
       }
-      return "Veuillez répondre par *OUI* ou *NON* pour confirmer."
+      return "Veuillez répondre par *OUI* ou par *NON*."
     }
 
     default:
@@ -153,31 +161,39 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
 async function createBotOrder(waId: string, data: ConversationData) {
   const supabase = createAdminClient()
   
-  // 1. Gérer le profil (Ghost Profile si nouveau)
+  // 1. Gérer le profil (Chercher par téléphone d'abord)
   let { data: profile } = await supabase
     .from('profiles')
     .select('id')
     .eq('phone', waId)
-    .single()
+    .maybeSingle()
     
-  if (!profile) {
-    // Note: Dans un vrai système, on utiliserait le nom WhatsApp s'il est dispo
-    const { data: newProfile } = await supabase
+  let clientId = profile?.id
+
+  // Si pas de profil, on essaie d'en créer un "Ghost" sans UUID Auth
+  if (!clientId) {
+    const { data: newProfile, error: profError } = await supabase
       .from('profiles')
       .insert({
-        id: crypto.randomUUID(), // Utiliser l'id de la table conversations ou aléatoire si pas lié à auth.users
         full_name: 'Client WhatsApp',
         phone: waId,
         role: 'client'
       })
       .select('id')
       .single()
-    profile = newProfile
+    
+    if (profError) {
+      console.warn('[Profile Create Warning] Impossible de créer le profil, on continue sans client_id:', profError.message)
+      // Si on ne peut pas créer de profil, on peut choisir soit d'échouer, 
+      // soit de laisser client_id à null si la table orders le permet.
+    } else {
+      clientId = newProfile.id
+    }
   }
 
-  // 2. Récupérer les zones des quartiers
-  const { data: qDepart } = await supabase.from('quartiers').select('zone_id').eq('id', data.quartierDepartId).single()
-  const { data: qArrivee } = await supabase.from('quartiers').select('zone_id').eq('id', data.quartierArriveeId).single()
+  // 2. Récupérer les zones des quartiers pour le calcul automatique
+  const { data: qDepart } = await supabase.from('quartiers').select('zone_id').eq('id', data.quartierDepartId).maybeSingle()
+  const { data: qArrivee } = await supabase.from('quartiers').select('zone_id').eq('id', data.quartierArriveeId).maybeSingle()
 
   // 3. Créer la commande
   const deliveryCode = Math.floor(1000 + Math.random() * 9000)
@@ -185,23 +201,26 @@ async function createBotOrder(waId: string, data: ConversationData) {
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
-      client_id: profile!.id,
+      client_id: clientId, // Peut être null si création profil échoue
       quartier_depart_id: data.quartierDepartId,
       quartier_arrivee_id: data.quartierArriveeId,
-      zone_from_id: qDepart?.zone_id,
-      zone_to_id: qArrivee?.zone_id,
+      zone_from_id: qDepart?.zone_id || null,
+      zone_to_id: qArrivee?.zone_id || null,
       description: `Commande WhatsApp (${data.quartierDepart} → ${data.quartierArrivee})`,
-      recipient_name: data.recipientName,
+      recipient_name: data.recipientName || 'Destinataire',
       recipient_phone: data.recipientPhone,
       delivery_code: deliveryCode,
       status: 'en_attente',
       type: 'particulier',
-      price: 2000 // Fixe par défaut pour le bot, ajustable par l'admin
+      price: 2000 
     })
     .select('id, delivery_code')
     .single()
 
-  if (orderError) throw orderError
+  if (orderError) {
+    console.error('[Supabase Order Insert Error]', orderError)
+    throw orderError
+  }
 
   // 4. Générer token de suivi
   const token = Math.random().toString(36).substring(2, 10).toUpperCase()
