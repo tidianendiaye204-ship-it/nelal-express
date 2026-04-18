@@ -7,63 +7,63 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#0F172A] text-white font-dm overflow-hidden">
 
       {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F172A]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30">
-              <span className="text-white font-display font-black text-xl">N</span>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0F172A]/80 backdrop-blur-xl border-b border-white/5 font-display italic tracking-tighter">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <span className="text-white font-black text-lg sm:text-xl italic">N</span>
             </div>
-            <span className="font-display font-black text-2xl tracking-tighter text-white">Nelal<span className="text-orange-500 underline decoration-2 underline-offset-4">Express</span></span>
+            <span className="font-black text-lg sm:text-2xl text-white">Nelal<span className="text-orange-500 underline decoration-2 underline-offset-4">Express</span></span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login" className="text-slate-400 text-sm font-bold hover:text-white transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/auth/login" className="text-slate-400 text-[10px] sm:text-sm font-bold hover:text-white transition-colors">
               Connexion
             </Link>
             <Link href="/auth/signup"
-              className="bg-white text-slate-900 px-6 py-3 rounded-2xl text-sm font-black transition-all hover:bg-orange-500 hover:text-white active:scale-95 shadow-xl shadow-white/5">
-              Rejoindre l&apos;Élite
+              className="bg-white text-slate-900 px-3 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-black transition-all hover:bg-orange-500 hover:text-white active:scale-95 shadow-xl shadow-white/5">
+              Rejoindre
             </Link>
           </div>
         </div>
       </nav>
 
       {/* HERO SECTION - PREMIUM DARK */}
-      <section className="relative pt-40 pb-24 px-6 overflow-hidden">
+      <section className="relative pt-32 sm:pt-40 pb-16 sm:pb-24 px-6 overflow-hidden">
         {/* Background blobs */}
-        <div className="absolute top-1/4 -left-24 w-96 h-96 bg-orange-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-0 -right-24 w-[30rem] h-[30rem] bg-blue-500/10 rounded-full blur-[160px]"></div>
+        <div className="absolute top-1/4 -left-24 w-64 sm:w-96 h-64 sm:h-96 bg-orange-500/10 rounded-full blur-[80px] sm:blur-[120px]"></div>
+        <div className="absolute bottom-0 -right-24 w-80 sm:w-[30rem] h-80 sm:h-[30rem] bg-blue-500/10 rounded-full blur-[100px] sm:blur-[160px]"></div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 backdrop-blur-md rounded-full px-4 py-1.5 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 backdrop-blur-md rounded-full px-4 py-1.5 mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
             </span>
-            <span className="text-white/70 text-[10px] font-black uppercase tracking-[0.2em]">Logistique Stratégique Sénégal</span>
+            <span className="text-white/70 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em]">Logistique Stratégique Sénégal</span>
           </div>
 
-          <h1 className="font-display font-black text-4xl md:text-7xl leading-[0.95] mb-8 tracking-tighter uppercase italic">
+          <h1 className="font-display font-black text-3xl sm:text-5xl md:text-7xl leading-[0.95] mb-6 sm:mb-8 tracking-tighter uppercase italic">
             L&apos;Axe de <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">Confiance</span>
           </h1>
 
-          <div className="flex justify-center mb-10">
-            <div className="flex flex-col md:flex-row items-center gap-4 bg-white/5 border border-white/5 p-2 rounded-[2.5rem] backdrop-blur-lg">
-                <div className="px-6 py-3 rounded-[2rem] bg-white/10 border border-white/10 font-display font-black text-sm uppercase tracking-widest">Dakar</div>
-                <ArrowRight className="w-5 h-5 text-orange-500 rotate-90 md:rotate-0" />
-                <div className="px-6 py-3 rounded-[2rem] bg-orange-500/20 border border-orange-500/30 text-orange-400 font-display font-black text-sm uppercase tracking-widest shadow-lg shadow-orange-500/10">Yeumbeul Nord</div>
-                <ArrowRight className="w-5 h-5 text-orange-500 rotate-90 md:rotate-0" />
-                <div className="px-6 py-3 rounded-[2rem] bg-white/10 border border-white/10 font-display font-black text-sm uppercase tracking-widest">Ndioum</div>
+          <div className="flex justify-center mb-8 sm:mb-10">
+            <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-4 bg-white/5 border border-white/5 p-2 rounded-3xl sm:rounded-[2.5rem] backdrop-blur-lg w-full sm:w-auto">
+                <div className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-[2rem] bg-white/10 border border-white/10 font-display font-black text-[10px] sm:text-sm uppercase tracking-widest text-center text-white">Dakar</div>
+                <ArrowRight className="w-4 h-4 text-orange-500 rotate-90 md:rotate-0" />
+                <div className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-[2rem] bg-orange-500/20 border border-orange-500/30 text-orange-400 font-display font-black text-[10px] sm:text-sm uppercase tracking-widest shadow-lg shadow-orange-500/10 text-center">Yeumbeul Nord</div>
+                <ArrowRight className="w-4 h-4 text-orange-500 rotate-90 md:rotate-0" />
+                <div className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-[2rem] bg-white/10 border border-white/10 font-display font-black text-[10px] sm:text-sm uppercase tracking-widest text-center text-white">Ndioum</div>
             </div>
           </div>
 
-          <p className="text-slate-400 text-base md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
+          <p className="text-slate-400 text-sm sm:text-base md:text-xl max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed font-medium">
             Nelal Express n&apos;est pas juste une app. C&apos;est une équipe ancrée localement pour sécuriser vos envois entre la capitale, la banlieue et le Fouta.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/commander"
-              className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-10 py-5 rounded-[2rem] font-display font-black text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center justify-center gap-3 group">
+              className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-display font-black text-base sm:text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center justify-center gap-3 group">
               Expédier Maintenant
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -100,27 +100,27 @@ export default function LandingPage() {
             </div>
             <div className="relative">
                <div className="absolute inset-0 bg-orange-500/20 blur-[100px] rounded-full"></div>
-               <div className="relative bg-white/5 border border-white/10 rounded-[3rem] p-8 backdrop-blur-xl shadow-2xl">
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900 rounded-3xl p-6 border border-white/5 space-y-4">
-                        <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500"><ShieldCheck /></div>
-                        <div className="font-display font-black text-2xl uppercase">100%</div>
-                        <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">Sécurité Colis</div>
+               <div className="relative bg-white/5 border border-white/10 rounded-3xl sm:rounded-[3rem] p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500"><ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="font-display font-black text-xl sm:text-2xl uppercase">100%</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Sécurité Colis</div>
                     </div>
-                    <div className="bg-slate-900 rounded-3xl p-6 border border-white/5 space-y-4 mt-8">
-                        <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500"><Globe /></div>
-                        <div className="font-display font-black text-2xl uppercase">Direct</div>
-                        <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">Dakar ↔ Ndioum</div>
+                    <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4 sm:mt-8">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500"><Globe className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="font-display font-black text-xl sm:text-2xl uppercase">Direct</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Dakar ↔ Ndioum</div>
                     </div>
-                    <div className="bg-slate-900 rounded-3xl p-6 border border-white/5 space-y-4">
-                        <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500"><Users /></div>
-                        <div className="font-display font-black text-2xl uppercase">Local</div>
-                        <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">Équipe Dakaroise</div>
+                    <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500"><Users className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="font-display font-black text-xl sm:text-2xl uppercase">Local</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Équipe Dakaroise</div>
                     </div>
-                    <div className="bg-slate-900 rounded-3xl p-6 border border-white/5 space-y-4 mt-8">
-                        <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500"><Zap /></div>
-                        <div className="font-display font-black text-2xl uppercase">Express</div>
-                        <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">Service Prioritaire</div>
+                    <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4 sm:mt-8">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500"><Zap className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="font-display font-black text-xl sm:text-2xl uppercase">Express</div>
+                        <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Service Prioritaire</div>
                     </div>
                  </div>
                </div>
@@ -181,20 +181,20 @@ export default function LandingPage() {
               color: 'bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10'
             },
           ].map((section) => (
-            <div key={section.type} className={`border rounded-[3rem] p-10 flex flex-col items-center text-center transition-all hover:-translate-y-2 duration-300 ${section.color}`}>
-              <div className="bg-[#0F172A] p-4 rounded-3xl mb-6 shadow-2xl border border-white/5">
+            <div key={section.type} className={`border rounded-3xl sm:rounded-[3rem] p-6 sm:p-10 flex flex-col items-center text-center transition-all hover:-translate-y-2 duration-300 ${section.color}`}>
+              <div className="bg-[#0F172A] p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl border border-white/5 text-center">
                 {section.icon}
               </div>
-              <h3 className="font-display font-black text-2xl mb-6 uppercase tracking-tight italic">{section.type}</h3>
-              <div className="space-y-3 mb-10 w-full">
+              <h3 className="font-display font-black text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-tight italic">{section.type}</h3>
+              <div className="space-y-2 sm:space-y-3 mb-8 sm:mb-10 w-full text-center">
                 {section.zones.map((z) => (
-                  <div key={z} className="text-slate-400 text-sm font-bold flex items-center justify-center gap-2">
+                  <div key={z} className="text-slate-400 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
                     <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
                     {z}
                   </div>
                 ))}
               </div>
-              <div className="mt-auto inline-block bg-white text-slate-900 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl">
+              <div className="mt-auto inline-block bg-white text-slate-900 px-4 sm:px-6 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-black text-[8px] sm:text-[10px] uppercase tracking-[0.2em] shadow-xl">
                 {section.tarif}
               </div>
             </div>
@@ -203,20 +203,20 @@ export default function LandingPage() {
       </section>
 
       {/* CTA SECTION - ULTRA PREMIUM */}
-      <section className="max-w-7xl mx-auto px-6 py-24 mb-12">
-        <div className="bg-gradient-to-br from-slate-900 to-black rounded-[4rem] p-12 md:p-24 text-center relative overflow-hidden border border-white/5 shadow-2xl">
-          <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-orange-500/5 rounded-full blur-[120px] -mr-40 -mt-40"></div>
+      <section className="max-w-7xl mx-auto px-6 py-12 sm:py-24 mb-12">
+        <div className="bg-gradient-to-br from-slate-900 to-black rounded-3xl sm:rounded-[4rem] p-8 sm:p-12 md:p-24 text-center relative overflow-hidden border border-white/5 shadow-2xl">
+          <div className="absolute top-0 right-0 w-[20rem] sm:w-[40rem] h-[20rem] sm:h-[40rem] bg-orange-500/5 rounded-full blur-[80px] sm:blur-[120px] -mr-20 sm:-mr-40 -mt-20 sm:-mt-40"></div>
           
-          <h2 className="font-display font-black text-4xl md:text-8xl text-white mb-8 tracking-tighter uppercase leading-[0.85]">
+          <h2 className="font-display font-black text-3xl sm:text-5xl md:text-8xl text-white mb-6 sm:mb-8 tracking-tighter uppercase leading-[0.85]">
             Nelal Express <br /><span className="text-orange-500 italic">C&apos;est le Terroir.</span>
           </h2>
-          <p className="text-slate-400 mb-12 text-lg md:text-2xl max-w-2xl mx-auto font-medium">
+          <p className="text-slate-400 mb-8 sm:mb-12 text-sm sm:text-lg md:text-2xl max-w-2xl mx-auto font-medium">
             De Yeumbeul Nord à Ndioum, nous sommes là pour vous.
           </p>
           <Link href="/auth/signup"
-            className="inline-flex items-center gap-4 bg-white text-slate-900 px-12 py-6 rounded-[2.5rem] font-display font-black text-xl shadow-2xl transition-all hover:scale-105 active:scale-95 hover:bg-orange-500 hover:text-white">
-            Rejoindre la Communauté
-            <ArrowRight className="w-6 h-6" />
+            className="inline-flex items-center gap-3 sm:gap-4 bg-white text-slate-900 px-8 sm:px-12 py-4 sm:py-6 rounded-2xl sm:rounded-[2.5rem] font-display font-black text-base sm:text-xl shadow-2xl transition-all hover:scale-105 active:scale-95 hover:bg-orange-500 hover:text-white">
+            Rejoindre Nelal
+            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </Link>
         </div>
       </section>
