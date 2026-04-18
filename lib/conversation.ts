@@ -64,8 +64,9 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
   const data = (convo?.data || {}) as ConversationData
 
   // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise)
-  const isGreeting = ['bonjour', 'salut', 'allo', 'hello', 'hey', 'hi', 'wesh', 'na ngade', 'coucou'].some(k => lowerText.includes(k))
-  const isOrderIntent = ['commande', 'recommencer', 'reset', 'nouveau', 'livraison', 'envoi'].some(k => lowerText.includes(k))
+  // Utilisation de REGEX avec \b pour ne matcher que les mots entiers (évite de reset sur "Oui pour l'envoi")
+  const isGreeting = /\b(bonjour|salut|allo|hello|hey|hi|wesh|coucou)\b/i.test(lowerText)
+  const isOrderIntent = /\b(commande|recommencer|reset|nouveau|quitter)\b/i.test(lowerText)
 
   if (isOrderIntent || isGreeting) {
      if (state === 'PAUSED' || isOrderIntent) {
@@ -144,7 +145,10 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     }
 
     case 'AWAITING_CONFIRMATION': {
-      if (lowerText === 'oui' || lowerText === 'ok' || lowerText === 'valider') {
+      const isYes = /^(oui|ok|valider|vrai|confirm|yes|oauis|ui)/i.test(lowerText)
+      const isNo = /^(non|no|annuler|stop|refuse)/i.test(lowerText)
+
+      if (isYes) {
         try {
           const result = await createBotOrder(waId, data)
           if (!result || !result.order) throw new Error('Order creation failed')
@@ -155,21 +159,21 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
           return `✨ *COMMANDE VALIDÉE AVEC SUCCÈS !*\n\n` +
                  `Votre demande a été prise en charge par notre équipe.\n\n` +
                  `🆔 Référence : *NEL-${order.id.slice(0, 4).toUpperCase()}*\n` +
-                 `🔐 Code de sécurité : *${order.delivery_code}*\n\n` +
-                 `⚠️ *Important* : Communiquez le code de sécurité au destinataire. Il sera indispensable pour valider la livraison.\n\n` +
+                 `🔐 Code de sécurité : *${order.delivery_code}* (À donner au livreur)\n\n` +
                  `📍 *Suivi en temps réel* :\n` +
                  `https://nelal-express.vercel.app/t/${trackingToken}\n\n` +
                  `Merci de faire confiance à *Nelal Express* ! 🌍`
         } catch (err: any) {
           console.error('[Bot Order Error]', err)
           const errorMsg = err.message || JSON.stringify(err)
-          return `❌ *ERREUR TECHNIQUE* :\n\nL'enregistrement a échoué.\nCode : \`${errorMsg.slice(0, 50)}\`...\n\nVeuillez réessayer ou contacter le support.`
+          return `❌ *ERREUR TECHNIQUE* :\n\nL'enregistrement a échoué.\nCode : \`${errorMsg.slice(0, 50)}\`...\n\nVeuillez réessayer dans quelques instants.`
         }
-      } else if (lowerText === 'non' || lowerText === 'annuler') {
+      } else if (isNo) {
         await updateConvo(waId, 'IDLE', {})
         return "🚫 *Commande annulée.*\n\nNous restons à votre disposition si vous changez d'avis. À bientôt !"
       }
-      return "Veuillez répondre par *OUI* ou par *NON*."
+      
+      return `🧐 Désolé, je n'ai pas compris votre réponse.\n\nSouhaitez-vous confirmer votre commande de *${data.quartierDepart || '-'}* vers *${data.quartierArrivee || '-'}* ?\n\n👉 Répondez *OUI* ou *NON*.`
     }
 
     default:
