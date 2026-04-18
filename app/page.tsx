@@ -13,7 +13,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30">
               <span className="text-white font-black text-lg sm:text-xl italic">N</span>
             </div>
-            <span className="font-black text-lg sm:text-2xl text-white">Nelal<span className="text-orange-500 underline decoration-2 underline-offset-4">Express</span></span>
+            <span className="font-black text-sm sm:text-xl text-white">Nelal<span className="text-orange-500 underline decoration-2 underline-offset-4">Express</span></span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/auth/login" className="text-slate-400 text-[10px] sm:text-sm font-bold hover:text-white transition-colors">
