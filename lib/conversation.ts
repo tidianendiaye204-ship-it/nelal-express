@@ -9,6 +9,7 @@ export type BotState =
   | 'AWAITING_NAME' 
   | 'AWAITING_PHONE' 
   | 'AWAITING_CONFIRMATION'
+  | 'PAUSED' // État où le bot se tait pour laisser l'humain parler
 
 interface ConversationData {
   quartierDepart?: string
@@ -59,9 +60,10 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     convo = newConvo
   }
 
-  // 2. INTERCEPTION PRIORITAIRE (Reset)
-  // Si l'utilisateur veut recommencer ou annuler, on reset l'état peu importe où il est
-  if (['commande', 'recommencer', 'annuler', 'reset', 'quitter'].some(k => lowerText === k)) {
+  // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise)
+  // Si l'utilisateur veut recommencer, on reset l'état. 
+  // Cela permet aussi de sortir de l'état PAUSED.
+  if (['commande', 'recommencer', 'reset', 'nouveau', 'livraison'].some(k => lowerText.includes(k))) {
      await updateConvo(waId, 'AWAITING_DEPART', {})
      return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* pour cette nouvelle livraison ?"
   }
@@ -69,7 +71,12 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
   const state = convo?.state as BotState
   const data = (convo?.data || {}) as ConversationData
 
-  // 3. Machine à états
+  // 3. GESTION DU MODE PAUSE
+  if (state === 'PAUSED') {
+    return null // Le bot ne répond rien, il laisse l'humain gérer
+  }
+
+  // 4. Machine à états
   switch (state) {
     case 'IDLE': {
       if (['commande', 'colis', 'envoyer', 'livraison', 'nouveau', 'salut', 'bonjour'].some(k => lowerText.includes(k))) {
@@ -242,7 +249,7 @@ async function createBotOrder(waId: string, data: ConversationData) {
   return { order, trackingToken: token }
 }
 
-async function updateConvo(waId: string, state: BotState, data: ConversationData) {
+export async function updateConvo(waId: string, state: BotState, data: ConversationData) {
   const supabase = createAdminClient()
   await supabase
     .from('conversations')

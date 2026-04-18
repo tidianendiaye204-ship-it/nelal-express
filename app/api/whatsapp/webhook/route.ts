@@ -13,32 +13,35 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     
-    // Green-API envoie différents types de webhooks
-    // On ne traite que la réception de message texte
-    if (body.typeWebhook !== 'incomingMessageReceived') {
-      return NextResponse.json({ status: 'ignored' })
+    // CAS 1 : RÉCEPTION DE MESSAGE (Client -> Bot)
+    if (body.typeWebhook === 'incomingMessageReceived') {
+      const chatId = body.senderData?.chatId
+      const text = body.messageData?.textMessageData?.textMessage
+      
+      if (!chatId || !text) return NextResponse.json({ status: 'ignored' })
+
+      const waId = chatId.split('@')[0]
+      console.log(`[Bot] Incoming from ${waId}: ${text}`)
+
+      const responseText = await handleWhatsAppMessage(waId, text)
+
+      if (responseText) {
+        await sendWhatsAppNotification(waId, responseText)
+      }
     }
 
-    const chatId = body.senderData?.chatId // ex: 221770000000@c.us
-    const text = body.messageData?.textMessageData?.textMessage
-    
-    if (!chatId || !text) {
-      return NextResponse.json({ status: 'ignored' })
-    }
-
-    // Extraire le numéro pur (enlever @c.us et les préfixes éventuels)
-    const waId = chatId.split('@')[0]
-
-    console.log(`[Green-API Webhook] Message de ${waId}: ${text}`)
-
-    // Traiter le message via notre moteur de conversation
-    const responseText = await handleWhatsAppMessage(waId, text)
-
-    // Renvoyer la réponse à l'utilisateur
-    if (responseText) {
-      // On peut renvoyer soit au waId (il sera formaté dans sendWhatsAppNotification)
-      // soit directement au chatId
-      await sendWhatsAppNotification(waId, responseText)
+    // CAS 2 : ENVOI DE MESSAGE (Humain / Instance -> Client)
+    // Si l'administrateur répond manuellement depuis son téléphone, on met le bot en PAUSE
+    if (body.typeWebhook === 'outgoingMessageReceived') {
+      const chatId = body.chatId // Format: 221... @c.us
+      if (chatId) {
+        const waId = chatId.split('@')[0]
+        console.log(`[Bot] Human takeover detected for ${waId}. Pausing bot.`)
+        // On met à jour l'état de la conversation à PAUSED
+        // On récupère les data existantes d'abord
+        const { handleWhatsAppMessage, updateConvo } = await import('@/lib/conversation')
+        await updateConvo(waId, 'PAUSED', {}) 
+      }
     }
 
     return NextResponse.json({ status: 'success' })
