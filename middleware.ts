@@ -8,14 +8,20 @@ export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // Si les clés sont manquantes, on laisse passer pour éviter de bloquer l'app (Vercel Build ou config manquante)
   if (!supabaseUrl || !supabaseKey) {
     return supabaseResponse
   }
 
-  // 1. Exclure les routes API publiques (Webhook WhatsApp, Cron) du Middleware
   const pathname = request.nextUrl.pathname
-  if (pathname.startsWith('/api/whatsapp/webhook') || pathname.startsWith('/api/cron/')) {
+
+  // 1. EXCLUSIONS TOTALES (Zéro log, zéro check auth)
+  // On place ici tout ce qui doit être public et ultra-rapide
+  if (
+    pathname === '/' || 
+    pathname.startsWith('/api/whatsapp') || 
+    pathname.startsWith('/api/cron') ||
+    pathname.startsWith('/t/') // Liens de suivi public
+  ) {
     return supabaseResponse
   }
 
@@ -41,46 +47,33 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    // Récupérer l'utilisateur de manière fiable sans timeout strict
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
-    if (userError) {
-      console.error('Middleware getUser error:', userError)
-    }
+    // On ne fait getUser() QUE si on n'est PAS sur une route d'authentification 
+    // ou si on a besoin de protéger le dashboard
+    const isAuthPage = pathname.startsWith('/auth')
+    const isDashboardPage = pathname.startsWith('/dashboard')
 
-    const pathname = request.nextUrl.pathname
-
-    // Routes publiques directes (on ne fait rien de spécial)
-    if (pathname === '/') {
+    if (!isAuthPage && !isDashboardPage) {
       return supabaseResponse
     }
 
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
     // Protéger les routes dashboard
-    if (pathname.startsWith('/dashboard') && !user) {
+    if (isDashboardPage && !user) {
       return NextResponse.redirect(new URL('/auth/login', request.url))
     }
 
-    // Rediriger vers dashboard si déjà connecté
-    if ((pathname === '/auth/login' || pathname === '/auth/signup') && user) {
+    // Rediriger vers dashboard si déjà connecté sur login/signup
+    if (isAuthPage && user) {
       let role = 'client'
-      
       try {
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single()
-        
-        if (profile?.role) {
-          role = profile.role
-        } else if (profileError) {
-          console.error('Middleware profile fetch error:', profileError)
-          // Si on a l'utilisateur mais pas de profil, on utilise les métadonnées
-          role = user.user_metadata?.role || 'client'
-        }
-      } catch (profileErr) {
-        console.error('Middleware profile critical error:', profileErr)
-      }
+        if (profile?.role) role = profile.role
+      } catch (e) {}
 
       return NextResponse.redirect(new URL(`/dashboard/${role}`, request.url))
     }
