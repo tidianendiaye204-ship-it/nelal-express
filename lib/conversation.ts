@@ -104,7 +104,7 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
     }
 
     case 'AWAITING_PHONE': {
-      const cleaned = cleanText.replace(/[\s+\-\.]/g, '')
+      const cleaned = cleanText.replace(/[\s+\-.]/g, '')
       const phoneMatch = cleaned.match(/^(?:221)?(70|75|76|77|78)\d{7}$/)
       
       if (!phoneMatch) {
@@ -162,7 +162,7 @@ async function createBotOrder(waId: string, data: ConversationData) {
   const supabase = createAdminClient()
   
   // 1. Gérer le profil (Chercher par téléphone d'abord)
-  let { data: profile } = await supabase
+  const { data: profile } = await supabase
     .from('profiles')
     .select('id')
     .eq('phone', waId)
