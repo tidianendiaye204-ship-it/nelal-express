@@ -1,65 +1,59 @@
 // app/api/whatsapp/webhook/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { handleWhatsAppMessage } from '@/lib/conversation'
-import { sendMetaWhatsAppMessage } from '@/lib/whatsapp'
+import { sendWhatsAppNotification } from '@/lib/whatsapp'
 
-/**
- * WEBHOOK DE VÉRIFICATION (GET)
- * Requis par Meta pour valider l'URL du webhook.
- */
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const mode = searchParams.get('hub.mode')
-  const token = searchParams.get('hub.verify_token')
-  const challenge = searchParams.get('hub.challenge')
-
-  const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN
-
-  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-    console.log('--- WEBHOOK VERIFIED ---')
-    return new NextResponse(challenge, { status: 200 })
-  }
-
-  return new NextResponse('Verification failed', { status: 403 })
-}
+export const dynamic = 'force-dynamic'
 
 /**
  * RÉCEPTION DES MESSAGES (POST)
+ * Format Green-API : JSON
  */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-
-    // Vérifier s'il s'agit d'un message WhatsApp
-    const entry = body.entry?.[0]
-    const changes = entry?.changes?.[0]
-    const value = changes?.value
     
-    if (value?.messaging_product !== 'whatsapp') {
+    // Green-API envoie différents types de webhooks
+    // On ne traite que la réception de message texte
+    if (body.typeWebhook !== 'incomingMessageReceived') {
       return NextResponse.json({ status: 'ignored' })
     }
 
-    const message = value.messages?.[0]
-    if (!message || message.type !== 'text') {
+    const chatId = body.senderData?.chatId // ex: 221770000000@c.us
+    const text = body.messageData?.textMessageData?.textMessage
+    
+    if (!chatId || !text) {
       return NextResponse.json({ status: 'ignored' })
     }
 
-    const waId = message.from // ex: 221770000000
-    const text = message.text.body
+    // Extraire le numéro pur (enlever @c.us et les préfixes éventuels)
+    const waId = chatId.split('@')[0]
 
-    console.log(`[WhatsApp Webhook] Message de ${waId}: ${text}`)
+    console.log(`[Green-API Webhook] Message de ${waId}: ${text}`)
 
     // Traiter le message via notre moteur de conversation
     const responseText = await handleWhatsAppMessage(waId, text)
 
     // Renvoyer la réponse à l'utilisateur
     if (responseText) {
-      await sendMetaWhatsAppMessage(waId, responseText)
+      // On peut renvoyer soit au waId (il sera formaté dans sendWhatsAppNotification)
+      // soit directement au chatId
+      await sendWhatsAppNotification(waId, responseText)
     }
 
     return NextResponse.json({ status: 'success' })
+
   } catch (error: any) {
-    console.error('[WhatsApp Webhook Error]', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('[Green-API Webhook Error]', error)
+    // On renvoie 200 même en cas d'erreur métier pour que Green-API 
+    // retire la notification de sa file d'attente
+    return NextResponse.json({ error: error.message }, { status: 200 })
   }
+}
+
+/**
+ * GET pour tester si l'URL est accessible
+ */
+export async function GET() {
+  return new NextResponse('Green-API Webhook Active', { status: 200 })
 }

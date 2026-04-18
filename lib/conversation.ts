@@ -1,5 +1,5 @@
 // lib/conversation.ts
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 
 
 export type BotState = 
@@ -20,7 +20,7 @@ interface ConversationData {
 }
 
 async function findQuartier(name: string) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   // Utilisation de la recherche floue pg_trgm (similitude > 0.3)
   const { data } = await supabase
     .rpc('search_quartiers', { search_query: name })
@@ -39,7 +39,7 @@ async function findQuartier(name: string) {
 }
 
 export async function handleWhatsAppMessage(waId: string, text: string) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const cleanText = text.trim()
   const lowerText = cleanText.toLowerCase()
 
@@ -149,7 +149,7 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
 }
 
 async function createBotOrder(waId: string, data: ConversationData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   
   // 1. Gérer le profil (Ghost Profile si nouveau)
   let { data: profile } = await supabase
@@ -212,7 +212,7 @@ async function createBotOrder(waId: string, data: ConversationData) {
 }
 
 async function updateConvo(waId: string, state: BotState, data: ConversationData) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   await supabase
     .from('conversations')
     .update({ state, data, updated_at: new Date().toISOString() })

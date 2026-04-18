@@ -13,6 +13,12 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
+  // 1. Exclure les routes API publiques (Webhook WhatsApp, Cron) du Middleware
+  const pathname = request.nextUrl.pathname
+  if (pathname.startsWith('/api/whatsapp/webhook') || pathname.startsWith('/api/cron/')) {
+    return supabaseResponse
+  }
+
   try {
     const supabase = createServerClient(
       supabaseUrl,
