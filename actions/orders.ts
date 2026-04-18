@@ -35,6 +35,8 @@ export async function createOrder(formData: FormData) {
   // Majoration express
   if (isExpress) price += 1000
 
+  const deliveryCode = Math.floor(1000 + Math.random() * 9000)
+
   const { data: order, error } = await supabase.from('orders').insert({
     client_id: user.id,
     zone_from_id,
@@ -48,8 +50,8 @@ export async function createOrder(formData: FormData) {
     recipient_phone: formData.get('recipient_phone') as string,
     address_landmark: (formData.get('address_landmark') as string) || null,
     payment_method: formData.get('payment_method') as PaymentMethod,
-    notes: (formData.get('notes') as string) || null,
     price,
+    delivery_code: deliveryCode,
   }).select().single()
 
   if (error) return { error: error.message }
@@ -198,6 +200,8 @@ export async function createQuickOrder(formData: FormData) {
   let price = Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0)
   if (isExpress) price += 1000
 
+  const deliveryCode = Math.floor(1000 + Math.random() * 9000)
+
   const { data: order, error } = await supabase.from('orders').insert({
     client_id: user.id,
     quartier_depart_id,
@@ -213,6 +217,7 @@ export async function createQuickOrder(formData: FormData) {
     address_landmark: (formData.get('pickup_repere') as string) || null,
     payment_method: formData.get('payment_method') as PaymentMethod,
     price,
+    delivery_code: deliveryCode,
   }).select().single()
 
   if (error) return { error: error.message }
@@ -363,6 +368,63 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
 
   return { success: true }
 }
+
+/**
+ * Validate delivery with the 4-digit code provided by the recipient
+ */
+export async function confirmDeliveryWithCode(orderId: string, inputCode: string, ardoise: number, totalExpected: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+
+  // 1. Récupérer le code attendu
+  const { data: order } = await supabase
+    .from('orders')
+    .select('delivery_code')
+    .eq('id', orderId)
+    .single()
+
+  if (!order) return { error: 'Commande introuvable' }
+  
+  // 2. Vérification du code
+  if (order.delivery_code?.toString() !== inputCode.trim()) {
+    return { error: 'Code de confirmation incorrect. Demandez le code au destinataire.' }
+  }
+
+  // 3. Procéder à la finalisation
+  return await completeDelivery(orderId, ardoise, totalExpected)
+}
+
+/**
+ * Update the pickup photo as proof of collection
+ */
+export async function updatePickupPhoto(orderId: string, photoUrl: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+
+  const { error } = await supabase
+    .from('orders')
+    .update({ 
+      pickup_photo_url: photoUrl,
+      status: 'en_cours' 
+    })
+    .eq('id', orderId)
+
+  if (error) return { error: error.message }
+
+  await supabase.from('order_status_history').insert({
+    order_id: orderId,
+    status: 'en_cours',
+    note: 'Colis récupéré avec photo preuve au départ',
+    created_by: user.id,
+  })
+
+  revalidatePath(`/suivi/${orderId}`)
+  revalidatePath('/dashboard/livreur')
+  return { success: true }
+}
+
 
 // ── ADMIN ────────────────────────────────────────────────
 

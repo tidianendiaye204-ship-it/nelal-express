@@ -2,8 +2,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { completeDelivery } from '@/actions/orders'
-import { CheckCircle, AlertCircle, Loader2, Coins } from 'lucide-react'
+import { confirmDeliveryWithCode } from '@/actions/orders'
+import { CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck } from 'lucide-react'
 
 interface DeliveryCompletionFormProps {
   order: any
@@ -14,11 +14,12 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null)
   const [showArdoise, setShowArdoise] = useState(false)
   const [ardoiseVal, setArdoiseVal] = useState('')
+  const [deliveryCode, setDeliveryCode] = useState('')
 
   const handleUpdate = () => {
     startTransition(async () => {
       const ardoise = showArdoise ? parseInt(ardoiseVal) || 0 : 0
-      const res = await completeDelivery(order.id, ardoise, order.price)
+      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, order.price)
       setResult(res)
     })
   }
@@ -32,7 +33,27 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   }
 
   return (
-    <div className="w-full space-y-3 mt-4 border-t border-slate-100 pt-4">
+    <div className="w-full space-y-4 mt-4 border-t border-slate-100 pt-4">
+      {/* SÉCURITÉ : CODE DE LIVRAISON */}
+      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
+        <label className="block text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5" /> Code de confirmation (4 chiffres)
+        </label>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={4}
+          value={deliveryCode}
+          onChange={(e) => setDeliveryCode(e.target.value)}
+          placeholder="Demandez le code au destinataire"
+          className="w-full bg-white border border-orange-200 text-slate-900 rounded-xl px-4 py-3 text-lg font-black tracking-[0.5em] text-center focus:ring-2 focus:ring-orange-500 transition-all outline-none"
+        />
+        <p className="text-[9px] text-orange-700/70 mt-2 font-medium leading-tight text-center">
+          Ce code a été envoyé au destinataire par WhatsApp.
+        </p>
+      </div>
+
       {result?.error && (
         <div className="bg-red-50 text-red-600 py-3 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-2">
           <AlertCircle className="w-4 h-4" /> {result.error}
@@ -88,7 +109,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       {/* SUBMIT BUTTON */}
       <button
         onClick={handleUpdate}
-        disabled={isPending || (showArdoise && !ardoiseVal)}
+        disabled={isPending || !deliveryCode || deliveryCode.length < 4 || (showArdoise && !ardoiseVal)}
         className="w-full bg-slate-900 hover:bg-black text-white shadow-xl shadow-slate-900/20 py-4 rounded-xl font-black text-sm uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:active:scale-100"
       >
         {isPending ? (

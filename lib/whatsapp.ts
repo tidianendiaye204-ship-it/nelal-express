@@ -118,8 +118,55 @@ export function whatsappLink(phone: string, message: string): string {
   return `https://wa.me/${international}?text=${encodeURIComponent(message || 'Bonjour, c\'est le livreur Nelal Express.')}`
 }
 
+// ── Envoi via Meta WhatsApp Cloud API (Direct) ────────────────────────────────
+export async function sendMetaWhatsAppMessage(
+  to: string,
+  text: string
+): Promise<{ success: boolean; error?: string }> {
+  const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
+  const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID
+
+  if (!ACCESS_TOKEN || !PHONE_NUMBER_ID) {
+    console.warn('[WhatsApp Meta - DEV MODE] Meta keys missing. Logging instead.')
+    console.log(`To: ${to}\nMessage: ${text}`)
+    return { success: true }
+  }
+
+  try {
+    const cleaned = to.replace(/\D/g, '')
+    const international = cleaned.startsWith('221') ? cleaned : `221${cleaned}`
+
+    const response = await fetch(
+      `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: international,
+          type: 'text',
+          text: { body: text },
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const err = await response.json()
+      return { success: false, error: err.error?.message || 'Unknown error' }
+    }
+
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
 // ── Envoi via Twilio WhatsApp API ────────────────────────────────────────────
-// À activer quand tu as un compte Twilio avec WhatsApp Business
+// (Gardé pour compatibilité existante)
 
 export async function sendWhatsAppNotification(
   phone: string,
