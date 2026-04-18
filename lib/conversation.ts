@@ -64,12 +64,13 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
 
   // 2. Machine à états
   switch (state) {
-    case 'IDLE':
+    case 'IDLE': {
       if (['commande', 'colis', 'envoyer', 'livraison', 'nouveau', 'salut', 'bonjour'].some(k => lowerText.includes(k))) {
         await updateConvo(waId, 'AWAITING_DEPART', {})
         return "📍 Bonjour ! C'est parti pour votre commande. Quel est le *quartier de départ* ? (Ex: Médina, Point E, Keur Massar...)"
       }
       return "Bonjour ! Tapez *'commande'* pour envoyer un colis. 📦"
+    }
 
     case 'AWAITING_DEPART': {
       const quartierFrom = await findQuartier(cleanText)
@@ -97,9 +98,10 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
       return `👤 Parfait. Quel est le *Nom complet* du destinataire ?`
     }
 
-    case 'AWAITING_NAME':
+    case 'AWAITING_NAME': {
       await updateConvo(waId, 'AWAITING_PHONE', { ...data, recipientName: cleanText })
       return `📞 Quel est le *numéro WhatsApp* du destinataire ? (Format: 77XXXXXXX)`
+    }
 
     case 'AWAITING_PHONE': {
       const phoneMatch = cleanText.replace(/\s/g, '').match(/^(70|75|76|77|78)\d{7}$/)
@@ -110,9 +112,9 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
       await updateConvo(waId, 'AWAITING_CONFIRMATION', { ...data, recipientPhone: phone })
       
       return `📦 *RÉCAPITULATIF* :\n\n` +
-             `🏠 Départ : ${data.quartierDepart}\n` +
-             `🎯 Arrivée : ${data.quartierArrivee}\n` +
-             `👤 Destinataire : ${data.recipientName} (${phone})\n\n` +
+             `🏠 Départ : ${data.quartierDepart || 'Non détecté'}\n` +
+             `🎯 Arrivée : ${data.quartierArrivee || 'Non détecté'}\n` +
+             `👤 Destinataire : ${data.recipientName || 'Non précisé'} (${phone})\n\n` +
              `Confirmez-vous cette commande ? (Répondez *OUI* ou *NON*)`
     }
 
