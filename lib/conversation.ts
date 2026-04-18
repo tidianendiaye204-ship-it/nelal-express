@@ -162,7 +162,8 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
                  `Merci de faire confiance à *Nelal Express* ! 🌍`
         } catch (err: any) {
           console.error('[Bot Order Error]', err)
-          return "❌ Nous rencontrons une difficulté technique temporaire. Veuillez nous excuser et réessayer dans quelques instants."
+          const errorMsg = err.message || JSON.stringify(err)
+          return `❌ *ERREUR TECHNIQUE* :\n\nL'enregistrement a échoué.\nCode : \`${errorMsg.slice(0, 50)}\`...\n\nVeuillez réessayer ou contacter le support.`
         }
       } else if (lowerText === 'non' || lowerText === 'annuler') {
         await updateConvo(waId, 'IDLE', {})
