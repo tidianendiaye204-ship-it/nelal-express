@@ -14,6 +14,16 @@ export interface Zone {
   created_at: string
 }
 
+export interface Quartier {
+  id: string
+  nom: string
+  zone_id: string
+  code_postal?: string
+  frais_livraison_base: number
+  created_at: string
+  zone?: Zone
+}
+
 export interface Profile {
   id: string
   full_name: string
@@ -32,6 +42,8 @@ export interface Order {
   livreur_id?: string
   zone_from_id: string
   zone_to_id: string
+  quartier_depart_id?: string
+  quartier_arrivee_id?: string
   type: OrderType
   description: string
   recipient_name: string
@@ -52,6 +64,8 @@ export interface Order {
   livreur?: Profile
   zone_from?: Zone
   zone_to?: Zone
+  quartier_depart?: Quartier
+  quartier_arrivee?: Quartier
   history?: OrderStatusHistory[]
 }
 

@@ -52,7 +52,7 @@ export default async function ClientDashboard() {
 
       {/* HERO CTA — Envoyer un colis */}
       <Link
-        href="/dashboard/client/nouvelle-commande"
+        href="/commander"
         className="block mx-2 mb-6 relative group overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 shadow-xl shadow-slate-900/10 active:scale-[0.98] transition-all"
       >
         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
@@ -202,7 +202,7 @@ export default async function ClientDashboard() {
             Envoyez votre premier colis en quelques secondes. Dakar, banlieue et intérieur du pays.
           </p>
           <Link
-            href="/dashboard/client/nouvelle-commande"
+            href="/commander"
             className="inline-flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-xl text-sm font-black shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
           >
             <Send className="w-4 h-4" /> Envoyer mon premier colis

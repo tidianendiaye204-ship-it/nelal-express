@@ -150,6 +150,70 @@ async function notifyAdminsOnOrder(orderId: string) {
   }
 }
 
+export async function createQuickOrder(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+
+  const quartier_depart_id = formData.get('quartier_depart_id') as string
+  const quartier_arrivee_id = formData.get('quartier_arrivee_id') as string
+  const isExpress = formData.get('is_express') === '1'
+
+  // Fetch the quartiers to get the base price and mapping zones
+  const { data: quartiers } = await supabase
+    .from('quartiers')
+    .select('id, frais_livraison_base, zone_id, nom')
+    .in('id', [quartier_depart_id, quartier_arrivee_id])
+
+  if (!quartiers || quartiers.length < 2) {
+    return { error: 'Quartiers introuvables.' }
+  }
+
+  const qDepart = quartiers.find(q => q.id === quartier_depart_id)
+  const qArrivee = quartiers.find(q => q.id === quartier_arrivee_id)
+
+  const zone_from_id = qDepart?.zone_id
+  const zone_to_id = qArrivee?.zone_id
+
+  let price = Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0)
+  if (isExpress) price += 1000
+
+  const { data: order, error } = await supabase.from('orders').insert({
+    client_id: user.id,
+    quartier_depart_id,
+    quartier_arrivee_id,
+    zone_from_id, // Backward compatibility
+    zone_to_id,   // Backward compatibility
+    pickup_address: qDepart?.nom,
+    delivery_address: qArrivee?.nom,
+    type: 'particulier', // Par défaut
+    description: formData.get('description') as string,
+    recipient_name: formData.get('recipient_name') as string,
+    recipient_phone: formData.get('recipient_phone') as string,
+    address_landmark: (formData.get('pickup_repere') as string) || null,
+    payment_method: formData.get('payment_method') as PaymentMethod,
+    price,
+  }).select().single()
+
+  if (error) return { error: error.message }
+
+  const pickupRepere = formData.get('pickup_repere') as string
+  const deliveryRepere = formData.get('delivery_repere') as string
+  
+  if (pickupRepere && zone_from_id) {
+    incrementOrAddRepere(zone_from_id, pickupRepere).catch(console.error)
+  }
+  if (deliveryRepere && zone_to_id) {
+    incrementOrAddRepere(zone_to_id, deliveryRepere).catch(console.error)
+  }
+
+  notifyAdminsOnOrder(order.id).catch(console.error)
+
+  revalidatePath('/dashboard/client')
+  revalidatePath('/dashboard/admin')
+  return { success: true, orderId: order.id }
+}
+
 export async function cancelOrder(orderId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

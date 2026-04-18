@@ -28,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     client: [
       { href: '/dashboard/client', label: 'Accueil', icon: <Home className="w-5 h-5" /> },
       { href: '/dashboard/client/commandes', label: 'Commandes', icon: <ClipboardList className="w-5 h-5" /> },
-      { href: '/dashboard/client/nouvelle-commande', label: 'Envoyer', icon: <PlusCircle className="w-5 h-5" /> },
+      { href: '/commander', label: 'Envoyer', icon: <PlusCircle className="w-5 h-5" /> },
       { href: '/dashboard/client/profil', label: 'Profil', icon: <User className="w-5 h-5" /> },
     ],
     livreur: [
