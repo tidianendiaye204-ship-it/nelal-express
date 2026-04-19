@@ -17,14 +17,23 @@ export async function acceptOrder(orderId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
 
-  // Verify livreur role
+  // Verify livreur role & Cash held limit
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, cash_held, max_cash_limit')
     .eq('id', user.id)
     .single()
 
   if (profile?.role !== 'livreur') return { error: 'Accès refusé' }
+
+  // Blocage si trop de cash en main
+  const cashHeld = profile?.cash_held || 0
+  const maxLimit = profile?.max_cash_limit || 25000
+  if (cashHeld >= maxLimit) {
+    return { 
+      error: `Dépassement du plafond de cash (${cashHeld.toLocaleString('fr-FR')} F). Veuillez reverser les fonds à l'agence pour continuer.` 
+    }
+  }
 
   // Check order is still available (prevent race condition)
   const { data: order } = await supabase

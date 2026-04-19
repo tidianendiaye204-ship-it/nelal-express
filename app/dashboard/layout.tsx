@@ -37,6 +37,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     ],
     admin: [
       { href: '/dashboard/admin', label: 'Statistiques', icon: <BarChart3 className="w-5 h-5" /> },
+      { href: '/dashboard/admin/wallet', label: 'Wallet', icon: <Wallet className="w-5 h-5" /> },
       { href: '/dashboard/admin/livreurs', label: 'Livreurs', icon: <Users className="w-5 h-5" /> },
       { href: '/dashboard/admin/zones', label: 'Zones', icon: <Map className="w-5 h-5" /> },
     ],

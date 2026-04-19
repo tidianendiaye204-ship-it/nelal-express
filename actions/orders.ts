@@ -306,7 +306,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, no
   return { success: true }
 }
 
-export async function completeDelivery(orderId: string, ardoise: number, totalExpected: number) {
+export async function completeDelivery(orderId: string, ardoise: number, totalExpected: number, photoUrl?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
@@ -318,10 +318,21 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
   const encaissementReel = totalExpected + ardoise
   const statusToSet: OrderStatus = ardoise > 0 ? 'livre_partiel' : 'livre'
 
+  // Si paiement en cash, on met à jour le portefeuille (wallet) du livreur
+  const { data: orderOriginal } = await supabase.from('orders').select('payment_method').eq('id', orderId).single()
+  
+  if (orderOriginal?.payment_method === 'cash') {
+    // On incrémente le cash_held dans le profil du livreur
+    const { data: profile } = await supabase.from('profiles').select('cash_held').eq('id', user.id).single()
+    const newCashHeld = (profile?.cash_held || 0) + encaissementReel
+    await supabase.from('profiles').update({ cash_held: newCashHeld }).eq('id', user.id)
+  }
+
   await supabase.from('orders').update({ 
     status: statusToSet,
     ardoise_livreur: ardoise > 0 ? ardoise : 0,
-    encaissement_reel: encaissementReel
+    encaissement_reel: encaissementReel,
+    delivery_photo_url: photoUrl
   }).eq('id', orderId)
 
   await supabase.from('order_status_history').insert({
@@ -372,7 +383,7 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
 /**
  * Validate delivery with the 4-digit code provided by the recipient
  */
-export async function confirmDeliveryWithCode(orderId: string, inputCode: string, ardoise: number, totalExpected: number) {
+export async function confirmDeliveryWithCode(orderId: string, inputCode: string, ardoise: number, totalExpected: number, photoUrl?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
@@ -392,7 +403,7 @@ export async function confirmDeliveryWithCode(orderId: string, inputCode: string
   }
 
   // 3. Procéder à la finalisation
-  return await completeDelivery(orderId, ardoise, totalExpected)
+  return await completeDelivery(orderId, ardoise, totalExpected, photoUrl)
 }
 
 /**
