@@ -91,64 +91,88 @@ export default async function CommandeDetailPage({ params }: { params: Promise<{
 
       {/* PROGRESS TRACKER */}
       {!isCancelled && (
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm mb-3 mx-2">
-          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Progression</h2>
+        <>
+          <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm mb-3 mx-2">
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Progression</h2>
 
-          {/* Progress bar */}
-          <div className="relative mb-6">
-            <div className="absolute top-3 left-0 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-orange-400 to-orange-500 transition-all duration-1000 ease-out rounded-full"
-                style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-              />
-            </div>
-            <div className="relative flex justify-between">
-              {steps.map((step, idx) => {
-                const isCompleted = idx <= currentStep
-                const isCurrent = idx === currentStep
-                return (
-                  <div key={step.key} className="flex flex-col items-center" style={{ width: '60px' }}>
-                    <div className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-500 z-10 ${
-                      isCompleted
-                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
-                        : 'bg-white border-2 border-slate-100 text-slate-300'
-                    } ${isCurrent ? 'ring-4 ring-orange-500/10 scale-110' : ''}`}>
-                      {isCompleted ? <CheckCircle className="w-3.5 h-3.5" /> : step.icon}
+            {/* Progress bar */}
+            <div className="relative mb-6">
+              <div className="absolute top-3 left-0 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-orange-400 to-orange-500 transition-all duration-1000 ease-out rounded-full"
+                  style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+                />
+              </div>
+              <div className="relative flex justify-between">
+                {steps.map((step, idx) => {
+                  const isCompleted = idx <= currentStep
+                  const isCurrent = idx === currentStep
+                  return (
+                    <div key={step.key} className="flex flex-col items-center" style={{ width: '60px' }}>
+                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all duration-500 z-10 ${
+                        isCompleted
+                          ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                          : 'bg-white border-2 border-slate-100 text-slate-300'
+                      } ${isCurrent ? 'ring-4 ring-orange-500/10 scale-110' : ''}`}>
+                        {isCompleted ? <CheckCircle className="w-3.5 h-3.5" /> : step.icon}
+                      </div>
+                      <span className={`mt-2 text-[7px] font-black uppercase tracking-wider text-center leading-tight ${
+                        isCompleted ? 'text-slate-700' : 'text-slate-300'
+                      }`}>
+                        {step.label}
+                      </span>
                     </div>
-                    <span className={`mt-2 text-[7px] font-black uppercase tracking-wider text-center leading-tight ${
-                      isCompleted ? 'text-slate-700' : 'text-slate-300'
-                    }`}>
-                      {step.label}
-                    </span>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
+
+            {/* Current status message */}
+            {!isDelivered ? (
+              <div className="bg-orange-50 rounded-xl p-3 flex items-center gap-3 border border-orange-100">
+                <span className="flex h-2.5 w-2.5 relative flex-shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
+                </span>
+                <p className="text-xs font-bold text-orange-700">
+                  {steps[currentStep]?.desc || 'Commande en traitement'}
+                </p>
+              </div>
+            ) : (
+              <div className="bg-green-50 rounded-xl p-3 flex items-center gap-3 border border-green-100">
+                <span className="text-lg">🎉</span>
+                <div>
+                  <p className="text-xs font-bold text-green-700">Dañu ko jënd — C&apos;est livré !</p>
+                  <p className="text-[10px] text-green-600 font-medium mt-0.5">Votre colis a été remis avec succès</p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Current status message */}
+          {/* SECURITY CODE (A donner au livreur) */}
           {!isDelivered && (
-            <div className="bg-orange-50 rounded-xl p-3 flex items-center gap-3 border border-orange-100">
-              <span className="flex h-2.5 w-2.5 relative flex-shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
-              </span>
-              <p className="text-xs font-bold text-orange-700">
-                {steps[currentStep]?.desc || 'Commande en traitement'}
-              </p>
-            </div>
-          )}
-
-          {isDelivered && (
-            <div className="bg-green-50 rounded-xl p-3 flex items-center gap-3 border border-green-100">
-              <span className="text-lg">🎉</span>
-              <div>
-                <p className="text-xs font-bold text-green-700">Dañu ko jënd — C&apos;est livré !</p>
-                <p className="text-[10px] text-green-600 font-medium mt-0.5">Votre colis a été remis avec succès</p>
+            <div className="bg-slate-900 rounded-2xl p-5 shadow-xl shadow-slate-900/20 mx-2 mb-3 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <CheckCircle className="w-24 h-24 text-white" />
+              </div>
+              <div className="relative z-10">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Code de sécurité livraison</p>
+                <div className="flex items-center gap-4">
+                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
+                    <p className="text-3xl font-mono font-black text-white tracking-[0.2em]">
+                      {order.delivery_code || '----'}
+                    </p>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[10px] text-slate-300 font-medium leading-relaxed">
+                      Donnez ce code au livreur uniquement <span className="text-orange-400 font-bold underline">après avoir reçu</span> votre colis.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* CANCELLED STATE */}
