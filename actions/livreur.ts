@@ -52,8 +52,15 @@ export async function acceptOrder(orderId: string) {
     .update({ livreur_id: user.id, status: 'confirme' })
     .eq('id', orderId)
     .eq('status', 'en_attente') // Extra safety
+    .is('livreur_id', null)     // Ensure it's still available
 
-  if (updateError) return { error: updateError.message }
+  if (updateError) {
+    console.error('AcceptOrder Update Error:', updateError)
+    if (updateError.message.includes('row-level security')) {
+      return { error: 'Erreur de permission (RLS). Veuillez appliquer le correctif SQL #103.' }
+    }
+    return { error: `Erreur lors de l'acceptation : ${updateError.message}` }
+  }
 
   // Log history
   await supabase.from('order_status_history').insert({
