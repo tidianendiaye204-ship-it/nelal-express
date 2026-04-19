@@ -322,10 +322,20 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
   const { data: orderOriginal } = await supabase.from('orders').select('payment_method').eq('id', orderId).single()
   
   if (orderOriginal?.payment_method === 'cash') {
-    // On incrémente le cash_held dans le profil du livreur
+    // 1. On incrémente le cash_held dans le profil du livreur
     const { data: profile } = await supabase.from('profiles').select('cash_held').eq('id', user.id).single()
     const newCashHeld = (profile?.cash_held || 0) + encaissementReel
     await supabase.from('profiles').update({ cash_held: newCashHeld }).eq('id', user.id)
+
+    // 2. Si ardoise, on crédite le solde du client (la monnaie que l'agence lui doit)
+    if (ardoise > 0) {
+      const { data: orderWithClient } = await supabase.from('orders').select('client_id').eq('id', orderId).single()
+      if (orderWithClient?.client_id) {
+        const { data: clientProfile } = await supabase.from('profiles').select('balance').eq('id', orderWithClient.client_id).single()
+        const newBalance = (clientProfile?.balance || 0) + ardoise
+        await supabase.from('profiles').update({ balance: newBalance }).eq('id', orderWithClient.client_id)
+      }
+    }
   }
 
   await supabase.from('orders').update({ 

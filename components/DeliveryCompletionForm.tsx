@@ -1,5 +1,10 @@
-import { Camera, Image as ImageIcon, CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck } from 'lucide-react'
+'use client'
+
+import { useState, useTransition } from 'react'
+import { confirmDeliveryWithCode } from '@/actions/orders'
+import { Camera, CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
+import Image from 'next/image'
 
 interface DeliveryCompletionFormProps {
   order: any
@@ -31,7 +36,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       const fileName = `${order.id}-${Math.random()}.${fileExt}`
       const filePath = `deliveries/${fileName}`
 
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('delivery-proofs')
         .upload(filePath, file)
 
@@ -77,7 +82,13 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
         
         {photoUrl ? (
           <div className="relative group overflow-hidden rounded-xl border-2 border-green-500 shadow-md">
-            <img src={photoUrl} alt="Preuve" className="w-full h-32 object-cover" />
+            <Image 
+              src={photoUrl} 
+              alt="Preuve" 
+              width={400}
+              height={300}
+              className="w-full h-32 object-cover" 
+            />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <button 
                 onClick={() => setPhotoUrl(null)}

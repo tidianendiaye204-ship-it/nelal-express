@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import MobileNav from '@/components/MobileNav'
 import { RealtimeProvider, RealtimeBadge } from '@/components/RealtimeNotifications'
-import { Home, PlusCircle, Bike, BarChart3, Users, Map, LogOut, Package, User, ClipboardList } from 'lucide-react'
+import { Home, PlusCircle, Bike, BarChart3, Wallet, Users, Map, LogOut, Package, User, ClipboardList } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile()
