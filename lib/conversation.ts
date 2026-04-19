@@ -22,21 +22,26 @@ interface ConversationData {
 
 async function findQuartier(name: string) {
   const supabase = createAdminClient()
-  // Utilisation de la recherche floue pg_trgm (similitude > 0.3)
-  const { data } = await supabase
+  // Utilisation de la recherche floue pg_trgm
+  const { data, error } = await supabase
     .rpc('search_quartiers', { search_query: name })
   
-  // Fallback sur ILIKE si RPC non dispo ou pas de match flou
-  if (!data) {
+  // Correction : PostgreSQL rpc peut retourner un tableau vide [] si pas de match, 
+  // ce qui est truthy en JS mais pas ce qu'on veut.
+  if (error || !data || (Array.isArray(data) && data.length === 0)) {
+    // On essaie le fallback par nom exact ou partiel
     const { data: fallback } = await supabase
       .from('quartiers')
       .select('id, nom')
       .ilike('nom', `%${name}%`)
       .limit(1)
-      .single()
+      .maybeSingle()
+    
     return fallback
   }
-  return data
+
+  // Si c'est un tableau de résultats (via RPC), on prend le premier
+  return Array.isArray(data) ? data[0] : data
 }
 
 export async function handleWhatsAppMessage(waId: string, text: string) {
@@ -63,21 +68,23 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
   const state = convo?.state as BotState
   const data = (convo?.data || {}) as ConversationData
 
-  // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise)
-  // Utilisation de REGEX avec \b pour ne matcher que les mots entiers (évite de reset sur "Oui pour l'envoi")
-  const isGreeting = /\b(bonjour|salut|allo|hello|hey|hi|wesh|coucou)\b/i.test(lowerText)
+  // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise / Bonjour)
+  const isGreeting = /\b(bonjour|salut|allo|hello|hey|hi|wesh|coucou|yo)\b/i.test(lowerText)
   const isOrderIntent = /\b(commande|recommencer|reset|nouveau|quitter)\b/i.test(lowerText)
 
-  if (isOrderIntent || isGreeting) {
-     if (state === 'PAUSED' || isOrderIntent) {
-        // Si commande => Reset complet. Si bonjour => On reprend sans effacer les données.
-        await updateConvo(waId, isOrderIntent ? 'AWAITING_DEPART' : 'IDLE', isOrderIntent ? {} : data)
-        if (isOrderIntent) return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* ?"
-        return "👋 Bonjour ! Je suis de retour. Tapez *'commande'* pour envoyer un colis ou posez votre question."
-     }
+  // Si on est PAUSED et qu'on reçoit un signe de vie, on réveille le bot
+  if (state === 'PAUSED' && (isGreeting || isOrderIntent)) {
+      await updateConvo(waId, 'IDLE', isOrderIntent ? {} : data)
+      return "👋 Bonjour ! Je suis de retour. Tapez *'commande'* pour envoyer un colis ou posez votre question."
   }
 
-  // 3. GESTION DU MODE PAUSE
+  // Si Reset forcé
+  if (isOrderIntent) {
+      await updateConvo(waId, 'AWAITING_DEPART', {})
+      return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* ?"
+  }
+
+  // 3. GESTION DU MODE PAUSE (Si on arrive ici, on ne traite rien)
   if (state === 'PAUSED') {
     return null 
   }
@@ -199,6 +206,7 @@ async function createBotOrder(waId: string, data: ConversationData) {
     const { data: newProfile, error: profError } = await supabase
       .from('profiles')
       .insert({
+        id: crypto.randomUUID(), // CRUCIAL : Force un ID pour les clients sans compte Auth
         full_name: 'Client WhatsApp',
         phone: waId,
         role: 'client'

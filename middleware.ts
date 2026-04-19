@@ -58,6 +58,13 @@ export async function middleware(request: NextRequest) {
 
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
+    // Si erreur réseau critique (fetch failed), on loggue et on laisse passer 
+    // pour éviter le crash "Application Error"
+    if (userError) {
+      console.error('Middleware Auth Check Error:', userError)
+      return supabaseResponse 
+    }
+
     // Protéger les routes dashboard
     if (isDashboardPage && !user) {
       return NextResponse.redirect(new URL('/auth/login', request.url))
@@ -67,13 +74,16 @@ export async function middleware(request: NextRequest) {
     if (isAuthPage && user) {
       let role = 'client'
       try {
-        const { data: profile } = await supabase
+        const { data: profile, error: pError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
-          .single()
+          .maybeSingle() // Utilise maybeSingle pour éviter le crash si profil absent
+        
         if (profile?.role) role = profile.role
-      } catch (e) {}
+      } catch (e) {
+        console.error('Middleware Profile Fetch error:', e)
+      }
 
       return NextResponse.redirect(new URL(`/dashboard/${role}`, request.url))
     }

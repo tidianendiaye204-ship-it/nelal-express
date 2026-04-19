@@ -18,36 +18,54 @@ export async function POST(req: NextRequest) {
     // CAS 1 : RÉCEPTION DE MESSAGE (Client -> Bot)
     if (type === 'incomingMessageReceived') {
       const chatId = body.senderData?.chatId
-      const text = body.messageData?.textMessageData?.textMessage
+      const senderName = body.senderData?.senderName || 'Inconnu'
       
+      // Extraction du texte (Gère les messages simples ET enrichis avec preview)
+      const text = 
+        body.messageData?.textMessageData?.textMessage || 
+        body.messageData?.extendedTextMessageData?.text ||
+        ''
+
       if (chatId && text) {
         const waId = chatId.split('@')[0]
-        console.log(`[Bot] Incoming: ${waId} -> ${text}`)
+        console.log(`[Bot] Incoming from ${senderName} (${waId}): "${text}"`)
         
         try {
           const responseText = await handleWhatsAppMessage(waId, text)
           if (responseText) {
-            await sendWhatsAppNotification(waId, responseText)
+            const sendResult = await sendWhatsAppNotification(waId, responseText)
+            if (!sendResult.success) {
+              console.error(`[Bot] Failed to send reply to ${waId}:`, sendResult.error)
+            }
           }
         } catch (botError: any) {
-          console.error('[Bot Logic Error]', botError?.message || botError)
+          console.error(`[Bot Logic Error] for ${waId}:`, botError?.message || botError)
+          // Optionnel : Notification d'erreur au client ?
+          // await sendWhatsAppNotification(waId, "⚠️ Une erreur technique est survenue. Nos équipes sont prévenues.")
         }
+      } else {
+        console.log(`[Bot] Ignored incoming webhook: missing text or chatId. Type: ${body.messageData?.typeMessage}`)
       }
     }
 
-    // CAS 2 : ENVOI DE MESSAGE (Humain -> Client)
-    // On met en pause le bot si l'admin parle manuellement
+    // CAS 2 : RÉCEPTION DE MESSAGE SORTANT (Humain ou Bot -> Client)
+    // On ne met en pause le bot QUE si le message vient physiquement du téléphone (Manual Takeover)
     if (type === 'outgoingMessageReceived') {
       const chatId = body.chatId
-      if (chatId) {
+      const isApiMessage = body.sendByApi === true // Green-API indique si ça vient de l'API
+
+      if (chatId && !isApiMessage) {
         const waId = chatId.split('@')[0]
-        console.log(`[Bot] Human takeover: ${waId}. Bot Paused.`)
+        console.log(`[Bot] Manual takeover detected for ${waId}. Bot PAUSED.`)
         
         try {
           const adminSupabase = createAdminClient()
           await adminSupabase
             .from('conversations')
-            .update({ state: 'PAUSED' })
+            .update({ 
+              state: 'PAUSED',
+              updated_at: new Date().toISOString()
+            })
             .eq('wa_id', waId)
         } catch (dbError: any) {
           console.error('[DB Pause Error]', dbError?.message || dbError)
