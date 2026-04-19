@@ -16,7 +16,7 @@ export async function searchQuartiers(query: string = ''): Promise<{ data: Quart
     }
     
     // Sort by name or predefined logic
-    dbQuery = dbQuery.order('nom', { ascending: true }).limit(20)
+    dbQuery = dbQuery.order('nom', { ascending: true }).limit(50)
 
     const { data, error } = await dbQuery
 
