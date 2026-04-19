@@ -40,7 +40,15 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
         .from('delivery-proofs')
         .upload(filePath, file)
 
-      if (uploadError) throw uploadError
+      if (uploadError) {
+        if (uploadError.message.includes('bucket not found')) {
+          throw new Error('Configuration Storage manquante (Bucket non trouvé).')
+        }
+        if (uploadError.message.includes('row-level security')) {
+          throw new Error('Accès refusé. Les droits de stockage ne sont pas configurés.')
+        }
+        throw uploadError
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('delivery-proofs')
@@ -49,7 +57,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       setPhotoUrl(publicUrl)
     } catch (err: any) {
       console.error('Upload error:', err)
-      setUploadError('Erreur lors de l’envoi de la photo. Réessayez.')
+      setUploadError(err.message || 'Erreur lors de l’envoi de la photo. Réessayez.')
     } finally {
       setIsUploading(false)
     }
