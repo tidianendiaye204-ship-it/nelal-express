@@ -69,19 +69,21 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
   const data = (convo?.data || {}) as ConversationData
 
   // 2. INTERCEPTION PRIORITAIRE (Reset / Reprise / Bonjour)
-  const isGreeting = /\b(bonjour|salut|allo|hello|hey|hi|wesh|coucou|yo)\b/i.test(lowerText)
+  // Ajout de variantes pour être plus flexible sur l'orthographe
+  const isGreeting = /\b(bonjour|bonjuor|bomjour|bjr|slt|salut|allo|hello|hey|hi|wesh|coucou|yo)\b/i.test(lowerText)
   const isOrderIntent = /\b(commande|recommencer|reset|nouveau|quitter)\b/i.test(lowerText)
 
-  // Si on est PAUSED et qu'on reçoit un signe de vie, on réveille le bot
-  if (state === 'PAUSED' && (isGreeting || isOrderIntent)) {
-      await updateConvo(waId, 'IDLE', isOrderIntent ? {} : data)
-      return "👋 Bonjour ! Je suis de retour. Tapez *'commande'* pour envoyer un colis ou posez votre question."
-  }
-
-  // Si Reset forcé
-  if (isOrderIntent) {
-      await updateConvo(waId, 'AWAITING_DEPART', {})
-      return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* ?"
+  // Si on reçoit une salutation ou un reset, on remet à plat l'état
+  if (isGreeting || isOrderIntent) {
+      const nextState = isOrderIntent ? 'AWAITING_DEPART' : 'IDLE'
+      const nextData = isOrderIntent ? {} : data
+      
+      await updateConvo(waId, nextState, nextData)
+      
+      if (isOrderIntent) {
+        return "🔄 *Réinitialisation...*\n\n📍 C'est reparti ! Quel est le *quartier de départ* ?"
+      }
+      return "👋 Bonjour ! Je suis *Nelal Express*, votre assistant de livraison.\n\nTapez *'commande'* pour envoyer un colis ou posez votre question."
   }
 
   // 3. GESTION DU MODE PAUSE (Si on arrive ici, on ne traite rien)
