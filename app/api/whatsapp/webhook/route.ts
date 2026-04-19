@@ -11,9 +11,22 @@ export const dynamic = 'force-dynamic'
  * Stabilisé avec imports top-level pour éviter les ECONNRESET sur Vercel Edge
  */
 export async function POST(req: NextRequest) {
+  const adminSupabase = createAdminClient()
   try {
-    const body = await req.json()
+    const rawBody = await req.text()
+    const body = JSON.parse(rawBody)
     const type = body.typeWebhook
+
+    // LOGGING DE DEBUG (Aide à comprendre pourquoi le bot ne répond pas)
+    try {
+      await adminSupabase.from('whatsapp_logs').insert({
+        type_webhook: type,
+        payload: body,
+        wa_id: body.senderData?.chatId?.split('@')[0] || body.chatId?.split('@')[0] || 'N/A'
+      })
+    } catch (logErr) {
+      console.error('[Logging Error] Could not write to whatsapp_logs:', logErr)
+    }
 
     // CAS 1 : RÉCEPTION DE MESSAGE (Client -> Bot)
     if (type === 'incomingMessageReceived') {
