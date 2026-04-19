@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 
 const STATUS_MESSAGES: Record<string, { text: string; emoji: string }> = {
   confirme: { text: 'Un livreur a pris votre commande !', emoji: '🚴' },

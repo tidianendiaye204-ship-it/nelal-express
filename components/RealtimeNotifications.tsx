@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 import { usePathname, useRouter } from 'next/navigation'
 import { sendBrowserNotification, requestNotificationPermission } from '@/lib/push-notifications'
 

@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 
 /**
  * Invisible component that listens for real-time order changes via Supabase Realtime.
