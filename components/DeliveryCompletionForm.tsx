@@ -32,6 +32,13 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
     setUploadError(null)
 
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('Upload Debug:', {
+        userId: user?.id,
+        bucket: 'delivery-proofs',
+        path: `deliveries/${order.id}`
+      })
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${order.id}-${Math.random()}.${fileExt}`
       const filePath = `deliveries/${fileName}`
