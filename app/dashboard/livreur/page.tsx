@@ -42,6 +42,16 @@ export default async function LivreurDashboard() {
   const todayEarnings = todayOrders?.reduce((sum, o) => sum + (o.price || 0), 0) || 0
   const todayCount = todayOrders?.length || 0
 
+  // Stats Globales (Total)
+  const { data: allOrders } = await supabase
+    .from('orders')
+    .select('price, status')
+    .eq('livreur_id', profile?.id)
+    .in('status', ['livre', 'livre_partiel'])
+
+  const totalEarnings = allOrders?.reduce((sum, o) => sum + (o.price || 0), 0) || 0
+  const totalCount = allOrders?.length || 0
+
   const { count: availableCount } = await supabase
     .from('orders')
     .select('id', { count: 'exact', head: true })
@@ -73,7 +83,10 @@ export default async function LivreurDashboard() {
             <p className="text-3xl font-display font-black leading-none mb-1">
               {todayEarnings.toLocaleString('fr-FR')} <span className="text-sm font-normal opacity-60">F</span>
             </p>
-            <p className="text-[8px] font-black uppercase tracking-widest opacity-80">Gains du jour</p>
+            <div className="flex items-center justify-between">
+              <p className="text-[8px] font-black uppercase tracking-widest opacity-80">Gains du jour</p>
+              <p className="text-[7px] font-bold opacity-40">Total: {totalEarnings.toLocaleString('fr-FR')} F</p>
+            </div>
           </div>
           <div className="bg-white rounded-[2rem] p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
             <Award className="w-5 h-5 mb-3 text-orange-500" />
@@ -81,7 +94,10 @@ export default async function LivreurDashboard() {
               <p className="text-2xl font-display font-black text-slate-900 leading-none mb-1">
                 {todayCount}
               </p>
-              <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Courses finies</p>
+              <div className="flex items-center justify-between">
+                <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Courses finies</p>
+                <p className="text-[7px] font-bold text-slate-300">Total: {totalCount}</p>
+              </div>
             </div>
           </div>
         </div>
