@@ -1,5 +1,5 @@
 // app/dashboard/livreur/page.tsx
-import { createClient, getProfile } from '@/lib/supabase/server'
+import { createClient, getProfile } from '@/utils/supabase/server'
 import LiveOrderUpdater from '@/components/LiveOrderUpdater'
 import StatusUpdateButton from '@/components/StatusUpdateButton'
 import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'

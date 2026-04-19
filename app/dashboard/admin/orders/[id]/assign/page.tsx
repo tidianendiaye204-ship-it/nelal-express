@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { assignLivreur } from '@/actions/orders'
 import { MapPin, Bike, Package, Check, ShieldAlert } from 'lucide-react'

@@ -1,7 +1,7 @@
 // actions/orders.ts
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { sendWhatsAppNotification, buildMessage } from '@/lib/whatsapp'
 import { sendPushToRole, sendPushToLivreursInZone, sendPushToUser } from '@/lib/web-push'

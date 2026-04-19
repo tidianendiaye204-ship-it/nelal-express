@@ -1,5 +1,5 @@
 // app/t/[token]/page.tsx
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import { Package, Truck, CheckCircle, Clock, MapPin, Camera } from 'lucide-react'
 import Link from 'next/link'

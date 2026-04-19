@@ -1,5 +1,5 @@
 // app/dashboard/client/nouvelle-commande/page.tsx
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import OrderForm from './OrderForm'
 

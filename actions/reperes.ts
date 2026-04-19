@@ -1,7 +1,7 @@
 // actions/reperes.ts
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 
 /**
  * Searches for landmarks geographically bound to a specific zone.

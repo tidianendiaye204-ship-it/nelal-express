@@ -1,6 +1,6 @@
 // app/dashboard/client/commandes/page.tsx
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
+import { getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'

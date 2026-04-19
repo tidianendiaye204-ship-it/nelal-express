@@ -1,6 +1,6 @@
 // app/api/cron/daily-recap/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'

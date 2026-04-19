@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { Quartier } from '@/lib/types'
 
 export async function searchQuartiers(query: string = ''): Promise<{ data: Quartier[] | null; error: string | null }> {

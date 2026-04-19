@@ -1,5 +1,5 @@
 // app/dashboard/admin/page.tsx
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { assignLivreur } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap, Users } from 'lucide-react'

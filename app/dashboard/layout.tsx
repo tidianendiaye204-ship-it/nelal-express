@@ -1,6 +1,6 @@
 // app/dashboard/layout.tsx
-import { getProfile } from '@/lib/supabase/server'
-import { createClient } from '@/lib/supabase/server'
+import { getProfile } from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { signOut } from '@/actions/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'

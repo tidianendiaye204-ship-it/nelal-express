@@ -1,5 +1,5 @@
 // app/dashboard/admin/livreurs/page.tsx
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { createLivreur } from '@/actions/orders'
 import { redirect } from 'next/navigation'
 import { UserPlus, Phone, MapPin, Bike, MessageCircle } from 'lucide-react'

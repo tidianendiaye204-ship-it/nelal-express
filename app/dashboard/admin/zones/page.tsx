@@ -1,5 +1,5 @@
 // app/dashboard/admin/zones/page.tsx
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { ZONE_TYPE_LABELS, type ZoneType } from '@/lib/types'
 import ZoneTarifForm from '@/components/ZoneTarifForm'
 import { Map, Zap } from 'lucide-react'

@@ -1,6 +1,6 @@
 // app/dashboard/client/page.tsx
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
+import { getProfile } from '@/utils/supabase/server'
 import Link from 'next/link'
 import LiveClientUpdater from '@/components/LiveClientUpdater'
 import { Send, Package, Bike, CheckCircle, Clock, Phone, ChevronRight, Sparkles, ArrowRight } from 'lucide-react'

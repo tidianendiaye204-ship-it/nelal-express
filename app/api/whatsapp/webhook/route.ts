@@ -1,8 +1,7 @@
-// app/api/whatsapp/webhook/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { handleWhatsAppMessage, updateConvo } from '@/lib/conversation'
+import { handleWhatsAppMessage } from '@/lib/conversation'
 import { sendWhatsAppNotification } from '@/lib/whatsapp'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 

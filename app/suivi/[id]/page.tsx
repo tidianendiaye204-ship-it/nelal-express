@@ -1,5 +1,5 @@
 // app/suivi/[id]/page.tsx
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 
 import Link from 'next/link'
 import { STATUS_LABELS } from '@/lib/types'

@@ -1,6 +1,6 @@
 // app/dashboard/client/profil/page.tsx
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
+import { getProfile } from '@/utils/supabase/server'
 import { signOut } from '@/actions/auth'
 import { updateProfile } from '@/actions/profile'
 import { redirect } from 'next/navigation'

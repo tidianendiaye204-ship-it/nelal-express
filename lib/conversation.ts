@@ -1,5 +1,5 @@
 // lib/conversation.ts
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 
 
 export type BotState = 

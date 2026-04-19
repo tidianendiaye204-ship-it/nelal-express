@@ -1,6 +1,6 @@
 // app/dashboard/livreur/disponibles/page.tsx
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
+import { getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import AcceptOrderButton from '@/components/AcceptOrderButton'
 import LiveOrderUpdater from '@/components/LiveOrderUpdater'

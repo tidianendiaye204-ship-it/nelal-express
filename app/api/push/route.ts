@@ -1,7 +1,7 @@
 // app/api/push/route.ts
 // API pour sauvegarder / supprimer les abonnements push
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 // POST — Sauvegarder un push subscription
