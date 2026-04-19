@@ -14,10 +14,10 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
     .from('orders')
     .select(`
       *,
-      client:profiles!client_id(full_name, phone),
-      livreur:profiles!livreur_id(full_name, phone),
-      zone_from:zones!zone_from_id(name, type),
-      zone_to:zones!zone_to_id(name, type),
+      client:profiles!orders_client_id_fkey(full_name, phone),
+      livreur:profiles!orders_livreur_id_fkey(full_name, phone),
+      zone_from:zones!orders_zone_from_id_fkey(name, type),
+      zone_to:zones!orders_zone_to_id_fkey(name, type),
       history:order_status_history(status, note, created_at)
     `)
     .eq('id', id)

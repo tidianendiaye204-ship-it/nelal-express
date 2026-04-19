@@ -11,12 +11,17 @@ import {
   ChevronRight, TrendingUp, Award, Map, Zap
 } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
 export default async function LivreurDashboard() {
   const supabase = await createClient()
   const profile = await getProfile()
+  
+  if (!profile || profile.role !== 'livreur') {
+    redirect('/auth/login')
+  }
 
   const { data: orders } = await supabase
     .from('orders')
