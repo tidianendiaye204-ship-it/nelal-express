@@ -183,9 +183,14 @@ export default async function ClientDashboard() {
                           <span className="truncate max-w-[150px] text-orange-500">{order.zone_to?.name}</span>
                         </div>
                       </div>
-                      <div className="bg-orange-50 text-orange-600 px-4 py-3 rounded-2xl flex flex-col items-center justify-center border border-orange-100 shadow-sm shrink-0 min-w-[80px]">
-                        <p className="text-[7px] font-black text-orange-400 uppercase tracking-widest mb-1">Code Séc.</p>
-                        <p className="text-xl font-display font-black tracking-widest leading-none">{order.delivery_code}</p>
+                      <div className="flex flex-col items-center gap-1.5 shrink-0 min-w-[100px]">
+                        <div className="bg-orange-500 text-white px-4 py-3 rounded-2xl flex flex-col items-center justify-center shadow-lg shadow-orange-500/30 border border-orange-400 w-full">
+                          <p className="text-[7px] font-black uppercase tracking-widest opacity-80 mb-1">Code Secret</p>
+                          <p className="text-2xl font-display font-black tracking-widest leading-none">{order.delivery_code}</p>
+                        </div>
+                        <p className="text-[7px] font-black text-orange-600 uppercase tracking-tight text-center leading-tight">
+                          🔑 À donner au livreur <br/> pour valider
+                        </p>
                       </div>
                     </div>
 

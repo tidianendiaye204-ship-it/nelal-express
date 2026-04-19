@@ -24,6 +24,7 @@ interface OrderNotifData {
   paymentMethod?: string
   trackingUrl?: string
   assignUrl?: string
+  acceptUrl?: string
 }
 
 // ── Messages WhatsApp ────────────────────────────────────────────────────────
@@ -54,7 +55,7 @@ Réf : #${ref}`
 📍 ${data.zoneFrom} → ${data.zoneTo}
 💰 ${data.price.toLocaleString('fr-FR')} FCFA
 
-👉 Réponds "OK" pour la prendre ou clique ici : ${data.assignUrl}
+👉 Clique ici pour l'accepter : ${data.acceptUrl}
 
 Réf : #${ref}`
 

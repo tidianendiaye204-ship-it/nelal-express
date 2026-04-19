@@ -89,6 +89,7 @@ async function notifyAdminsOnOrder(orderId: string) {
 
   // Format tracking links
   const assignUrl = `${BASE_URL}/dashboard/admin/orders/${order.id}/assign`
+  const acceptUrl = `${BASE_URL}/dashboard/livreur/disponibles`
   const ref = order.id.slice(0, 8).toUpperCase()
 
   const msgData = {
@@ -103,6 +104,7 @@ async function notifyAdminsOnOrder(orderId: string) {
     price: order.price,
     paymentMethod: order.payment_method,
     assignUrl,
+    acceptUrl,
   }
 
   // ─── 🔔 WEB PUSH (gratuit, fonctionne même app fermée) ───────────
