@@ -76,7 +76,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-white text-base font-bold truncate leading-tight">{profile.full_name}</div>
-                <div className="mt-1 inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                <div className={`mt-1 inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border shadow-sm ${roleBadge.color} border-current/20`}>
                   {roleBadge.label}
                 </div>
               </div>
