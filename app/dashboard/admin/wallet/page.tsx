@@ -121,7 +121,7 @@ export default async function AdminWalletPage() {
                       </p>
                     </div>
 
-                    <CashCollectionButton livreurId={l.id} livreurName={l.full_name} currentBalance={l.cash_held || 0} />
+                    <CashCollectionButton livreurId={l.id} currentBalance={l.cash_held || 0} />
                   </div>
                 </div>
               )
