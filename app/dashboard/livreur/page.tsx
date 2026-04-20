@@ -213,10 +213,10 @@ export default async function LivreurDashboard() {
             const isPickupDone = order.status === 'en_cours'
 
             return (
-              <div key={order.id} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden outline outline-4 outline-transparent hover:outline-orange-500/5 transition-all">
+              <div key={order.id} className="bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden group">
                 {/* Status Bar */}
-                <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                   <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                   <div className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
                      {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
                    </div>
                    <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">
@@ -224,17 +224,20 @@ export default async function LivreurDashboard() {
                    </div>
                 </div>
 
-                <div className="p-6">
-                   <div className="flex items-start justify-between mb-6">
-                     <h3 className="text-xl font-display font-black text-slate-900 uppercase tracking-tight leading-tight flex-1 mr-4">
+                <div className="p-4 md:p-6">
+                   <div className="flex items-start justify-between gap-4 mb-6">
+                     <h3 className="text-lg md:text-xl font-display font-black text-slate-900 uppercase tracking-tight leading-tight flex-1 break-words">
                        {order.description}
                      </h3>
-                     <div className="text-right">
-                        <p className="text-2xl font-display font-black text-orange-600 leading-none">
-                          {order.price.toLocaleString('fr-FR')} <span className="text-[10px]">F</span>
-                        </p>
+                     <div className="text-right shrink-0">
+                        <div className="flex items-baseline justify-end gap-1 text-orange-600">
+                          <span className="text-2xl md:text-3xl font-display font-black leading-none">
+                            {order.price.toLocaleString('fr-FR')}
+                          </span>
+                          <span className="text-xs font-black uppercase tracking-tighter">FCFA</span>
+                        </div>
                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                          {order.payment_method === 'cash' ? 'Cash' : 'Digital'}
+                          {order.payment_method === 'cash' ? '💵 Cash' : '💳 Digital'}
                         </p>
                      </div>
                    </div>

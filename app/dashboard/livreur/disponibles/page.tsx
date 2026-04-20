@@ -143,7 +143,7 @@ function OrderCard({ order, isPriority }: { order: any; isPriority: boolean }) {
         {/* Header */}
         <div className="flex items-start justify-between mb-4 pb-3 border-b border-slate-100">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               {isPriority && (
                 <span className="bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest">
                   Votre zone
@@ -153,7 +153,7 @@ function OrderCard({ order, isPriority }: { order: any; isPriority: boolean }) {
                 <Clock className="w-2.5 h-2.5" /> {estimatedTime}
               </span>
             </div>
-            <h3 className="text-slate-900 font-black text-sm leading-tight truncate uppercase tracking-tight">
+            <h3 className="text-slate-900 font-black text-sm leading-tight break-words uppercase tracking-tight">
               {order.description}
             </h3>
             <p className="text-slate-400 text-[8px] font-bold mt-1">
@@ -165,8 +165,11 @@ function OrderCard({ order, isPriority }: { order: any; isPriority: boolean }) {
               })}
             </p>
           </div>
-          <div className="font-display font-black text-orange-600 text-xl leading-none ml-3 bg-orange-50 px-4 py-3 rounded-xl">
-            {order.price.toLocaleString('fr-FR')} <span className="text-[10px]">F</span>
+          <div className="shrink-0 text-right">
+            <div className="font-display font-black text-orange-600 text-xl leading-none bg-orange-50 px-3 py-2.5 rounded-xl flex flex-col items-end">
+              <span className="leading-none">{order.price.toLocaleString('fr-FR')}</span>
+              <span className="text-[8px] font-black uppercase tracking-tighter mt-1 opacity-60">FCFA</span>
+            </div>
           </div>
         </div>
 
