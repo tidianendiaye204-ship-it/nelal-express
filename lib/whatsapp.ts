@@ -53,9 +53,12 @@ export function buildMessage(type: WaNotifType, data: OrderNotifData): string {
 👉 Clique ici pour l'accepter : ${data.acceptUrl}`
 
     case 'order_confirmed':
+      const ref = data.orderId.split('-')[0].toUpperCase()
       return `✅ *Nelal Express — Commande confirmée*
 
 Bonjour ${data.clientName} 👋
+
+*Référence :* #${ref}
 
 Votre commande a été confirmée et un livreur a été assigné.
 
