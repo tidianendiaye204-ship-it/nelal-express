@@ -7,13 +7,11 @@ import { Banknote, Loader2, CheckCircle, XCircle } from 'lucide-react'
 
 interface CashCollectionButtonProps {
   livreurId: string
-  livreurName: string
   currentBalance: number
 }
 
 export default function CashCollectionButton({ 
   livreurId, 
-  livreurName, 
   currentBalance 
 }: CashCollectionButtonProps) {
   const [isPending, startTransition] = useTransition()

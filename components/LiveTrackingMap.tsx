@@ -13,13 +13,12 @@ const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { 
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false })
 
 interface LiveTrackingMapProps {
-  orderId: string
   livreurId?: string
   initialLat?: number
   initialLng?: number
 }
 
-export default function LiveTrackingMap({ orderId: _, livreurId, initialLat, initialLng }: LiveTrackingMapProps) {
+export default function LiveTrackingMap({ livreurId, initialLat, initialLng }: LiveTrackingMapProps) {
   const [position, setPosition] = useState<[number, number] | null>(
     initialLat && initialLng ? [initialLat, initialLng] : null
   )
@@ -58,7 +57,7 @@ export default function LiveTrackingMap({ orderId: _, livreurId, initialLat, ini
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [livreurId])
+  }, [livreurId, supabase])
 
   if (!position && !initialLat) {
     return (

@@ -50,6 +50,7 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
   const statusOrder = ['en_attente', 'confirme', 'en_cours', 'livre']
   const currentStep = statusOrder.indexOf(order.status)
   const isCancelled = order.status === 'annule'
+  const isDelivered = order.status === 'livre' || order.status === 'livre_partiel'
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-white font-dm">
@@ -127,7 +128,6 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
               </h3>
             </div>
             <LiveTrackingMap 
-              orderId={order.id} 
               livreurId={order.livreur?.id}
               initialLat={order.livreur?.lat}
               initialLng={order.livreur?.lng}

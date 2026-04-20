@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import { Package, Truck, CheckCircle, Clock, MapPin, Camera } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import LiveTracker from '@/components/LiveTracker'
 
 export const dynamic = 'force-dynamic'
@@ -149,10 +150,13 @@ export default async function PublicTrackingPage({ params }: { params: Promise<{
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                         <Camera className="w-3 h-3" /> Photo de prise en charge
                     </div>
-                    <img 
+                    <Image 
                         src={order.pickup_photo_url} 
                         alt="Preuve de ramassage" 
+                        width={400}
+                        height={300}
                         className="w-full h-48 object-cover rounded-2xl border"
+                        unoptimized
                     />
                 </div>
             )}
