@@ -79,7 +79,6 @@ export default async function CommandeDetailPage({ params }: { params: Promise<{
             {order.description}
           </h1>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] font-mono text-slate-400">#{order.id.slice(0, 8).toUpperCase()}</span>
             <span className={`inline-flex px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest border ${
               statusColors[order.status] || 'bg-slate-50 text-slate-500'
             }`}>
@@ -283,7 +282,7 @@ export default async function CommandeDetailPage({ params }: { params: Promise<{
                   <Phone className="w-4 h-4" />
                 </a>
                 <a
-                  href={`https://wa.me/${order.livreur.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour, c'est au sujet de ma commande Nelal Express #${order.id.slice(0, 8).toUpperCase()}`)}`}
+                  href={`https://wa.me/${order.livreur.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour, c'est au sujet de ma commande Nelal Express`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-[#25D366] rounded-xl flex items-center justify-center text-white active:opacity-90 transition-colors shadow-md shadow-green-500/20"

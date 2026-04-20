@@ -2,9 +2,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { updateOrderStatus, updatePickupPhoto } from '@/actions/orders'
+import { updateOrderStatus } from '@/actions/orders'
 import { Loader2, CheckCircle, Package, AlertCircle } from 'lucide-react'
-import PhotoUploadButton from './PhotoUploadButton'
 import type { OrderStatus } from '@/lib/types'
 
 interface StatusUpdateButtonProps {
@@ -17,17 +16,11 @@ interface StatusUpdateButtonProps {
 
 export default function StatusUpdateButton({ orderId, nextStatus, note, label, variant }: StatusUpdateButtonProps) {
   const [isPending, startTransition] = useTransition()
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [result, setResult] = useState<{ success?: boolean; error?: string } | null>(null)
 
   const handleUpdate = () => {
     startTransition(async () => {
-      let res
-      if (variant === 'pickup' && photoUrl) {
-        res = await updatePickupPhoto(orderId, photoUrl)
-      } else {
-        res = await updateOrderStatus(orderId, nextStatus, note)
-      }
+      const res = await updateOrderStatus(orderId, nextStatus, note)
       setResult(res)
     })
   }
@@ -69,12 +62,9 @@ export default function StatusUpdateButton({ orderId, nextStatus, note, label, v
 
   return (
     <div className="space-y-4">
-      {variant === 'pickup' && !result?.success && (
-        <PhotoUploadButton orderId={orderId} onUploadComplete={setPhotoUrl} />
-      )}
       <button
         onClick={handleUpdate}
-        disabled={isPending || (variant === 'pickup' && !photoUrl)}
+        disabled={isPending}
         className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${styles[variant]}`}
       >
         {isPending ? (
@@ -83,7 +73,7 @@ export default function StatusUpdateButton({ orderId, nextStatus, note, label, v
           </>
         ) : (
           <>
-            {icons[variant]} {variant === 'pickup' && !photoUrl ? 'Uploader une photo d\'abord' : label}
+            {icons[variant]} {label}
           </>
         )}
       </button>

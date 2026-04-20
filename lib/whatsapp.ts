@@ -30,8 +30,6 @@ interface OrderNotifData {
 // ── Messages WhatsApp ────────────────────────────────────────────────────────
 
 export function buildMessage(type: WaNotifType, data: OrderNotifData): string {
-  const ref = data.orderId.slice(0, 8).toUpperCase()
-
   switch (type) {
     case 'new_order_admin':
       return `🚨 *Nouvelle commande Nelal !*
@@ -43,10 +41,7 @@ export function buildMessage(type: WaNotifType, data: OrderNotifData): string {
 💰 ${data.price.toLocaleString('fr-FR')} FCFA · 💳 ${data.paymentMethod}
 
 ⚡ Action rapide :
-👉 ${data.assignUrl}
-
-────────────────
-Réf : #${ref}`
+👉 ${data.assignUrl}`
 
     case 'new_order_livreur':
       return `🔔 *Course dispo dans ta zone !*
@@ -55,16 +50,14 @@ Réf : #${ref}`
 📍 ${data.zoneFrom} → ${data.zoneTo}
 💰 ${data.price.toLocaleString('fr-FR')} FCFA
 
-👉 Clique ici pour l'accepter : ${data.acceptUrl}
-
-Réf : #${ref}`
+👉 Clique ici pour l'accepter : ${data.acceptUrl}`
 
     case 'order_confirmed':
       return `✅ *Nelal Express — Commande confirmée*
 
 Bonjour ${data.clientName} 👋
 
-Votre commande *#${ref}* a été confirmée et un livreur a été assigné.
+Votre commande a été confirmée et un livreur a été assigné.
 
 📦 *Colis :* ${data.description}
 🚴 *Livreur :* ${data.livreurName || '—'}
@@ -80,7 +73,7 @@ Merci de faire confiance à Nelal Express 🙏`
 
 Bonjour ${data.clientName},
 
-Votre colis *#${ref}* a été pris en charge par ${data.livreurName}.
+Votre colis a été pris en charge par ${data.livreurName}.
 
 📞 Contacter le livreur : ${data.livreurPhone}
 🔗 Suivre : ${data.trackingUrl}
@@ -92,7 +85,7 @@ Livraison en cours vers *${data.zoneTo}* 🗺️`
 
 Bonjour ${data.clientName},
 
-Votre colis *#${ref}* a été livré à *${data.recipientName}* avec succès ✅
+Votre colis a été livré à *${data.recipientName}* avec succès ✅
 
 💰 Montant : *${data.price.toLocaleString('fr-FR')} FCFA*
 
@@ -104,7 +97,7 @@ _Nelal Express — Dakar & Intérieur_`
 
 Bonjour ${data.clientName},
 
-Votre commande *#${ref}* a été annulée.
+Votre commande a été annulée.
 
 Si vous avez des questions, contactez-nous directement.
 _Nelal Express_`

@@ -65,14 +65,8 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
 
       <div className="max-w-lg mx-auto px-4 py-10">
 
-        {/* REF */}
+        {/* REF REMOVED */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-slate-800 rounded-full px-4 py-2 mb-4">
-            <span className="text-slate-400 text-xs">Référence</span>
-            <span className="text-orange-400 font-display font-bold text-sm tracking-widest">
-              #{order.id.slice(0, 8).toUpperCase()}
-            </span>
-          </div>
           <h1 className="font-display font-bold text-2xl">Suivi de commande</h1>
           <p className="text-slate-400 text-sm mt-1">{order.description}</p>
         </div>
