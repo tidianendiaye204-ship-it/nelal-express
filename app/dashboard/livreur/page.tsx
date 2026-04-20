@@ -3,12 +3,11 @@ import LiveOrderUpdater from '@/components/LiveOrderUpdater'
 import ClientLocationSync from '@/components/ClientLocationSync'
 import StatusUpdateButton from '@/components/StatusUpdateButton'
 import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
-import { getWhatsAppDirectLink } from '@/lib/utils/phone'
-import { getFullRouteLink, getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
+import { getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import {
-  Bike, CheckCircle, Wallet, Phone, MessageCircle,
-  MapPin, Navigation, Clock, Package,
+  Bike, CheckCircle, Wallet, Phone,
+  MapPin, Clock, Package,
   ChevronRight, TrendingUp, Award, Map, Zap
 } from 'lucide-react'
 import Link from 'next/link'

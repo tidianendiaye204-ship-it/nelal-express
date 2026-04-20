@@ -222,10 +222,10 @@ export default function LandingPage() {
               {/* LOCAL LANGUAGES SLOGANS */}
               <div className="space-y-1 mb-8">
                 <p className="text-orange-400 font-display font-black text-sm italic tracking-tight">
-                  "Nelal mën na la jëndal" <span className="text-[8px] text-slate-500 uppercase not-italic ml-2">(Wolof)</span>
+                  &quot;Nelal mën na la jëndal&quot; <span className="text-[8px] text-slate-500 uppercase not-italic ml-2">(Wolof)</span>
                 </p>
                 <p className="text-blue-400 font-display font-black text-sm italic tracking-tight">
-                  "Nelal no waawi soodande ma" <span className="text-[8px] text-slate-500 uppercase not-italic ml-2">(Pulaar)</span>
+                  &quot;Nelal no waawi soodande ma&quot; <span className="text-[8px] text-slate-500 uppercase not-italic ml-2">(Pulaar)</span>
                 </p>
               </div>
 

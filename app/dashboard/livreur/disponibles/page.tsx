@@ -2,6 +2,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import AcceptOrderButton from '@/components/AcceptOrderButton'
 import LiveOrderUpdater from '@/components/LiveOrderUpdater'
 import { getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'

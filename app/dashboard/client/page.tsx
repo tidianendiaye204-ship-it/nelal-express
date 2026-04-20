@@ -4,11 +4,10 @@ import LiveClientUpdater from '@/components/LiveClientUpdater'
 import ClientWalletCard from '@/components/ClientWalletCard'
 import { 
   Send, Package, Bike, CheckCircle, 
-  Clock, Phone, ChevronRight, Sparkles, 
+  Clock, Phone, ChevronRight, 
   ArrowRight, ShieldCheck, MapPin, MessageSquare,
   Zap, Info, ListTodo
 } from 'lucide-react'
-import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 

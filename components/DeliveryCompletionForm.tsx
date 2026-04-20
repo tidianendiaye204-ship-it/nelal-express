@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { confirmDeliveryWithCode } from '@/actions/orders'
-import { CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck, PenTool } from 'lucide-react'
+import { CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import SignaturePad from './SignaturePad'
 

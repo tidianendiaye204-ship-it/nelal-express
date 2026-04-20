@@ -1,12 +1,10 @@
 import { createClient, getProfile } from '@/utils/supabase/server'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import {
-  Bike, CheckCircle, Wallet, ArrowLeft,
-  MapPin, Clock, Package, Search,
-  TrendingUp, Calendar, Camera
+  ArrowLeft, Search,
+  Calendar, Camera
 } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { MapPin, Navigation, Bike } from 'lucide-react'
+import { Bike } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import 'leaflet/dist/leaflet.css'
 
@@ -19,7 +19,7 @@ interface LiveTrackingMapProps {
   initialLng?: number
 }
 
-export default function LiveTrackingMap({ orderId, livreurId, initialLat, initialLng }: LiveTrackingMapProps) {
+export default function LiveTrackingMap({ orderId: _, livreurId, initialLat, initialLng }: LiveTrackingMapProps) {
   const [position, setPosition] = useState<[number, number] | null>(
     initialLat && initialLng ? [initialLat, initialLng] : null
   )

@@ -2,10 +2,7 @@
 import { createClient, getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  Wallet, Users, ArrowLeft, History, 
-  ChevronRight, AlertTriangle, CheckCircle 
-} from 'lucide-react'
+import { Users, ArrowLeft, History, AlertTriangle, CheckCircle } from 'lucide-react'
 import CashCollectionButton from '@/components/CashCollectionButton'
 
 export const dynamic = 'force-dynamic'

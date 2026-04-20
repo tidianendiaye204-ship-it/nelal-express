@@ -4,7 +4,6 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { STATUS_LABELS } from '@/lib/types'
 import LiveTrackingMap from '@/components/LiveTrackingMap'
-import { Bike, Navigation, MapPin } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
