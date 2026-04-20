@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useTransition } from 'react'
 import { confirmDeliveryWithCode } from '@/actions/orders'
 import { CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck, PenTool } from 'lucide-react'

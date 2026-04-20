@@ -260,9 +260,12 @@ export default function QuickOrderForm() {
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Qu'est-ce qu'on livre ? (ex: 1 Document)"
+                  placeholder="Que voulez-vous livrer ou ACHETER ?"
                   className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
                 />
+                <p className="text-[8px] text-slate-400 px-1 font-medium italic">
+                  Ex: "Acheter 2 kg de riz", "Livrer mes clés", etc.
+                </p>
                 <input
                   type="text"
                   required

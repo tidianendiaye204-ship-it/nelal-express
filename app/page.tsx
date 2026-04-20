@@ -215,9 +215,20 @@ export default function LandingPage() {
                 La force du <br />
                 <span className="text-orange-500 italic text-5xl md:text-7xl underline decoration-orange-500/30">Voisinage.</span>
               </h2>
-              <p className="text-slate-400 text-lg md:text-xl font-medium mb-8 max-w-md">
-                Envoyer des clés, un repas ou un document dans le même quartier n&apos;a jamais été aussi simple et accessible.
+              <p className="text-slate-400 text-lg md:text-xl font-medium mb-4 max-w-md">
+                Envoyer des clés, un repas ou un document dans le même quartier n&apos;a jamais été aussi simple.
               </p>
+              
+              {/* LOCAL LANGUAGES SLOGANS */}
+              <div className="space-y-1 mb-8">
+                <p className="text-orange-400 font-display font-black text-sm italic tracking-tight">
+                  "Nelal mën na la jëndal" <span className="text-[8px] text-slate-500 uppercase not-italic ml-2">(Wolof)</span>
+                </p>
+                <p className="text-blue-400 font-display font-black text-sm italic tracking-tight">
+                  "Nelal no waawi soodande ma" <span className="text-[8px] text-slate-500 uppercase not-italic ml-2">(Pulaar)</span>
+                </p>
+              </div>
+
               <div className="flex items-baseline gap-2 mb-8">
                 <span className="text-5xl md:text-7xl font-display font-black text-white italic">500</span>
                 <span className="text-2xl font-black text-orange-500 italic uppercase">FCFA</span>
