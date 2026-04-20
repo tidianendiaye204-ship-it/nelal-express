@@ -2,7 +2,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { createLivreur } from '@/actions/orders'
 import { redirect } from 'next/navigation'
-import { UserPlus, Phone, MapPin, Bike, MessageCircle } from 'lucide-react'
+import { UserPlus, Bike } from 'lucide-react'
+import LivreurRow from '@/components/LivreurRow'
 
 export const dynamic = 'force-dynamic'
 
@@ -71,64 +72,7 @@ export default async function AdminLivreursPage() {
           ) : (
             <div className="space-y-4">
               {statsByLivreur.map((l) => (
-                <div key={l.id} className="bg-white rounded-[2rem] border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-500/5 to-transparent rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
-                  
-                  <div className="flex flex-col md:flex-row md:items-center gap-5 relative z-10">
-                    {/* Avatar & Info */}
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-orange-500/20 flex-shrink-0">
-                        {l.full_name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-bold text-slate-900 text-base truncate">{l.full_name}</h3>
-                        <div className="flex items-center gap-3 mt-1">
-                          <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500">
-                            <MapPin className="w-3 h-3 text-slate-400" />
-                            {l.zone?.name || 'Toutes zones'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="flex items-center gap-3 py-3 md:py-0 border-y md:border-y-0 border-slate-50">
-                      <div className="bg-green-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[70px]">
-                        <div className="font-display font-black text-green-600 text-xl leading-none">{l.livres}</div>
-                        <div className="text-[8px] font-black uppercase tracking-widest text-green-500 mt-1">Livrées</div>
-                      </div>
-                      <div className="bg-blue-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center relative min-w-[70px]">
-                        {l.en_cours > 0 && (
-                          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
-                          </span>
-                        )}
-                        <div className="font-display font-black text-blue-600 text-xl leading-none">{l.en_cours}</div>
-                        <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-1">Actives</div>
-                      </div>
-                      <div className="bg-orange-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[80px]">
-                        <div className="font-display font-black text-orange-600 text-lg leading-none">{l.montant.toLocaleString('fr-FR')}</div>
-                        <div className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-1">FCFA</div>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 md:gap-1.5 flex-shrink-0 justify-end md:justify-center">
-                      <a href={`tel:${l.phone}`} className="flex-1 md:flex-none w-auto md:w-11 h-11 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 active:scale-95 transition-all outline-none">
-                        <Phone className="w-4 h-4" />
-                      </a>
-                      <a 
-                        href={`https://wa.me/${l.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour ${l.full_name}, c'est l'administration Nelal Express.`)}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex-1 md:flex-none w-auto md:w-11 h-11 bg-[#25D366]/10 hover:bg-[#25D366]/20 rounded-xl flex items-center justify-center text-[#25D366] active:scale-95 transition-all outline-none"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                <LivreurRow key={l.id} livreur={l as any} zones={zones || []} />
               ))}
             </div>
           )}

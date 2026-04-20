@@ -569,3 +569,32 @@ export async function updateZoneTarif(zoneId: string, tarifBase: number) {
   revalidatePath('/dashboard/admin/zones')
   return { success: true }
 }
+export async function updateLivreur(livreurId: string, formData: FormData) {
+  const supabase = await createClient()
+
+  // 1. Check Admin role
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return { error: 'Accès refusé' }
+
+  // 2. Update profiles table
+  const full_name = formData.get('full_name') as string
+  const phone = formData.get('phone') as string
+  const zone_id = formData.get('zone_id') as string
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      full_name,
+      phone,
+      zone_id: zone_id || null
+    })
+    .eq('id', livreurId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/admin/livreurs')
+  revalidatePath('/dashboard/admin/marketing')
+  return { success: true }
+}

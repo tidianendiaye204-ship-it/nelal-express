@@ -2,7 +2,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { assignLivreur } from '@/actions/orders'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
-import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap, Users } from 'lucide-react'
+import { Package, Clock, Bike, CheckCircle, Wallet, MapPin, User, Zap, Users, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,12 @@ export default async function AdminDashboard() {
           <p className="text-slate-500 text-xs font-bold mt-2 tracking-wide">Centre de contrôle Nelal Express</p>
         </div>
         <div className="flex items-center gap-3">
+          <Link 
+            href="/dashboard/admin/marketing" 
+            className="bg-orange-500 text-white px-4 py-2 rounded-2xl shadow-lg shadow-orange-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-orange-600 transition-all active:scale-95"
+          >
+            <Sparkles className="w-3.5 h-3.5" /> Marketing QR
+          </Link>
           <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-2">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
