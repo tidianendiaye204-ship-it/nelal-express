@@ -5,14 +5,16 @@ import QuartierCombobox from './QuartierCombobox'
 import RepereAutocomplete from './RepereAutocomplete'
 import { Quartier } from '@/lib/types'
 import { createQuickOrder } from '@/actions/orders'
+import { calculateDynamicPrice, type ParcelSize } from '@/lib/utils/pricing'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, Route, ArrowRight, Zap, X, MapPin } from 'lucide-react'
+import { CheckCircle, Route, ArrowRight, Zap, X, MapPin, Package, StickyNote, Box } from 'lucide-react'
 
 export default function QuickOrderForm() {
   const router = useRouter()
   const [depart, setDepart] = useState<Quartier | null>(null)
   const [arrivee, setArrivee] = useState<Quartier | null>(null)
   const [isExpress, setIsExpress] = useState(false)
+  const [parcelSize, setParcelSize] = useState<ParcelSize>('petit')
   const [showModal, setShowModal] = useState(false)
   
   // Submit state
@@ -28,11 +30,16 @@ export default function QuickOrderForm() {
 
   const estimatedPrice = useMemo(() => {
     if (!depart || !arrivee) return null
-    // Prix maximum entre le point de départ et le point d'arrivée
-    let price = Math.max(depart.frais_livraison_base, arrivee.frais_livraison_base)
-    if (isExpress) price += 1000
-    return price
-  }, [depart, arrivee, isExpress])
+    return calculateDynamicPrice({
+      zoneFromId: depart.zone_id,
+      zoneToId: arrivee.zone_id,
+      quartierFromId: depart.id,
+      quartierToId: arrivee.id,
+      isExpress,
+      parcelSize,
+      basePrice: Math.max(depart.frais_livraison_base, arrivee.frais_livraison_base)
+    })
+  }, [depart, arrivee, isExpress, parcelSize])
 
   const openConfirmation = () => {
     if (!depart || !arrivee) {
@@ -67,6 +74,7 @@ export default function QuickOrderForm() {
     formData.append('description', description)
     formData.append('payment_method', paymentMethod)
     formData.append('is_express', isExpress ? '1' : '0')
+    formData.append('parcel_size', parcelSize)
 
     try {
       const result = await createQuickOrder(formData)
@@ -169,16 +177,45 @@ export default function QuickOrderForm() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+        {/* PARCEL SIZE SELECTOR */}
+        <div className="mt-8 pt-6 border-t border-slate-100">
+           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Type de colis</label>
+           <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'petit', label: 'Petit', icon: <StickyNote className="w-3 h-3" />, desc: 'Doc, Plats' },
+                { id: 'moyen', label: 'Moyen', icon: <Package className="w-3 h-3" />, desc: 'Carton, Sac' },
+                { id: 'gros', label: 'Gros', icon: <Box className="w-3 h-3" />, desc: 'Valise, 50kg' },
+              ].map((size) => (
+                <button
+                  key={size.id}
+                  type="button"
+                  onClick={() => setParcelSize(size.id as ParcelSize)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
+                    parcelSize === size.id 
+                      ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-sm' 
+                      : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
+                  }`}
+                >
+                  {size.icon}
+                  <span className="text-[10px] font-black uppercase leading-tight">{size.label}</span>
+                  <span className="text-[7px] font-medium opacity-60 leading-none">{size.desc}</span>
+                </button>
+              ))}
+           </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between">
           <div>
-            <button
-              onClick={() => setIsExpress(!isExpress)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                isExpress ? 'bg-orange-500 text-white shadow-md' : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              <Zap className="w-3 h-3" /> Express
-            </button>
+            {(depart?.id !== arrivee?.id) && (
+              <button
+                onClick={() => setIsExpress(!isExpress)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  isExpress ? 'bg-orange-500 text-white shadow-md' : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                <Zap className="w-3 h-3" /> Express
+              </button>
+            )}
           </div>
           <div className="text-right">
              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total estimé</div>

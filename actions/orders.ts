@@ -8,6 +8,8 @@ import { sendPushToRole, sendPushToLivreursInZone, sendPushToUser } from '@/lib/
 import { incrementOrAddRepere } from '@/actions/reperes'
 import type { OrderStatus, PaymentMethod, OrderType } from '@/lib/types'
 
+import { calculateDynamicPrice, type ParcelSize } from '@/lib/utils/pricing'
+
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'
 
 // ── CLIENT ──────────────────────────────────────────────
@@ -20,6 +22,7 @@ export async function createOrder(formData: FormData) {
   const zone_from_id = formData.get('zone_from_id') as string
   const zone_to_id = formData.get('zone_to_id') as string
   const isExpress = formData.get('is_express') === '1'
+  const parcel_size = (formData.get('parcel_size') as ParcelSize) || 'petit'
 
   // Récupérer les tarifs des deux zones
   const { data: zones } = await supabase
@@ -27,13 +30,19 @@ export async function createOrder(formData: FormData) {
     .select('id, tarif_base')
     .in('id', [zone_from_id, zone_to_id])
 
-  // Le prix est le maximum entre le tarif de départ et d'arrivée + express
-  let price = zones && zones.length > 0 
+  // Tarif de base par défaut
+  const basePrice = zones && zones.length > 0 
     ? Math.max(...zones.map(z => z.tarif_base)) 
     : 2000
-  
-  // Majoration express
-  if (isExpress) price += 1000
+    
+  // Calcul dynamique
+  const price = calculateDynamicPrice({
+    zoneFromId: zone_from_id,
+    zoneToId: zone_to_id,
+    isExpress,
+    parcelSize: parcel_size,
+    basePrice
+  })
 
   const deliveryCode = Math.floor(1000 + Math.random() * 9000)
 
@@ -41,6 +50,7 @@ export async function createOrder(formData: FormData) {
     client_id: user.id,
     zone_from_id,
     zone_to_id,
+    parcel_size,
     type: formData.get('type') as OrderType,
     description: formData.get('description') as string,
     pickup_address: formData.get('pickup_address') as string || 'Non spécifié',
@@ -198,9 +208,17 @@ export async function createQuickOrder(formData: FormData) {
 
   const zone_from_id = qDepart?.zone_id
   const zone_to_id = qArrivee?.zone_id
+  const parcel_size = (formData.get('parcel_size') as ParcelSize) || 'petit'
 
-  let price = Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0)
-  if (isExpress) price += 1000
+  const price = calculateDynamicPrice({
+    zoneFromId: zone_from_id,
+    zoneToId: zone_to_id,
+    quartierFromId: quartier_depart_id,
+    quartierToId: quartier_arrivee_id,
+    isExpress,
+    parcelSize: parcel_size,
+    basePrice: Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0)
+  })
 
   const deliveryCode = Math.floor(1000 + Math.random() * 9000)
 
@@ -210,6 +228,7 @@ export async function createQuickOrder(formData: FormData) {
     quartier_arrivee_id,
     zone_from_id, // Backward compatibility
     zone_to_id,   // Backward compatibility
+    parcel_size,
     pickup_address: qDepart?.nom,
     delivery_address: qArrivee?.nom,
     type: 'particulier', // Par défaut
@@ -308,15 +327,12 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, no
   return { success: true }
 }
 
-export async function completeDelivery(orderId: string, ardoise: number, totalExpected: number, photoUrl?: string) {
+export async function completeDelivery(orderId: string, ardoise: number, totalExpected: number, photoUrl?: string, signatureUrl?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
 
   // Calcul du cash réellement mis en poche = totalExpected + l'ardoise (l'argent supplémentaire gardé)
-  // Ou plutôt : encaissement = totalExpected - ardoise si client n'a pas payé, 
-  // Mais la logique de l'ardoise c'est : Client donne 10.000, Prix 7.000, livreur rend 2.000 au lieu de 3.000. 
-  // Le livreur a pris 8.000. L'ardoise est 1.000. Encaissement = 8.000.
   const encaissementReel = totalExpected + ardoise
   const statusToSet: OrderStatus = ardoise > 0 ? 'livre_partiel' : 'livre'
 
@@ -344,13 +360,14 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
     status: statusToSet,
     ardoise_livreur: ardoise > 0 ? ardoise : 0,
     encaissement_reel: encaissementReel,
-    delivery_photo_url: photoUrl
+    delivery_photo_url: photoUrl,
+    recipient_signature_url: signatureUrl
   }).eq('id', orderId)
 
   await supabase.from('order_status_history').insert({
     order_id: orderId, 
     status: statusToSet, 
-    note: ardoise > 0 ? `Livraison avec ardoise (${ardoise} F) par manque de monnaie` : 'Livraison sans ardoise', 
+    note: ardoise > 0 ? `Livraison avec ardoise (${ardoise} F) par manque de monnaie` : 'Livraison validée par signature', 
     created_by: user.id,
   })
 
@@ -395,7 +412,7 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
 /**
  * Validate delivery with the 4-digit code provided by the recipient
  */
-export async function confirmDeliveryWithCode(orderId: string, inputCode: string, ardoise: number, totalExpected: number, photoUrl?: string) {
+export async function confirmDeliveryWithCode(orderId: string, inputCode: string, ardoise: number, totalExpected: number, photoUrl?: string, signatureUrl?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
@@ -415,7 +432,7 @@ export async function confirmDeliveryWithCode(orderId: string, inputCode: string
   }
 
   // 3. Procéder à la finalisation
-  return await completeDelivery(orderId, ardoise, totalExpected, photoUrl)
+  return await completeDelivery(orderId, ardoise, totalExpected, photoUrl, signatureUrl)
 }
 
 /**

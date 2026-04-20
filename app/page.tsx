@@ -170,14 +170,14 @@ export default function LandingPage() {
               type: 'Focus Yeumbeul',
               icon: <Home className="w-10 h-10 text-orange-500 mb-6" />,
               zones: ['Yeumbeul Nord/Sud', 'Keur Massar', 'Pikine / Guédiawaye', 'Rufisque / Mbao'],
-              tarif: 'Banlieue & Zones Spéciales',
+              tarif: 'Local dès 800 F',
               color: 'bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/10'
             },
             {
               type: 'Ligne Ndioum',
               icon: <Truck className="w-10 h-10 text-green-500 mb-6" />,
               zones: ['Ndioum (Hub Nord)', 'Saint-Louis', 'Podor / Matam', 'Thiès / Touba'],
-              tarif: 'Transport Inter-urbain',
+              tarif: 'Dès 1 500 F',
               color: 'bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10'
             },
           ].map((section) => (
@@ -199,6 +199,49 @@ export default function LandingPage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* NEIGHBORHOOD PROMO - NEW SECTION */}
+      <section className="max-w-7xl mx-auto px-6 py-24 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-orange-500/5 blur-[120px] rounded-full"></div>
+        <div className="relative border border-orange-500/20 bg-orange-500/[0.03] rounded-[3rem] p-8 md:p-16 overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
+                <Zap className="w-3 h-3" /> Nouveau : Ultra-Local
+              </div>
+              <h2 className="font-display font-black text-4xl md:text-6xl text-white mb-6 tracking-tighter uppercase leading-none">
+                La force du <br />
+                <span className="text-orange-500 italic text-5xl md:text-7xl underline decoration-orange-500/30">Voisinage.</span>
+              </h2>
+              <p className="text-slate-400 text-lg md:text-xl font-medium mb-8 max-w-md">
+                Envoyer des clés, un repas ou un document dans le même quartier n&apos;a jamais été aussi simple et accessible.
+              </p>
+              <div className="flex items-baseline gap-2 mb-8">
+                <span className="text-5xl md:text-7xl font-display font-black text-white italic">500</span>
+                <span className="text-2xl font-black text-orange-500 italic uppercase">FCFA</span>
+                <span className="text-slate-500 text-xs font-black uppercase ml-2 tracking-widest">Tarif Unique</span>
+              </div>
+              <Link href="/commander" className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl font-display font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-orange-500 hover:text-white transition-all group">
+                Commander Local <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: 'Documents', desc: 'Même quartier' },
+                { label: 'Plats Cuisine', desc: 'Livraison express' },
+                { label: 'Objets Oubliés', desc: 'Service d\'urgence' },
+                { label: 'Cadeaux', desc: 'Entre voisins' },
+              ].map((obj, i) => (
+                <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl space-y-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <div className="font-display font-black text-lg text-white uppercase tracking-tight">{obj.label}</div>
+                  <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{obj.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

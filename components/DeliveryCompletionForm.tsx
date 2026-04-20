@@ -1,10 +1,8 @@
-'use client'
-
 import { useState, useTransition } from 'react'
 import { confirmDeliveryWithCode } from '@/actions/orders'
-import { Camera, CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck } from 'lucide-react'
+import { CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck, PenTool } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import Image from 'next/image'
+import SignaturePad from './SignaturePad'
 
 interface DeliveryCompletionFormProps {
   order: any
@@ -17,10 +15,57 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   const [ardoiseVal, setArdoiseVal] = useState('')
   const [deliveryCode, setDeliveryCode] = useState('')
   
+  // -- Signature State --
+  const [isUploading, setIsUploading] = useState(false)
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const supabase = createClient()
+
+  // Helper to convert base64 to File
+  const dataURLtoFile = (dataurl: string, filename: string) => {
+    const arr = dataurl.split(',')
+    const mime = arr[0].match(/:(.*?);/)?.[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new File([u8arr], filename, { type: mime })
+  }
+
+  const handleSignatureSave = async (dataUrl: string) => {
+    setIsUploading(true)
+    setUploadError(null)
+
+    try {
+      const file = dataURLtoFile(dataUrl, `sig-${order.id}.png`)
+      const filePath = `signatures/${order.id}-${Date.now()}.png`
+
+      const { error: uploadError } = await supabase.storage
+        .from('signatures')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('signatures')
+        .getPublicUrl(filePath)
+
+      setSignatureUrl(publicUrl)
+    } catch (err: any) {
+      console.error('Signature upload error:', err)
+      setUploadError('Erreur lors de l’enregistrement de la signature.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const handleUpdate = () => {
     startTransition(async () => {
       const ardoise = showArdoise ? parseInt(ardoiseVal) || 0 : 0
-      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, order.price)
+      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, order.price, undefined, signatureUrl || undefined)
       setResult(res)
     })
   }
@@ -36,7 +81,16 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   return (
     <div className="w-full space-y-4 mt-4 border-t border-slate-100 pt-4">
       
-      {/* 1. SÉCURITÉ : CODE DE LIVRAISON */}
+      {/* 1. SIGNATURE (Preuve de livraison) */}
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+        <SignaturePad 
+          onSave={handleSignatureSave} 
+          onClear={() => setSignatureUrl(null)} 
+        />
+        {uploadError && <p className="text-[9px] text-red-500 mt-2 font-bold">{uploadError}</p>}
+      </div>
+
+      {/* 2. SÉCURITÉ : CODE DE LIVRAISON */}
       <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
         <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5" /> Code de confirmation (4 chiffres)
@@ -59,7 +113,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
         </div>
       )}
 
-      {/* 2. ARDOISE TOGGLE */}
+      {/* 3. ARDOISE TOGGLE */}
       <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
         <label className="flex items-center justify-between cursor-pointer group">
           <div className="flex items-center gap-2">
@@ -96,11 +150,11 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       {/* SUBMIT BUTTON */}
       <button
         onClick={handleUpdate}
-        disabled={isPending || !deliveryCode || deliveryCode.length < 4}
+        disabled={isPending || isUploading || !deliveryCode || deliveryCode.length < 4 || !signatureUrl}
         className="w-full bg-slate-900 hover:bg-black text-white shadow-xl shadow-slate-900/20 py-4 rounded-xl font-black text-sm uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
       >
-        {isPending ? (
-          <><Loader2 className="w-4 h-4 animate-spin" /> Validation...</>
+        {isPending || isUploading ? (
+          <><Loader2 className="w-4 h-4 animate-spin" /> {isUploading ? 'Enregistrement...' : 'Validation...'}</>
         ) : (
           <><CheckCircle className="w-4 h-4" /> Finaliser la livraison</>
         )}

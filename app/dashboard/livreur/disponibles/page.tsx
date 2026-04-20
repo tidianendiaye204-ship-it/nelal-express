@@ -15,6 +15,28 @@ export default async function DisponiblesPage() {
 
   if (!profile || profile.role !== 'livreur') redirect('/auth/login')
 
+  const cashHeld = profile.cash_held || 0
+  const maxLimit = profile.max_cash_limit || 25000
+  const isBlocked = cashHeld >= maxLimit
+
+  if (isBlocked) {
+    return (
+      <div className="max-w-2xl mx-auto pb-24 px-4 text-center py-20 flex flex-col items-center">
+        <div className="w-20 h-20 bg-red-100 text-red-600 rounded-[2.5rem] flex items-center justify-center mb-6 shadow-xl shadow-red-500/10">
+          <Wallet className="w-10 h-10" />
+        </div>
+        <h1 className="font-display font-black text-2xl text-slate-900 uppercase tracking-tight mb-2">Compte Bloqué</h1>
+        <p className="text-slate-500 text-sm max-w-xs mb-8">
+          Vous avez accumulé <span className="text-red-600 font-bold">{cashHeld.toLocaleString('fr-FR')} F</span> de cash. 
+          Veuillez reverser les fonds à l&apos;agence pour débloquer votre compte.
+        </p>
+        <Link href="/dashboard/livreur" className="bg-slate-900 text-white px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all active:scale-95">
+          Retour au tableau de bord
+        </Link>
+      </div>
+    )
+  }
+
   // Fetch all available orders (en_attente, no livreur assigned)
   const { data: orders } = await supabase
     .from('orders')

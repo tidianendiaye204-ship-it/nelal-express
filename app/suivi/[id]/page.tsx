@@ -3,6 +3,8 @@ import { createClient } from '@/utils/supabase/server'
 
 import Link from 'next/link'
 import { STATUS_LABELS } from '@/lib/types'
+import LiveTrackingMap from '@/components/LiveTrackingMap'
+import { Bike, Navigation, MapPin } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +17,7 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
     .select(`
       *,
       client:profiles!orders_client_id_fkey(full_name, phone),
-      livreur:profiles!orders_livreur_id_fkey(full_name, phone),
+      livreur:profiles!orders_livreur_id_fkey(full_name, phone, lat, lng),
       zone_from:zones!orders_zone_from_id_fkey(name, type),
       zone_to:zones!orders_zone_to_id_fkey(name, type),
       history:order_status_history(status, note, created_at)
@@ -81,11 +83,6 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
               {order.address_landmark && (
                 <div className="text-orange-400/80 text-[10px] italic mt-0.5">📍 {order.address_landmark}</div>
               )}
-              {order.gps_link && (
-                <a href={order.gps_link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-blue-400 text-[10px] underline">
-                  Voir sur Google Maps
-                </a>
-              )}
             </div>
             <div>
               <div className="text-slate-500 text-xs mb-1">Destination</div>
@@ -120,6 +117,24 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
         </div>
+
+        {/* LIVE TRACKING MAP */}
+        {!isCancelled && !isDelivered && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h3 className="font-display font-black text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></div>
+                Position en temps réel
+              </h3>
+            </div>
+            <LiveTrackingMap 
+              orderId={order.id} 
+              livreurId={order.livreur?.id}
+              initialLat={order.livreur?.lat}
+              initialLng={order.livreur?.lng}
+            />
+          </div>
+        )}
 
         {/* TIMELINE */}
         {isCancelled ? (

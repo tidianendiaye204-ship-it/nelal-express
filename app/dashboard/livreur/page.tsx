@@ -1,5 +1,6 @@
 import { createClient, getProfile } from '@/utils/supabase/server'
 import LiveOrderUpdater from '@/components/LiveOrderUpdater'
+import ClientLocationSync from '@/components/ClientLocationSync'
 import StatusUpdateButton from '@/components/StatusUpdateButton'
 import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
 import { getWhatsAppDirectLink } from '@/lib/utils/phone'
@@ -66,6 +67,35 @@ export default async function LivreurDashboard() {
   return (
     <div className="max-w-xl mx-auto pb-24 px-1">
       <LiveOrderUpdater livreurId={profile?.id} />
+      <ClientLocationSync livreurId={profile?.id || ''} hasActiveOrders={(orders?.length || 0) > 0} />
+      
+      {/* WALLET STATUS BANNER */}
+      {(profile?.cash_held || 0) > 0 && (
+        <div className={`mx-3 mt-4 p-4 rounded-2xl flex items-center justify-between border ${
+          (profile.cash_held || 0) >= (profile.max_cash_limit || 25000)
+            ? 'bg-red-50 border-red-100 text-red-700'
+            : (profile.cash_held || 0) >= (profile.max_cash_limit || 25000) * 0.8
+            ? 'bg-amber-50 border-amber-100 text-amber-700'
+            : 'bg-blue-50 border-blue-100 text-blue-700'
+        }`}>
+          <div className="flex items-center gap-3">
+            <Wallet className="w-5 h-5 opacity-60" />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-tight">Cash Détenu : {profile.cash_held.toLocaleString('fr-FR')} F</p>
+              <p className="text-[8px] font-medium opacity-80">
+                {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) 
+                  ? 'Compte bloqué, versez les fonds.' 
+                  : (profile.cash_held || 0) >= (profile.max_cash_limit || 25000) * 0.8
+                  ? 'Limite proche, prévoyez le versement.'
+                  : 'Solde en main normal.'}
+              </p>
+            </div>
+          </div>
+          {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) && (
+            <div className="bg-red-600 text-white px-2 py-1 rounded text-[7px] font-black uppercase">BLOQUÉ</div>
+          )}
+        </div>
+      )}
 
       {/* HEADER : GREETING & DAILY STATS */}
       <div className="px-3 pt-4 mb-6">
@@ -133,10 +163,33 @@ export default async function LivreurDashboard() {
       )}
 
       {/* ACTIVE MISSIONS FOCUS */}
-      <div className="px-3 mb-4 flex items-center gap-2">
-         <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
-         <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mission Prioritaire</h2>
+      <div className="px-3 mb-4 flex items-center justify-between">
+         <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+               {(orders?.length || 0) > 1 ? `Batch en cours (${orders?.length})` : 'Mission Prioritaire'}
+            </h2>
+         </div>
+         {(orders?.length || 0) > 1 && (
+            <div className="bg-slate-900 text-white px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest">
+               OPTIMISATION ACTIVÉE
+            </div>
+         )}
       </div>
+
+      {/* BATCH SUMMARY BAR (If multi) */}
+      {(orders?.length || 0) > 1 && (
+        <div className="mx-3 mb-6 bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-4 overflow-x-auto no-scrollbar">
+          {orders?.map((o: any, idx: number) => (
+            <div key={o.id} className="flex-shrink-0 flex items-center gap-2 bg-white border border-slate-200 px-3 py-2 rounded-xl shadow-sm">
+              <span className="w-4 h-4 bg-slate-900 text-white text-[8px] flex items-center justify-center rounded-full font-black">
+                {idx + 1}
+              </span>
+              <p className="text-[10px] font-bold text-slate-700 max-w-[100px] truncate">{o.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {!orders?.length ? (
         <div className="mx-3 bg-slate-50 border border-slate-100 border-dashed rounded-[2.5rem] py-16 text-center">

@@ -81,16 +81,23 @@ Votre colis a été pris en charge par ${data.livreurName}.
 Livraison en cours vers *${data.zoneTo}* 🗺️`
 
     case 'order_delivered':
-      return `🎉 *Nelal Express — Livré !*
+      return `🧾 *Nelal Express — Reçu de Livraison*
+      
+Bonjour ${data.clientName}, votre colis a bien été livré ! ✅
 
-Bonjour ${data.clientName},
+---
+DÉTAILS DU REÇU :
+📦 *Colis :* ${data.description}
+🎯 *Destinataire :* ${data.recipientName}
+📍 *Trajet :* ${data.zoneFrom} → ${data.zoneTo}
+🚴 *Livreur :* ${data.livreurName}
 
-Votre colis a été livré à *${data.recipientName}* avec succès ✅
+MONTANT TOTAL :
+💰 *${data.price.toLocaleString('fr-FR')} FCFA*
+---
 
-💰 Montant : *${data.price.toLocaleString('fr-FR')} FCFA*
-
-Merci pour votre confiance. N'hésitez pas à nous recommander ! 🙏
-_Nelal Express — Dakar & Intérieur_`
+Merci pour votre confiance. À bientôt sur Nelal Express ! 🙏
+_Document numérique — Fait à Dakar_`
 
     case 'order_cancelled':
       return `❌ *Nelal Express — Commande annulée*
