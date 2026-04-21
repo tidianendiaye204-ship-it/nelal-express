@@ -76,10 +76,10 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
   }
 
   // Dynamic Font Scaling Logic
-  const getFontSize = (text: string, base: number, min: number = 16) => {
+  const getFontSize = (text: string, base: number, min: number = 14) => {
     const len = text.length
-    if (len < 15) return base
-    const scaled = Math.max(min, base - (len - 15) * 0.8)
+    if (len < 10) return base
+    const scaled = Math.max(min, base - (len - 10) * 0.5)
     return scaled
   }
 
@@ -252,12 +252,12 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
                 height: `${formatData[format].h}mm`,
                 borderRadius: formatData[format].rounded
               }}
-              className={`print-card flex ${formatData[format].layout === 'row' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl shrink-0 transition-all duration-500 scale-[0.5] sm:scale-[0.8] md:scale-90 lg:scale-100 ${
+              className={`print-card flex flex-col overflow-hidden shadow-2xl shrink-0 transition-all duration-500 scale-[0.5] sm:scale-[0.8] md:scale-90 lg:scale-100 ${
                 theme === 'dark' ? 'bg-[#0F172A]' : 'bg-white border border-slate-200'
               }`}
             >
           {/* Decorative accents */}
-          <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-orange-500 to-yellow-500"></div>
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 via-yellow-500 to-transparent"></div>
           {theme === 'dark' && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-transparent"></div>}
           
           {/* Glows (Dark only) */}
@@ -268,85 +268,70 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
             </>
           )}
 
-          {/* MAIN CONTENT AREA */}
-          <div className={`p-10 flex flex-col items-center text-center relative z-10 ${formatData[format].layout === 'row' ? 'flex-1 pr-4 items-start text-left' : 'w-full h-[60%]'}`}>
-            <div className="w-full">
-              <div className="mb-6">
-                <div 
-                  style={{ fontSize: getFontSize(serviceName, format === 'a5' ? 44 : 28, 20) + 'px' }}
-                  className={`font-display font-black tracking-tighter leading-[1.1] uppercase italic break-words ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
-                >
-                  {serviceName}
-                </div>
-                <div className="text-orange-500 text-[11px] font-black uppercase tracking-[0.4em] mt-3">
-                  Service de livraison · Sénégal 🇸🇳
-                </div>
-              </div>
-
-              <div className={`h-1 w-20 bg-gradient-to-r from-orange-500 to-transparent rounded-full mb-8 ${format === 'a5' ? 'mx-auto' : ''}`}></div>
-
-              <div 
-                style={{ fontSize: getFontSize(slogan, format === 'a5' ? 24 : 16, 14) + 'px' }}
-                className={`font-display font-black leading-tight mb-8 uppercase tracking-tight italic break-words ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}
-              >
-                {slogan}
-              </div>
-
-              <div className={`flex flex-col gap-3 ${format === 'a5' ? 'items-center' : 'items-start'}`}>
-                <div className={`font-bold uppercase tracking-widest italic ${format === 'a5' ? 'text-sm' : 'text-[10px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-                  <div>{zones}</div>
-                  <div>{zones2}</div>
-                </div>
-              </div>
+          {/* ── TOP SECTION: SERVICE NAME ── */}
+          <div className={`pt-12 px-10 pb-6 w-full text-center border-b ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}>
+            <div 
+              style={{ fontSize: getFontSize(serviceName, format === 'a5' ? 36 : 24, 18) + 'px' }}
+              className={`font-display font-black tracking-tighter leading-[1.2] uppercase italic break-words ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
+            >
+              {serviceName}
             </div>
-
-            {format === 'a5' && (
-              <div className="mt-auto pt-10">
-                <div className={`flex items-center gap-4 px-8 py-5 rounded-[2rem] ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
-                   <Smartphone className="w-8 h-8 text-orange-500" />
-                   <span className={`font-display font-black text-4xl tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
-                </div>
-              </div>
-            )}
+            <div className="text-orange-500 text-[10px] font-black uppercase tracking-[0.4em] mt-3">
+              Service de livraison · Sénégal 🇸🇳
+            </div>
           </div>
 
-          {/* QR CODE AREA */}
-          <div className={`flex flex-col items-center justify-center gap-6 relative z-10 text-center ${
-            formatData[format].layout === 'row' ? 'w-[40%] border-l' : 'flex-1 border-t w-full bg-slate-500/5'
-          } ${theme === 'dark' ? 'border-white/5' : 'border-slate-200'}`}>
-            
-            {format === 'large' && (
-              <div className={`flex items-center gap-3 mb-2 px-4 py-2 rounded-xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
-                <Smartphone className="w-4 h-4 text-orange-500" />
-                <span className={`font-display font-black text-xl tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
-              </div>
-            )}
+          {/* ── MIDDLE SECTION: VALUE PROP ── */}
+          <div className="flex-1 px-10 py-8 w-full flex flex-col items-center justify-center gap-6">
+            <div 
+              style={{ fontSize: getFontSize(slogan, format === 'a5' ? 20 : 14, 12) + 'px' }}
+              className={`font-display font-black leading-tight uppercase tracking-tight italic opacity-90 max-w-[90%] mx-auto ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}
+            >
+              {slogan}
+            </div>
 
-            <div className="text-orange-500 text-[11px] font-black uppercase tracking-[0.3em]">Scanner & Communiquer</div>
+            <div className={`h-0.5 w-16 bg-orange-500/30 rounded-full`}></div>
+
+            <div className={`font-bold uppercase tracking-widest italic text-center space-y-1 ${format === 'a5' ? 'text-sm' : 'text-[9px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+              <div className="flex items-center justify-center gap-2">📍 {zones}</div>
+              <div className="flex items-center justify-center gap-2">🚌 {zones2}</div>
+            </div>
+          </div>
+
+          {/* ── BOTTOM SECTION: CONTACT & QR ── */}
+          <div className={`p-8 w-full flex flex-col items-center gap-6 border-t ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
             
-            <div className={`p-5 rounded-[2rem] shadow-2xl relative ${theme === 'light' ? 'bg-white border border-slate-200' : 'bg-white'}`}>
-              <QRCodeSVG 
-                value={waUrl} 
-                size={formatData[format].qrSize * (format === 'a5' ? 0.9 : 0.8)}
-                level="H"
-                includeMargin={false}
-                imageSettings={{
-                  src: "/icon.svg",
-                  x: undefined,
-                  y: undefined,
-                  height: 40,
-                  width: 40,
-                  excavate: true,
-                }}
-              />
-              <div className="absolute -top-2 -left-2 w-10 h-10 border-t-4 border-l-4 border-orange-500 rounded-tl-xl"></div>
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 border-b-4 border-r-4 border-orange-500 rounded-br-xl"></div>
+            {/* Phone Badge */}
+            <div className={`flex items-center gap-4 px-6 py-3 rounded-2xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200 shadow-sm'}`}>
+                <Smartphone className="w-5 h-5 text-orange-500" />
+                <span className={`font-display font-black tracking-tighter ${format === 'a5' ? 'text-3xl' : 'text-xl'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
+            </div>
+
+            {/* QR Code with fixed size based on format */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="text-orange-500 text-[9px] font-black uppercase tracking-[0.3em]">Scanner & Communiquer</div>
+              <div className={`p-4 rounded-[2rem] shadow-xl relative ${theme === 'light' ? 'bg-white border border-slate-200' : 'bg-white'}`}>
+                <QRCodeSVG 
+                  value={waUrl} 
+                  size={format === 'a5' ? 180 : 140}
+                  level="H"
+                  includeMargin={false}
+                  imageSettings={{
+                    src: "/icon.svg",
+                    x: undefined,
+                    y: undefined,
+                    height: 35,
+                    width: 35,
+                    excavate: true,
+                  }}
+                />
+              </div>
             </div>
 
             <div className="space-y-3">
-              <div className={`font-black uppercase tracking-tight ${format === 'a5' ? 'text-xl' : 'text-sm'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ouvrir WhatsApp direct</div>
-              <div className="inline-flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-500/20">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+              <div className={`font-black uppercase tracking-tight ${format === 'a5' ? 'text-lg' : 'text-xs'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ouvrir WhatsApp direct</div>
+              <div className="inline-flex items-center gap-2 bg-green-500 text-white px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-green-500/20">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                 Service client Nelal
               </div>
             </div>
