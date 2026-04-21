@@ -69,8 +69,9 @@ export default async function AdminDashboard() {
           </p>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-2xl">
-          <Link href="/dashboard/admin/livreurs" className="px-5 py-2.5 bg-white shadow-sm rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:text-orange-500 transition-colors">Livreurs</Link>
+          <Link href="/dashboard/admin/livreurs" className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Livreurs</Link>
           <Link href="/dashboard/admin/zones" className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Tarification</Link>
+          <Link href="/dashboard/admin/marketing" className="px-5 py-2.5 bg-white shadow-sm rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:text-orange-500 transition-colors">Marketing</Link>
         </div>
       </div>
 
