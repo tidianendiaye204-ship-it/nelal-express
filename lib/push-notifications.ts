@@ -23,6 +23,11 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
  */
 export async function subscribeToPush(): Promise<PushSubscription | null> {
   if (typeof window === 'undefined') return null
+  if (!VAPID_PUBLIC_KEY) {
+    console.info('[Push] NEXT_PUBLIC_VAPID_PUBLIC_KEY manquante. Souscription désactivée.')
+    return null
+  }
+
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.warn('[Push] Push notifications non supportées par ce navigateur')
     return null

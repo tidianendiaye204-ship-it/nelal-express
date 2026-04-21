@@ -41,6 +41,11 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
   const [selectedLivreurId, setSelectedLivreurId] = useState('')
   const [format, setFormat] = useState<'business' | 'square' | 'story'>('business')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // 2. AUTOMATIC UPDATES WHEN LIVREUR SELECTED
   useEffect(() => {
@@ -69,6 +74,14 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
     business: 'w-[850px] h-[480px] rounded-[2.5rem]',
     square: 'w-[600px] h-[600px] rounded-[3rem]',
     story: 'w-[500px] h-[888px] rounded-[3rem]'
+  }
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+        <div className="animate-pulse text-slate-400 font-black text-xs uppercase tracking-widest">Initialisation de l'outil...</div>
+      </div>
+    )
   }
 
   return (
@@ -225,7 +238,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
         </div>
 
         {/* RESPONSIVE CONTAINER FOR SCALE */}
-        <div className="w-full flex justify-center no-print">
+        <div className="w-full flex justify-center">
           <div className={`relative origin-top transition-all duration-500 mb-10
             ${format === 'business' ? 'w-[850px] scale-[0.4] sm:scale-50 md:scale-75 lg:scale-100 h-[220px] sm:h-[280px] md:h-[400px] lg:h-[480px]' : 
               format === 'square' ? 'w-[600px] scale-[0.55] sm:scale-75 lg:scale-100 h-[380px] sm:h-[480px] lg:h-[600px]' :
@@ -333,7 +346,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
                 level="H"
                 includeMargin={false}
                 imageSettings={{
-                  src: "https://nelal-express.vercel.app/icon-192x192.png",
+                  src: "/icon.svg",
                   x: undefined,
                   y: undefined,
                   height: 40,
@@ -366,22 +379,33 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
           @media print {
             @page {
               size: auto;
-              margin: 10mm;
+              margin: 0;
+            }
+            body {
+              background: white !important;
+              margin: 0 !important;
+              padding: 0 !important;
             }
             body * {
               visibility: hidden;
             }
-            .no-print {
+            /* Ensure parents are visible for the card to be visible */
+            .max-w-7xl, .flex, .overflow-hidden, .flex-1, .w-full, .items-center {
+              visibility: visible !important;
+            }
+            .no-print, .no-print * {
               display: none !important;
             }
             #marketing-card, #marketing-card * {
-              visibility: visible;
+              visibility: visible !important;
+              display: flex !important;
             }
             #marketing-card {
-              position: absolute;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%) ${format === 'story' ? 'scale(0.6)' : 'scale(0.8)'};
+              position: fixed !important;
+              left: 50% !important;
+              top: 50% !important;
+              transform: translate(-50%, -50%) ${format === 'story' ? 'scale(0.6)' : 'scale(0.85)'} !important;
+              margin: 0 !important;
               background: ${theme === 'dark' ? '#0F172A' : 'white'} !important;
               color: ${theme === 'dark' ? 'white' : 'black'} !important;
               box-shadow: none !important;
@@ -389,6 +413,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
               border-radius: 20px !important;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
+              z-index: 9999;
             }
             #marketing-card .text-orange-500 {
               color: #F97316 !important;
@@ -396,9 +421,9 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
             #marketing-card .bg-orange-500 {
               background-color: #F97316 !important;
             }
-            /* Hide decorative glows in print to save ink if needed */
-            #marketing-card div[class*="blur"] {
-              opacity: 0.2 !important;
+            /* Ensure SVG is visible */
+            #marketing-card svg {
+              visibility: visible !important;
             }
           }
         `}</style>
