@@ -39,7 +39,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
 💳 Paiement : Wave / Orange / Cash`)
 
   const [selectedLivreurId, setSelectedLivreurId] = useState('')
-  const [format, setFormat] = useState<'business' | 'large' | 'a5' | 'square' | 'story'>('business')
+  const [format, setFormat] = useState<'large' | 'a5'>('a5')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [mounted, setMounted] = useState(false)
 
@@ -71,20 +71,18 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
 
   // 4. DIMENSIONS HELPERS (mm for print, px for preview base)
   const formatData = {
-    business: { label: 'Standard', desc: '85x55mm', w: 85, h: 55, qrSize: 150, rounded: '1.5rem' },
-    large: { label: 'Grand', desc: '105x74mm', w: 105, h: 74, qrSize: 180, rounded: '2rem' },
-    a5: { label: 'A5 Flyer', desc: '148x210mm', w: 148, h: 210, qrSize: 300, rounded: '3rem' },
-    square: { label: 'Carré', desc: '100x100mm', w: 100, h: 100, qrSize: 220, rounded: '2rem' },
-    story: { label: 'Story', desc: '9:16 Digital', w: 108, h: 192, qrSize: 200, rounded: '3rem' }
+    a5: { label: 'Flyer A5 (Top)', desc: '148x210mm', w: 148, h: 210, qrSize: 220, rounded: '3rem', layout: 'col' },
+    large: { label: 'Carte Visite', desc: '105x74mm', w: 105, h: 74, qrSize: 180, rounded: '2rem', layout: 'row' }
   }
 
-  const cardStyles = {
-    business: 'w-[85mm] h-[55mm]',
-    large: 'w-[105mm] h-[74mm]',
-    a5: 'w-[148mm] h-[210mm]',
-    square: 'w-[100mm] h-[100mm]',
-    story: 'w-[108mm] h-[192mm]'
+  // Dynamic Font Scaling Logic
+  const getFontSize = (text: string, base: number, min: number = 16) => {
+    const len = text.length
+    if (len < 15) return base
+    const scaled = Math.max(min, base - (len - 15) * 0.8)
+    return scaled
   }
+
 
   if (!mounted) {
     return (
@@ -106,18 +104,18 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
         <div className="space-y-6">
           {/* FORMAT SELECTOR */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Format de la carte</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Choix du format idéal</label>
             <div className="grid grid-cols-2 gap-2">
               {(Object.keys(formatData) as Array<keyof typeof formatData>).map((fid) => (
                 <button
                   key={fid}
                   onClick={() => setFormat(fid)}
-                  className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
                     format === fid ? 'border-orange-500 bg-orange-50' : 'border-slate-50 bg-slate-50 hover:border-slate-200'
                   }`}
                 >
-                  <span className="text-[10px] font-black uppercase text-center leading-tight">{formatData[fid].label}</span>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">{formatData[fid].desc}</span>
+                  <span className="text-xs font-black uppercase text-center leading-tight">{formatData[fid].label}</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{formatData[fid].desc}</span>
                 </button>
               ))}
             </div>
@@ -245,9 +243,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
 
         {/* RESPONSIVE CONTAINER FOR SCALE */}
         <div className="w-full flex justify-center py-4">
-          <div className={`relative transition-all duration-500 flex items-center justify-center
-            ${format === 'a5' || format === 'story' ? 'min-h-[600px]' : 'min-h-[400px]'}
-          `}>
+          <div className={`relative transition-all duration-500 flex items-center justify-center min-h-[600px]`}>
             {/* THE CARD */}
             <div 
               id="marketing-card"
@@ -256,7 +252,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
                 height: `${formatData[format].h}mm`,
                 borderRadius: formatData[format].rounded
               }}
-              className={`print-card flex ${format === 'business' || format === 'large' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl shrink-0 transition-all duration-500 scale-[0.5] sm:scale-[0.8] md:scale-100 ${
+              className={`print-card flex ${formatData[format].layout === 'row' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl shrink-0 transition-all duration-500 scale-[0.5] sm:scale-[0.8] md:scale-90 lg:scale-100 ${
                 theme === 'dark' ? 'bg-[#0F172A]' : 'bg-white border border-slate-200'
               }`}
             >
@@ -272,86 +268,66 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
             </>
           )}
 
-          {/* LEFT/TOP CONTENT */}
-          <div className={`p-8 flex flex-col justify-between relative z-10 ${format === 'business' || format === 'large' ? 'flex-1 pr-4' : 'h-1/2 w-full pb-4'}`}>
-            <div>
-              <div className="mb-4">
-                <div className={`font-display font-black tracking-tighter leading-none uppercase italic ${format === 'business' || format === 'large' ? 'text-3xl' : 'text-4xl'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                  {serviceName.includes('-') ? (
-                    <>
-                      {serviceName.split('-')[0]} 
-                      <span className="text-orange-500">
-                        {serviceName.split('-')[1]}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      NELAL <span className="text-orange-500">EX</span>PRESS
-                    </>
-                  )}
+          {/* MAIN CONTENT AREA */}
+          <div className={`p-10 flex flex-col items-center text-center relative z-10 ${formatData[format].layout === 'row' ? 'flex-1 pr-4 items-start text-left' : 'w-full h-[60%]'}`}>
+            <div className="w-full">
+              <div className="mb-6">
+                <div 
+                  style={{ fontSize: getFontSize(serviceName, format === 'a5' ? 44 : 28, 20) + 'px' }}
+                  className={`font-display font-black tracking-tighter leading-[1.1] uppercase italic break-words ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}
+                >
+                  {serviceName}
                 </div>
-                <div className="text-orange-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2">
+                <div className="text-orange-500 text-[11px] font-black uppercase tracking-[0.4em] mt-3">
                   Service de livraison · Sénégal 🇸🇳
                 </div>
               </div>
 
-              <div className="h-1 w-20 bg-gradient-to-r from-orange-500 to-transparent rounded-full mb-6"></div>
+              <div className={`h-1 w-20 bg-gradient-to-r from-orange-500 to-transparent rounded-full mb-8 ${format === 'a5' ? 'mx-auto' : ''}`}></div>
 
-              <div className={`font-display font-black leading-tight mb-4 uppercase tracking-tight italic ${format === 'a5' ? 'text-3xl' : 'text-base'} ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
+              <div 
+                style={{ fontSize: getFontSize(slogan, format === 'a5' ? 24 : 16, 14) + 'px' }}
+                className={`font-display font-black leading-tight mb-8 uppercase tracking-tight italic break-words ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}
+              >
                 {slogan}
               </div>
 
-              {(format === 'business' || format === 'large' || format === 'a5') && (
-                <ul className={`${format === 'a5' ? 'space-y-6' : 'space-y-2'}`}>
-                  {[
-                    'Scannez le QR code',
-                    'WhatsApp s\'ouvre direct',
-                    'On prend en charge ! 💨'
-                  ].map((step, i) => (
-                    <li key={i} className={`flex items-center gap-3 font-bold ${format === 'a5' ? 'text-lg' : 'text-[11px]'} ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] text-orange-500 ${theme === 'dark' ? 'bg-white/5 border border-white/20' : 'bg-slate-100 border border-slate-200'}`}>
-                        {i + 1}
-                      </div>
-                      {step}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className={`flex flex-col gap-3 ${format === 'a5' ? 'items-center' : 'items-start'}`}>
+                <div className={`font-bold uppercase tracking-widest italic ${format === 'a5' ? 'text-sm' : 'text-[10px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+                  <div>{zones}</div>
+                  <div>{zones2}</div>
+                </div>
+              </div>
             </div>
 
-            {(format === 'business' || format === 'large' || format === 'square' || format === 'a5') && (
-              <div className="mt-4">
-                <div className={`space-y-0.5 mb-4 font-bold uppercase tracking-wide italic ${format === 'a5' ? 'text-sm' : 'text-[9px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
-                  <div>{zones}</div>
-                  {(format === 'business' || format === 'large' || format === 'a5') && <div>{zones2}</div>}
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
-                    <Smartphone className="w-4 h-4 text-orange-500" />
-                    <span className={`font-display font-black tracking-tight ${format === 'a5' ? 'text-2xl' : 'text-lg'}`}>{phone}</span>
-                  </div>
-                  {(format === 'business' || format === 'large') && (
-                    <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest flex flex-col">
-                      <span>💙 Wave</span>
-                      <span>🟠 Orange</span>
-                    </div>
-                  )}
+            {format === 'a5' && (
+              <div className="mt-auto pt-10">
+                <div className={`flex items-center gap-4 px-8 py-5 rounded-[2rem] ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
+                   <Smartphone className="w-8 h-8 text-orange-500" />
+                   <span className={`font-display font-black text-4xl tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* RIGHT/BOTTOM CONTENT (QR) */}
-          <div className={`bg-white/5 border-white/5 p-8 flex flex-col items-center justify-center gap-4 relative z-10 text-center ${
-            format === 'business' || format === 'large' ? 'w-[40%] border-l' : 'flex-1 border-t w-full'
-          }`}>
-            <div className="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Scanner</div>
+          {/* QR CODE AREA */}
+          <div className={`flex flex-col items-center justify-center gap-6 relative z-10 text-center ${
+            formatData[format].layout === 'row' ? 'w-[40%] border-l' : 'flex-1 border-t w-full bg-slate-500/5'
+          } ${theme === 'dark' ? 'border-white/5' : 'border-slate-200'}`}>
             
-            <div className={`p-4 rounded-[1.5rem] shadow-2xl relative ${theme === 'light' ? 'bg-slate-50 border border-slate-200' : 'bg-white'}`}>
+            {format === 'large' && (
+              <div className={`flex items-center gap-3 mb-2 px-4 py-2 rounded-xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
+                <Smartphone className="w-4 h-4 text-orange-500" />
+                <span className={`font-display font-black text-xl tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
+              </div>
+            )}
+
+            <div className="text-orange-500 text-[11px] font-black uppercase tracking-[0.3em]">Scanner & Communiquer</div>
+            
+            <div className={`p-5 rounded-[2rem] shadow-2xl relative ${theme === 'light' ? 'bg-white border border-slate-200' : 'bg-white'}`}>
               <QRCodeSVG 
                 value={waUrl} 
-                size={formatData[format].qrSize * (format === 'a5' ? 0.6 : 0.8)}
+                size={formatData[format].qrSize * (format === 'a5' ? 0.9 : 0.8)}
                 level="H"
                 includeMargin={false}
                 imageSettings={{
@@ -367,15 +343,11 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
               <div className="absolute -bottom-2 -right-2 w-10 h-10 border-b-4 border-r-4 border-orange-500 rounded-br-xl"></div>
             </div>
 
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <div className={`font-black text-sm uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ouvre WhatsApp</div>
-                <div className="text-slate-500 text-[11px] font-medium leading-tight">remplis les infos<br/>et envoie ! 🚛</div>
-              </div>
-
-              <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-500 border border-green-500/20 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                WhatsApp Direct
+            <div className="space-y-3">
+              <div className={`font-black uppercase tracking-tight ${format === 'a5' ? 'text-xl' : 'text-sm'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ouvrir WhatsApp direct</div>
+              <div className="inline-flex items-center gap-2 bg-green-500 text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-500/20">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                Service client Nelal
               </div>
             </div>
           </div>
@@ -388,7 +360,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
           @media print {
             @page {
               size: auto;
-              margin: 10mm;
+              margin: 15mm;
             }
             body {
               background: white !important;
