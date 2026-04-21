@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { STATUS_LABELS, STATUS_COLORS, type Order, type Profile } from '@/lib/types'
+import { STATUS_LABELS, STATUS_COLORS, type OrderStatus, type Profile } from '@/lib/types'
 import { 
-  Search, Filter, MoreHorizontal, Edit, 
-  Trash2, UserPlus, X, Check, Save, AlertCircle
+  Search, Edit, Trash2
 } from 'lucide-react'
 import { adminUpdateOrder, adminCancelOrder, assignLivreur } from '@/actions/orders'
 
@@ -23,7 +22,7 @@ export default function AdminOrderTable({
   const [editForm, setEditForm] = useState({
     price: 0,
     description: '',
-    status: ''
+    status: '' as OrderStatus
   })
 
   const filteredOrders = useMemo(() => {
@@ -150,7 +149,7 @@ export default function AdminOrderTable({
             <h3 className="font-display font-black text-xl uppercase italic mb-6">Modifier Commande</h3>
             <div className="space-y-4">
               <input type="number" value={editForm.price} onChange={e => setEditForm(p => ({ ...p, price: parseInt(e.target.value) }))} className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold" />
-              <select value={editForm.status} onChange={e => setEditForm(p => ({ ...p, status: e.target.value }))} className="w-full bg-slate-50 p-4 rounded-2xl text-[10px] font-black uppercase">
+              <select value={editForm.status} onChange={e => setEditForm(p => ({ ...p, status: e.target.value as OrderStatus }))} className="w-full bg-slate-50 p-4 rounded-2xl text-[10px] font-black uppercase">
                 {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </div>

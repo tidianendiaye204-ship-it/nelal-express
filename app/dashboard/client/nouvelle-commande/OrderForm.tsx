@@ -1,13 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createOrder } from '@/actions/orders'
-import { searchReperes } from '@/actions/reperes'
-import { createClient } from '@/utils/supabase/client'
 import { 
-  Package, User, Wallet, Navigation, MapPin, CheckCircle, 
-  MessageCircle, ArrowRight, ArrowLeft, Copy, Zap, Info, ShieldCheck, Truck
+  Package, User, Wallet, Navigation, CheckCircle, 
+  MessageCircle, ArrowRight, Zap, Truck
 } from 'lucide-react'
 
 const STEPS = [
@@ -57,7 +55,7 @@ export default function OrderForm({ zones }: { zones: any[] }) {
       } else if (result.orderId) {
         router.push(`/suivi/${result.orderId}`)
       }
-    } catch (err) {
+    } catch {
       setError("Une erreur est survenue")
     } finally {
       setIsSubmitting(false)
@@ -129,7 +127,7 @@ export default function OrderForm({ zones }: { zones: any[] }) {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
              <div className="space-y-2">
               <h2 className="font-display font-black text-2xl uppercase italic tracking-tighter">Le <span className="text-orange-500">Colis</span></h2>
-              <p className="text-slate-400 text-xs font-bold">Détails de l'objet à transporter.</p>
+              <p className="text-slate-400 text-xs font-bold">Détails de l&apos;objet à transporter.</p>
             </div>
             <div>
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Que transportons-nous ?</label>

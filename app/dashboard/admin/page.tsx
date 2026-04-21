@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AdminOrderTable from '@/components/AdminOrderTable'
 import { 
-  BarChart3, Package, Truck, Users, ArrowUpRight, 
-  ShieldAlert, TrendingUp, HandCoins, Zap,
+  Truck, Users, ArrowUpRight, 
+  ShieldAlert, TrendingUp, HandCoins,
   CheckCircle, Clock
 } from 'lucide-react'
 

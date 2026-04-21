@@ -12,11 +12,6 @@ export default async function NouvelleCommandePage() {
     .order('type')
     .order('name')
 
-  const zonesByType = {
-    dakar_centre: zones?.filter(z => z.type === 'dakar_centre') || [],
-    banlieue: zones?.filter(z => z.type === 'banlieue') || [],
-    interieur: zones?.filter(z => z.type === 'interieur') || [],
-  }
 
   return (
     <div className="max-w-2xl mx-auto pb-20">
@@ -30,7 +25,7 @@ export default async function NouvelleCommandePage() {
         </div>
       </div>
 
-      <OrderForm zonesByType={zonesByType} />
+      <OrderForm zones={zones || []} />
     </div>
   )
 }
