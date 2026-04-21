@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { sendWhatsAppNotification, buildMessage } from '@/lib/whatsapp'
 import { sendPushToRole, sendPushToLivreursInZone, sendPushToUser } from '@/lib/web-push'
 import { incrementOrAddRepere } from '@/actions/reperes'
-import type { OrderStatus, PaymentMethod, OrderType } from '@/lib/types'
+import type { OrderStatus, PaymentMethod, OrderType, Order } from '@/lib/types'
 
 import { calculateDynamicPrice, type ParcelSize } from '@/lib/utils/pricing'
 
@@ -596,5 +596,68 @@ export async function updateLivreur(livreurId: string, formData: FormData) {
 
   revalidatePath('/dashboard/admin/livreurs')
   revalidatePath('/dashboard/admin/marketing')
+  return { success: true }
+}
+
+export async function adminUpdateOrder(orderId: string, updates: Partial<Order>) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return { error: 'Accès réservé aux administrateurs' }
+
+  const { error } = await supabase.from('orders').update(updates).eq('id', orderId)
+  if (error) return { error: error.message }
+
+  await supabase.from('order_status_history').insert({
+    order_id: orderId,
+    status: updates.status || 'modified',
+    note: `Modification administrative par ${profile.full_name}.`,
+    created_by: user.id
+  })
+
+  revalidatePath('/dashboard/admin')
+  revalidatePath(`/suivi/${orderId}`)
+  return { success: true }
+}
+
+export async function adminCancelOrder(orderId: string, reason: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return { error: 'Accès réservé aux administrateurs' }
+
+  const { error } = await supabase.from('orders').update({ status: 'annule' }).eq('id', orderId)
+  if (error) return { error: error.message }
+
+  await supabase.from('order_status_history').insert({
+    order_id: orderId,
+    status: 'annule',
+    note: `ANNULATION ADMIN : ${reason} (par ${profile.full_name})`,
+    created_by: user.id
+  })
+
+  revalidatePath('/dashboard/admin')
+  revalidatePath(`/suivi/${orderId}`)
+  return { success: true }
+}
+
+export async function adminConfirmCashReceipt(livreurId: string, amount: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return { error: 'Accès réservé aux administrateurs' }
+
+  const { data: livreur } = await supabase.from('profiles').select('cash_held').eq('id', livreurId).single()
+  if (!livreur) return { error: 'Livreur introuvable' }
+
+  const newCashHeld = Math.max(0, (livreur.cash_held || 0) - amount)
+  const { error } = await supabase.from('profiles').update({ cash_held: newCashHeld }).eq('id', livreurId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/admin/livreurs')
   return { success: true }
 }
