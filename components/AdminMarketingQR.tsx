@@ -79,7 +79,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
   if (!mounted) {
     return (
       <div className="flex items-center justify-center min-h-[400px] bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-        <div className="animate-pulse text-slate-400 font-black text-xs uppercase tracking-widest">Initialisation de l'outil...</div>
+        <div className="animate-pulse text-slate-400 font-black text-xs uppercase tracking-widest">Initialisation de l&apos;outil...</div>
       </div>
     )
   }
