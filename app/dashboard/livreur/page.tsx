@@ -6,7 +6,7 @@ import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
 import { getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import {
-  MapPin, Clock, Package,
+  Wallet, Phone, MapPin, Clock, Package,
   ChevronRight, TrendingUp, Award, Map, Zap
 } from 'lucide-react'
 import Link from 'next/link'
@@ -46,12 +46,6 @@ export default async function LivreurDashboard() {
   const todayEarnings = todayOrders?.reduce((sum, o) => sum + (o.price || 0), 0) || 0
   const todayCount = todayOrders?.length || 0
 
-  // Stats Globales (Total)
-  const { data: allOrders } = await supabase
-    .from('orders')
-    .select('price, status')
-    .eq('livreur_id', profile?.id)
-    .in('status', ['livre', 'livre_partiel'])
 
   const { count: availableCount } = await supabase
     .from('orders')
