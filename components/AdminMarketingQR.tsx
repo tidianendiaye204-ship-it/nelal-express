@@ -219,18 +219,25 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
       </div>
 
       {/* ── PREVIEW PANEL ── */}
-      <div className="flex-1 w-full overflow-x-auto pb-10 flex flex-col items-center gap-6">
+      <div className="flex-1 w-full flex flex-col items-center gap-6 overflow-hidden">
         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 no-print flex items-center gap-2">
-          <CheckCircle2 className="w-3 h-3 text-green-500" /> Prévisualisation Haute Fidélité
+          <CheckCircle2 className="w-3 h-3 text-green-500" /> Prévisualisation Adaptative
         </div>
 
-        {/* THE CARD */}
-        <div 
-          id="marketing-card"
-          className={`print-card ${cardStyles[format]} flex ${format === 'business' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl relative shrink-0 transition-all duration-500 ${
-            theme === 'dark' ? 'bg-[#0F172A]' : 'bg-white border border-slate-200'
-          }`}
-        >
+        {/* RESPONSIVE CONTAINER FOR SCALE */}
+        <div className="w-full flex justify-center no-print">
+          <div className={`relative origin-top transition-all duration-500 mb-10
+            ${format === 'business' ? 'w-[850px] scale-[0.4] sm:scale-50 md:scale-75 lg:scale-100 h-[220px] sm:h-[280px] md:h-[400px] lg:h-[480px]' : 
+              format === 'square' ? 'w-[600px] scale-[0.55] sm:scale-75 lg:scale-100 h-[380px] sm:h-[480px] lg:h-[600px]' :
+              'w-[500px] scale-[0.6] sm:scale-85 lg:scale-100 h-[580px] sm:h-[780px] lg:h-[888px]'}
+          `}>
+            {/* THE CARD */}
+            <div 
+              id="marketing-card"
+              className={`print-card ${cardStyles[format]} flex ${format === 'business' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl shrink-0 transition-all duration-500 absolute top-0 left-1/2 -translate-x-1/2 ${
+                theme === 'dark' ? 'bg-[#0F172A]' : 'bg-white border border-slate-200'
+              }`}
+            >
           {/* Decorative accents */}
           <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-orange-500 to-yellow-500"></div>
           {theme === 'dark' && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-transparent"></div>}
@@ -350,9 +357,11 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
               </div>
             </div>
           </div>
+          </div>
         </div>
+      </div>
 
-        {/* PRINT STYLES */}
+      {/* PRINT STYLES */}
         <style jsx global>{`
           @media print {
             @page {

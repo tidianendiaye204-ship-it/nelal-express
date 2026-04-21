@@ -73,14 +73,6 @@ export default async function AdminMarketingPage() {
       {/* THE TOOL */}
       <AdminMarketingQR livreurs={livreurs || []} />
       
-      {/* MOBILE WARNING */}
-      <div className="mt-12 lg:hidden bg-blue-900 rounded-[2rem] p-8 text-white text-center no-print">
-        <div className="text-3xl mb-4">💻</div>
-        <h3 className="font-display font-black text-xl uppercase mb-2 italic">Outil de Bureau</h3>
-        <p className="text-blue-200 text-xs">
-          Pour une expérience optimale d&apos;édition et d&apos;impression, utilisez cet outil depuis un ordinateur.
-        </p>
-      </div>
     </div>
   )
 }

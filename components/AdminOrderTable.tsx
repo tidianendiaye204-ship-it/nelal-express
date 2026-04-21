@@ -91,7 +91,8 @@ export default function AdminOrderTable({
         </select>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+      {/* TABLE VIEW (MD+) */}
+      <div className="hidden md:block bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -141,6 +142,50 @@ export default function AdminOrderTable({
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* MOBILE VIEW (CARD LIST) */}
+      <div className="md:hidden space-y-4">
+        {filteredOrders.map((order) => (
+          <div key={order.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-slate-900 font-black text-sm uppercase leading-tight">{order.description}</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">{order.client?.full_name}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-black text-slate-900">{order.price.toLocaleString()} F</p>
+                <div className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest border mt-1 ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                  {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-50">
+               <div className="flex-1">
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigner</p>
+                  <select 
+                    value={order.livreur_id || ''}
+                    onChange={(e) => handleReassign(order.id, e.target.value)}
+                    className="w-full text-xs font-bold bg-slate-50 border-none rounded-xl p-2 outline-none"
+                  >
+                    <option value="">— Aucun —</option>
+                    {livreurs.map(l => <option key={l.id} value={l.id}>{l.full_name}</option>)}
+                  </select>
+               </div>
+               <div className="flex gap-2">
+                  <button onClick={() => handleEditInit(order)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
+                  <button onClick={() => handleCancel(order.id)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+               </div>
+            </div>
+          </div>
+        ))}
+
+        {filteredOrders.length === 0 && (
+          <div className="text-center py-12 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+             <p className="text-[10px] font-black text-slate-400 uppercase">Aucune commande trouvée</p>
+          </div>
+        )}
       </div>
 
       {editingOrder && (

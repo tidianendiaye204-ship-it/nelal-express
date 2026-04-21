@@ -6,7 +6,6 @@ import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
 import { getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import {
-  Bike, CheckCircle, Wallet, Phone,
   MapPin, Clock, Package,
   ChevronRight, TrendingUp, Award, Map, Zap
 } from 'lucide-react'
@@ -54,9 +53,6 @@ export default async function LivreurDashboard() {
     .eq('livreur_id', profile?.id)
     .in('status', ['livre', 'livre_partiel'])
 
-  const totalEarnings = allOrders?.reduce((sum, o) => sum + (o.price || 0), 0) || 0
-  const totalCount = allOrders?.length || 0
-
   const { count: availableCount } = await supabase
     .from('orders')
     .select('id', { count: 'exact', head: true })
@@ -64,274 +60,200 @@ export default async function LivreurDashboard() {
     .is('livreur_id', null)
 
   return (
-    <div className="max-w-xl mx-auto pb-24 px-1">
+    <div className="max-w-7xl mx-auto pb-24 px-4">
       <LiveOrderUpdater livreurId={profile?.id} />
       <ClientLocationSync livreurId={profile?.id || ''} hasActiveOrders={(orders?.length || 0) > 0} />
       
-      {/* WALLET STATUS BANNER */}
-      {(profile?.cash_held || 0) > 0 && (
-        <div className={`mx-3 mt-4 p-4 rounded-2xl flex items-center justify-between border ${
-          (profile.cash_held || 0) >= (profile.max_cash_limit || 25000)
-            ? 'bg-red-50 border-red-100 text-red-700'
-            : (profile.cash_held || 0) >= (profile.max_cash_limit || 25000) * 0.8
-            ? 'bg-amber-50 border-amber-100 text-amber-700'
-            : 'bg-blue-50 border-blue-100 text-blue-700'
-        }`}>
-          <div className="flex items-center gap-3">
-            <Wallet className="w-5 h-5 opacity-60" />
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-tight">Cash Détenu : {profile.cash_held.toLocaleString('fr-FR')} F</p>
-              <p className="text-[8px] font-medium opacity-80">
-                {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) 
-                  ? 'Compte bloqué, versez les fonds.' 
-                  : (profile.cash_held || 0) >= (profile.max_cash_limit || 25000) * 0.8
-                  ? 'Limite proche, prévoyez le versement.'
-                  : 'Solde en main normal.'}
-              </p>
-            </div>
+      <div className="grid lg:grid-cols-3 gap-8 pt-4">
+        {/* LEFT COLUMN: ACTIVE MISSIONS */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* ACTIVE MISSIONS FOCUS */}
+          <div className="flex items-center justify-between px-2">
+             <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                   {(orders?.length || 0) > 1 ? `Batch en cours (${orders?.length})` : 'Mission Prioritaire'}
+                </h2>
+             </div>
+             {(orders?.length || 0) > 1 && (
+                <div className="bg-slate-900 text-white px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-slate-700">
+                   Optimisation Batch Multi-Colis
+                </div>
+             )}
           </div>
-          {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) && (
-            <div className="bg-red-600 text-white px-2 py-1 rounded text-[7px] font-black uppercase">BLOQUÉ</div>
+
+          {!orders?.length ? (
+            <div className="bg-slate-50 border border-slate-200 border-dashed rounded-[3rem] py-24 text-center">
+                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-slate-100">
+                  <Package className="w-10 h-10 text-slate-200" />
+                </div>
+                <h3 className="text-slate-900 font-black text-base uppercase tracking-tight mb-2 italic">Prêt pour une mission ?</h3>
+                <p className="text-slate-400 text-xs max-w-[250px] mx-auto mb-8 font-medium">Consultez la liste des colis en attente pour commencer à gagner de l&apos;argent.</p>
+                <Link 
+                  href="/dashboard/livreur/disponibles"
+                  className="inline-flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-transform"
+                 >
+                    <Zap className="w-4 h-4 text-orange-500" /> Voir les missions
+                </Link>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {orders.map((order: any) => {
+                const estimatedTime = getEstimatedTime(order.zone_from?.type, order.zone_to?.type)
+                const pickupMapLink = order.gps_link || getMapSearchLink(order.pickup_address, order.zone_from?.name)
+                const deliveryMapLink = getMapSearchLink(order.delivery_address, order.zone_to?.name)
+                const isPickupDone = order.status === 'en_cours'
+
+                return (
+                  <div key={order.id} className="bg-white rounded-[3rem] border border-slate-200 shadow-2xl shadow-slate-200/30 overflow-hidden group">
+                    <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
+                       <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                         {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                       </div>
+                       <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                         <Clock className="w-3.5 h-3.5" /> {estimatedTime}
+                       </div>
+                    </div>
+
+                    <div className="p-8">
+                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+                         <div className="flex-1">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Colis à livrer</p>
+                            <h3 className="text-2xl font-display font-black text-slate-900 uppercase tracking-tight leading-tight">
+                              {order.description}
+                            </h3>
+                         </div>
+                         <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 shrink-0">
+                            <div className="flex items-baseline justify-end gap-1 text-orange-600">
+                              <span className="text-3xl font-display font-black leading-none">
+                                {order.price.toLocaleString('fr-FR')}
+                              </span>
+                              <span className="text-sm font-black italic">F</span>
+                            </div>
+                            <p className="text-[8px] font-black text-orange-500 uppercase tracking-widest mt-1 text-right">
+                              {order.payment_method === 'cash' ? '💵 Espèces' : '💳 Digital'}
+                            </p>
+                         </div>
+                       </div>
+
+                       <div className="grid md:grid-cols-2 gap-6 mb-8">
+                         <div className={`rounded-3xl p-6 border transition-all ${!isPickupDone ? 'bg-orange-50 border-orange-200 shadow-lg shadow-orange-500/10' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
+                            <p className="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                               <Package className="w-4 h-4" /> Ramassage
+                            </p>
+                            <p className="text-base font-black text-slate-900 uppercase tracking-tight mb-1">{order.zone_from?.name}</p>
+                            <p className="text-xs text-slate-500 font-medium mb-6 leading-relaxed">{order.pickup_address}</p>
+                            <div className="flex gap-2">
+                              <a href={pickupMapLink} target="_blank" rel="noopener noreferrer" className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Map className="w-4 h-4 text-orange-500" /> GPS</a>
+                              <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Phone className="w-4 h-4 text-blue-500" /> Appel</a>
+                            </div>
+                         </div>
+
+                         <div className={`rounded-3xl p-6 border transition-all ${isPickupDone ? 'bg-blue-50 border-blue-200 shadow-lg shadow-blue-500/10' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
+                            <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                               <MapPin className="w-4 h-4" /> Livraison
+                            </p>
+                            <p className="text-base font-black text-slate-900 uppercase tracking-tight mb-1">{order.zone_to?.name}</p>
+                            <p className="text-xs text-slate-500 font-medium mb-6 leading-relaxed">{order.delivery_address}</p>
+                            <div className="flex gap-2">
+                              <a href={deliveryMapLink} target="_blank" rel="noopener noreferrer" className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Map className="w-4 h-4 text-orange-500" /> GPS</a>
+                              <a href={`tel:${order.recipient_phone}`} className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Phone className="w-4 h-4 text-blue-500" /> Appel</a>
+                            </div>
+                         </div>
+                       </div>
+
+                       <div className="pt-4">
+                          {order.status === 'confirme' ? (
+                             <StatusUpdateButton orderId={order.id} nextStatus="en_cours" note="Prise en charge effectuée" label="DÉBUTER LA LIVRAISON (COLIS RÉCUPÉRÉ)" variant="pickup" />
+                          ) : (
+                             <DeliveryCompletionForm order={order} />
+                          )}
+                       </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
-      )}
 
-      {/* HEADER : GREETING & DAILY STATS */}
-      <div className="px-3 pt-4 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Performance Journée</p>
-            <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight leading-none uppercase">
-              Tableau de Bord
-            </h1>
-          </div>
-          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-slate-900/20">
-            <Bike className="w-6 h-6" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-[2rem] p-5 text-white shadow-lg shadow-orange-500/20 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -mr-10 -mt-10 group-hover:scale-125 transition-transform duration-700"></div>
-            <TrendingUp className="w-5 h-5 mb-3 opacity-60" />
-            <p className="text-3xl font-display font-black leading-none mb-1">
-              {todayEarnings.toLocaleString('fr-FR')} <span className="text-sm font-normal opacity-60">F</span>
-            </p>
-            <div className="flex items-center justify-between">
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-80">Gains du jour</p>
-              <p className="text-[7px] font-bold opacity-40">Total: {totalEarnings.toLocaleString('fr-FR')} F</p>
-            </div>
-          </div>
-          <div className="bg-white rounded-[2rem] p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-            <Award className="w-5 h-5 mb-3 text-orange-500" />
-            <div>
-              <p className="text-2xl font-display font-black text-slate-900 leading-none mb-1">
-                {todayCount}
-              </p>
+        {/* RIGHT COLUMN: WALLET, PERFORMANCE & HISTORY */}
+        <div className="space-y-6">
+          {/* WALLET STATUS */}
+          {(profile?.cash_held || 0) > 0 && (
+            <div className={`p-8 rounded-[2.5rem] border flex flex-col gap-6 shadow-xl ${
+              (profile.cash_held || 0) >= (profile.max_cash_limit || 25000)
+                ? 'bg-red-600 border-red-500 text-white shadow-red-500/20'
+                : 'bg-white border-slate-100 shadow-slate-200/40'
+            }`}>
               <div className="flex items-center justify-between">
-                <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">Courses finies</p>
-                <p className="text-[7px] font-bold text-slate-300">Total: {totalCount}</p>
+                <Wallet className={`w-10 h-10 opacity-40 ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white' : 'text-slate-900'}`} />
+                {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) && (
+                  <span className="bg-white text-red-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">BLOQUÉ</span>
+                )}
+              </div>
+              <div>
+                <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white/60' : 'text-slate-400'}`}>Fonds encaissés</p>
+                <p className={`text-4xl font-display font-black leading-none ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white' : 'text-slate-900'}`}>
+                  {profile.cash_held.toLocaleString('fr-FR')} <span className="text-sm font-normal">F</span>
+                </p>
+              </div>
+              <p className={`text-[10px] font-medium leading-relaxed ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white/80' : 'text-slate-500'}`}>
+                {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) 
+                  ? 'Versez vos fonds par Wave pour débloquer votre compte.' 
+                  : 'N&apos;oubliez pas de verser vos fonds régulièrement.'}
+              </p>
+            </div>
+          )}
+
+          {/* PERFORMANCE JOURNÉE */}
+          <section className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Performance Journée</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-slate-50 p-6 rounded-3xl">
+                <TrendingUp className="w-5 h-5 mb-4 text-orange-500" />
+                <p className="text-2xl font-display font-black text-slate-900 leading-none mb-1">{todayEarnings.toLocaleString('fr-FR')} F</p>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-tight">Gains</p>
+              </div>
+              <div className="bg-slate-50 p-6 rounded-3xl">
+                <Award className="w-5 h-5 mb-4 text-blue-500" />
+                <p className="text-2xl font-display font-black text-slate-900 leading-none mb-1">{todayCount}</p>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-tight">Courses</p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+          </section>
 
-      {/* MISSIONS DISPONIBLES BADGE */}
-      {(availableCount || 0) > 0 && (
-        <Link
-          href="/dashboard/livreur/disponibles"
-          className="mx-3 mb-8 flex items-center justify-between bg-green-500 text-white p-5 rounded-[2rem] shadow-xl shadow-green-500/20 active:scale-[0.98] transition-all relative overflow-hidden group"
-        >
-          <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner">
-              <Zap className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="font-display font-black text-sm uppercase tracking-tight">
-                {(availableCount || 0)} mission{(availableCount || 0) > 1 ? 's' : ''} en attente
-              </p>
-              <p className="text-[8px] font-black uppercase tracking-widest opacity-80 animate-pulse">
-                Touchez pour accepter →
-              </p>
-            </div>
-          </div>
-          <ChevronRight className="w-5 h-5 relative z-10" />
-        </Link>
-      )}
-
-      {/* ACTIVE MISSIONS FOCUS */}
-      <div className="px-3 mb-4 flex items-center justify-between">
-         <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
-            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-               {(orders?.length || 0) > 1 ? `Batch en cours (${orders?.length})` : 'Mission Prioritaire'}
-            </h2>
-         </div>
-         {(orders?.length || 0) > 1 && (
-            <div className="bg-slate-900 text-white px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest">
-               OPTIMISATION ACTIVÉE
-            </div>
-         )}
-      </div>
-
-      {/* BATCH SUMMARY BAR (If multi) */}
-      {(orders?.length || 0) > 1 && (
-        <div className="mx-3 mb-6 bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-4 overflow-x-auto no-scrollbar">
-          {orders?.map((o: any, idx: number) => (
-            <div key={o.id} className="flex-shrink-0 flex items-center gap-2 bg-white border border-slate-200 px-3 py-2 rounded-xl shadow-sm">
-              <span className="w-4 h-4 bg-slate-900 text-white text-[8px] flex items-center justify-center rounded-full font-black">
-                {idx + 1}
-              </span>
-              <p className="text-[10px] font-bold text-slate-700 max-w-[100px] truncate">{o.description}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!orders?.length ? (
-        <div className="mx-3 bg-slate-50 border border-slate-100 border-dashed rounded-[2.5rem] py-16 text-center">
-            <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-slate-100">
-              <Package className="w-8 h-8 text-slate-200" />
-            </div>
-            <h3 className="text-slate-900 font-black text-xs uppercase tracking-tight mb-2">Aucune mission en cours</h3>
-            <p className="text-slate-400 text-[10px] max-w-[200px] mx-auto mb-6">Allez dans l&apos;onglet disponibles pour trouver du travail !</p>
-            <Link 
+          {/* MISSIONS DISPONIBLES BADGE */}
+          {(availableCount || 0) > 0 && (
+            <Link
               href="/dashboard/livreur/disponibles"
-              className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest"
-             >
-                Chercher des missions
+              className="block group bg-green-500 text-white p-8 rounded-[2.5rem] shadow-xl shadow-green-500/20 active:scale-[0.98] transition-all relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-1000"></div>
+              <Zap className="w-10 h-10 mb-6 opacity-30" />
+              <p className="font-display font-black text-lg uppercase tracking-tight mb-1">
+                {(availableCount || 0)} missions dispo
+              </p>
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-80 flex items-center gap-2">
+                Prendre une mission <ChevronRight className="w-4 h-4" />
+              </p>
             </Link>
-        </div>
-      ) : (
-        <div className="space-y-6 px-2 mb-10">
-          {orders.map((order: any) => {
-            const estimatedTime = getEstimatedTime(order.zone_from?.type, order.zone_to?.type)
-            const pickupMapLink = order.gps_link || getMapSearchLink(order.pickup_address, order.zone_from?.name)
-            const deliveryMapLink = getMapSearchLink(order.delivery_address, order.zone_to?.name)
-            const isPickupDone = order.status === 'en_cours'
+          )}
 
-            return (
-              <div key={order.id} className="bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden group">
-                {/* Status Bar */}
-                <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                   <div className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
-                     {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
-                   </div>
-                   <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">
-                     <Clock className="w-3 h-3" /> {estimatedTime}
-                   </div>
-                </div>
-
-                <div className="p-4 md:p-6">
-                   <div className="flex items-start justify-between gap-4 mb-6">
-                     <h3 className="text-lg md:text-xl font-display font-black text-slate-900 uppercase tracking-tight leading-tight flex-1 break-words">
-                       {order.description}
-                     </h3>
-                     <div className="text-right shrink-0">
-                        <div className="flex items-baseline justify-end gap-1 text-orange-600">
-                          <span className="text-2xl md:text-3xl font-display font-black leading-none">
-                            {order.price.toLocaleString('fr-FR')}
-                          </span>
-                          <span className="text-xs font-black uppercase tracking-tighter">FCFA</span>
-                        </div>
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                          {order.payment_method === 'cash' ? '💵 Cash' : '💳 Digital'}
-                        </p>
-                     </div>
-                   </div>
-
-                   {/* PROGRESS STEPPER */}
-                   <div className="flex items-center gap-2 mb-8 px-2 relative">
-                      <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2 z-0"></div>
-                      <div className="flex-1 flex flex-col items-center gap-2 relative z-10">
-                         <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 ${isPickupDone ? 'bg-green-500 border-white text-white shadow-lg shadow-green-500/20' : 'bg-orange-500 border-white text-white shadow-lg shadow-orange-500/20'}`}>
-                           {isPickupDone ? <CheckCircle className="w-4 h-4" /> : <Package className="w-4 h-4" />}
-                         </div>
-                         <span className="text-[7px] font-black uppercase tracking-tight text-slate-400">Ramassage</span>
-                      </div>
-                      <div className={`flex-1 flex flex-col items-center gap-2 relative z-10 ${!isPickupDone ? 'opacity-30' : ''}`}>
-                         <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 ${isPickupDone ? 'bg-orange-500 border-white text-white' : 'bg-white border-slate-100 text-slate-300'}`}>
-                           <MapPin className="w-4 h-4" />
-                         </div>
-                         <span className="text-[7px] font-black uppercase tracking-tight text-slate-400">Livraison</span>
-                      </div>
-                   </div>
-
-                   {/* LOCATION CARDS */}
-                   <div className="space-y-4 mb-8">
-                     {/* Step Location */}
-                     <div className="bg-slate-50 rounded-[2rem] p-5 border border-slate-100 relative group">
-                        <p className="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                           {isPickupDone ? <MapPin className="w-3 h-3" /> : <Package className="w-3 h-3" />}
-                           {isPickupDone ? 'Destination de Livraison' : 'Lieu de Ramassage'}
-                        </p>
-                        <p className="text-sm font-black text-slate-900 uppercase tracking-tight mb-1">
-                          {isPickupDone ? order.zone_to?.name : order.zone_from?.name}
-                        </p>
-                        <p className="text-xs text-slate-500 font-medium mb-4 leading-relaxed">
-                          {isPickupDone ? order.delivery_address : order.pickup_address}
-                        </p>
-                        
-                        {/* Action Bar */}
-                        <div className="flex gap-2">
-                          <a 
-                            href={isPickupDone ? deliveryMapLink : pickupMapLink}
-                            target="_blank" rel="noopener noreferrer"
-                            className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"
-                          >
-                            <Map className="w-4 h-4 text-orange-500" /> Itinéraire
-                          </a>
-                          <a 
-                            href={`tel:${isPickupDone ? order.recipient_phone : order.client?.phone}`}
-                            className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"
-                          >
-                            <Phone className="w-4 h-4 text-blue-500" /> Appeler
-                          </a>
-                        </div>
-                     </div>
-                   </div>
-
-                   {/* DYNAMIC ACTION BUTTON */}
-                   <div className="pt-2">
-                      {order.status === 'confirme' ? (
-                        <div className="animate-in slide-in-from-bottom-4">
-                           <StatusUpdateButton
-                            orderId={order.id}
-                            nextStatus="en_cours"
-                            note="Prise en charge effectuée"
-                            label="J'AI RÉCUPÉRÉ LE COLIS"
-                            variant="pickup"
-                          />
-                        </div>
-                      ) : (
-                        <div className="animate-in zoom-in-95">
-                           <DeliveryCompletionForm order={order} />
-                        </div>
-                      )}
-                   </div>
-                </div>
+          {/* HISTORY LINK */}
+          <Link 
+            href="/dashboard/livreur/historique" 
+            className="flex items-center justify-between bg-slate-900 p-8 rounded-[2.5rem] text-white hover:bg-slate-800 transition-colors group shadow-xl shadow-slate-900/20"
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Clock className="w-6 h-6 text-orange-500" />
               </div>
-            )
-          })}
-        </div>
-      )}
-
-      {/* RECENT HISTORY LINK */}
-      <div className="px-3">
-        <Link 
-          href="/dashboard/livreur/historique" 
-          className="flex items-center justify-between bg-white border border-slate-100 p-5 rounded-[2rem] text-slate-500 hover:text-slate-900 transition-colors group"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-slate-100 transition-colors">
-              <Clock className="w-5 h-5 opacity-60" />
+              <span className="text-[11px] font-black uppercase tracking-widest">Historique Complet</span>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest">Historique récent</span>
-          </div>
-          <ChevronRight className="w-5 h-5 opacity-40 group-hover:translate-x-1 transition-transform" />
-        </Link>
+            <ChevronRight className="w-5 h-5 opacity-40 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </div>
     </div>
   )
