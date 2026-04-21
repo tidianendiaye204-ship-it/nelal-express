@@ -276,44 +276,44 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
             >
               {serviceName}
             </div>
-            <div className="text-orange-500 text-[10px] font-black uppercase tracking-[0.4em] mt-3">
+            <div className="text-orange-500 text-[9px] font-black uppercase tracking-[0.4em] mt-2">
               Service de livraison · Sénégal 🇸🇳
             </div>
           </div>
 
           {/* ── MIDDLE SECTION: VALUE PROP ── */}
-          <div className="flex-1 px-10 py-8 w-full flex flex-col items-center justify-center gap-6">
+          <div className="flex-1 px-10 py-6 w-full flex flex-col items-center justify-center gap-4">
             <div 
-              style={{ fontSize: getFontSize(slogan, format === 'a5' ? 20 : 14, 12) + 'px' }}
+              style={{ fontSize: getFontSize(slogan, format === 'a5' ? 18 : 12, 11) + 'px' }}
               className={`font-display font-black leading-tight uppercase tracking-tight italic opacity-90 max-w-[90%] mx-auto ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}
             >
               {slogan}
             </div>
 
-            <div className={`h-0.5 w-16 bg-orange-500/30 rounded-full`}></div>
+            <div className={`h-0.5 w-12 bg-orange-500/30 rounded-full`}></div>
 
-            <div className={`font-bold uppercase tracking-widest italic text-center space-y-1 ${format === 'a5' ? 'text-sm' : 'text-[9px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+            <div className={`font-bold uppercase tracking-widest italic text-center space-y-0.5 ${format === 'a5' ? 'text-[11px]' : 'text-[8px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
               <div className="flex items-center justify-center gap-2">📍 {zones}</div>
               <div className="flex items-center justify-center gap-2">🚌 {zones2}</div>
             </div>
           </div>
 
           {/* ── BOTTOM SECTION: CONTACT & QR ── */}
-          <div className={`p-8 w-full flex flex-col items-center gap-6 border-t ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+          <div className={`p-6 w-full flex flex-col items-center gap-5 border-t ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
             
             {/* Phone Badge */}
-            <div className={`flex items-center gap-4 px-6 py-3 rounded-2xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200 shadow-sm'}`}>
-                <Smartphone className="w-5 h-5 text-orange-500" />
-                <span className={`font-display font-black tracking-tighter ${format === 'a5' ? 'text-3xl' : 'text-xl'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
+            <div className={`flex items-center gap-3 px-5 py-2 rounded-xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200 shadow-sm'}`}>
+                <Smartphone className="w-4 h-4 text-orange-500" />
+                <span className={`font-display font-black tracking-tighter ${format === 'a5' ? 'text-xl' : 'text-lg'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
             </div>
 
-            {/* QR Code with fixed size based on format */}
-            <div className="flex flex-col items-center gap-3">
-              <div className="text-orange-500 text-[9px] font-black uppercase tracking-[0.3em]">Scanner & Communiquer</div>
-              <div className={`p-4 rounded-[2rem] shadow-xl relative ${theme === 'light' ? 'bg-white border border-slate-200' : 'bg-white'}`}>
+            {/* QR Code Section */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-orange-500 text-[8px] font-black uppercase tracking-[0.3em]">Scanner pour commander</div>
+              <div className={`p-3 rounded-[1.5rem] shadow-xl relative ${theme === 'light' ? 'bg-white border border-slate-200' : 'bg-white'}`}>
                 <QRCodeSVG 
                   value={waUrl} 
-                  size={format === 'a5' ? 180 : 140}
+                  size={format === 'a5' ? 160 : 120}
                   level="H"
                   includeMargin={false}
                   imageSettings={{
@@ -328,9 +328,9 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className={`font-black uppercase tracking-tight ${format === 'a5' ? 'text-lg' : 'text-xs'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ouvrir WhatsApp direct</div>
-              <div className="inline-flex items-center gap-2 bg-green-500 text-white px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-green-500/20">
+            <div className="space-y-2 mt-1">
+              <div className={`font-black uppercase tracking-tight ${format === 'a5' ? 'text-sm' : 'text-[10px]'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>WhatsApp direct Nelal</div>
+              <div className="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg shadow-green-500/20">
                 <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                 Service client Nelal
               </div>
