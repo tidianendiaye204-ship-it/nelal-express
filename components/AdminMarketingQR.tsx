@@ -28,7 +28,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
   const [slogan, setSlogan] = useState('Livraison rapide · Dakar, Banlieue & Intérieur')
   const [zones, setZones] = useState('🏙 Dakar · Pikine · Guédiawaye · Rufisque · Keur Massar')
   const [zones2, setZones2] = useState('🚌 Saint-Louis · Ndioum · Touba · Thiès · Kaolack...')
-  const [phone, setPhone] = useState('71 116 53 68/7')
+  const [phone, setPhone] = useState('71 116 53 68')
   const [waMessage, setWaMessage] = useState(`Salam ! Je veux commander via Nelal Express 🚀
 
 📦 Colis :
@@ -39,7 +39,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
 💳 Paiement : Wave / Orange / Cash`)
 
   const [selectedLivreurId, setSelectedLivreurId] = useState('')
-  const [format, setFormat] = useState<'business' | 'square' | 'story'>('business')
+  const [format, setFormat] = useState<'business' | 'large' | 'a5' | 'square' | 'story'>('business')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [mounted, setMounted] = useState(false)
 
@@ -51,7 +51,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
   useEffect(() => {
     if (selectedLivreurId === 'default') {
       setServiceName('NELAL EXPRESS')
-      setPhone('71 116 53 68/7')
+      setPhone('71 116 53 68')
       return
     }
 
@@ -69,11 +69,21 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
     return `https://wa.me/${intl}?text=${encodeURIComponent(waMessage)}`
   }, [phone, waMessage])
 
-  // 4. DIMENSIONS HELPERS
+  // 4. DIMENSIONS HELPERS (mm for print, px for preview base)
+  const formatData = {
+    business: { label: 'Standard', desc: '85x55mm', w: 85, h: 55, qrSize: 150, rounded: '1.5rem' },
+    large: { label: 'Grand', desc: '105x74mm', w: 105, h: 74, qrSize: 180, rounded: '2rem' },
+    a5: { label: 'A5 Flyer', desc: '148x210mm', w: 148, h: 210, qrSize: 300, rounded: '3rem' },
+    square: { label: 'Carré', desc: '100x100mm', w: 100, h: 100, qrSize: 220, rounded: '2rem' },
+    story: { label: 'Story', desc: '9:16 Digital', w: 108, h: 192, qrSize: 200, rounded: '3rem' }
+  }
+
   const cardStyles = {
-    business: 'w-[850px] h-[480px] rounded-[2.5rem]',
-    square: 'w-[600px] h-[600px] rounded-[3rem]',
-    story: 'w-[500px] h-[888px] rounded-[3rem]'
+    business: 'w-[85mm] h-[55mm]',
+    large: 'w-[105mm] h-[74mm]',
+    a5: 'w-[148mm] h-[210mm]',
+    square: 'w-[100mm] h-[100mm]',
+    story: 'w-[108mm] h-[192mm]'
   }
 
   if (!mounted) {
@@ -97,21 +107,17 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
           {/* FORMAT SELECTOR */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Format de la carte</label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { id: 'business', label: 'Pro', desc: '85x55' },
-                { id: 'square', label: 'Carré', desc: 'Sticker' },
-                { id: 'story', label: 'Story', desc: 'WhatsApp' }
-              ].map((f) => (
+            <div className="grid grid-cols-2 gap-2">
+              {(Object.keys(formatData) as Array<keyof typeof formatData>).map((fid) => (
                 <button
-                  key={f.id}
-                  onClick={() => setFormat(f.id as any)}
+                  key={fid}
+                  onClick={() => setFormat(fid)}
                   className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
-                    format === f.id ? 'border-orange-500 bg-orange-50' : 'border-slate-50 bg-slate-50 hover:border-slate-200'
+                    format === fid ? 'border-orange-500 bg-orange-50' : 'border-slate-50 bg-slate-50 hover:border-slate-200'
                   }`}
                 >
-                  <span className="text-[10px] font-black uppercase">{f.label}</span>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">{f.desc}</span>
+                  <span className="text-[10px] font-black uppercase text-center leading-tight">{formatData[fid].label}</span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">{formatData[fid].desc}</span>
                 </button>
               ))}
             </div>
@@ -238,16 +244,19 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
         </div>
 
         {/* RESPONSIVE CONTAINER FOR SCALE */}
-        <div className="w-full flex justify-center">
-          <div className={`relative origin-top transition-all duration-500 mb-10
-            ${format === 'business' ? 'w-[850px] scale-[0.4] sm:scale-50 md:scale-75 lg:scale-100 h-[220px] sm:h-[280px] md:h-[400px] lg:h-[480px]' : 
-              format === 'square' ? 'w-[600px] scale-[0.55] sm:scale-75 lg:scale-100 h-[380px] sm:h-[480px] lg:h-[600px]' :
-              'w-[500px] scale-[0.6] sm:scale-85 lg:scale-100 h-[580px] sm:h-[780px] lg:h-[888px]'}
+        <div className="w-full flex justify-center py-4">
+          <div className={`relative transition-all duration-500 flex items-center justify-center
+            ${format === 'a5' || format === 'story' ? 'min-h-[600px]' : 'min-h-[400px]'}
           `}>
             {/* THE CARD */}
             <div 
               id="marketing-card"
-              className={`print-card ${cardStyles[format]} flex ${format === 'business' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl shrink-0 transition-all duration-500 absolute top-0 left-1/2 -translate-x-1/2 ${
+              style={{
+                width: `${formatData[format].w}mm`,
+                height: `${formatData[format].h}mm`,
+                borderRadius: formatData[format].rounded
+              }}
+              className={`print-card flex ${format === 'business' || format === 'large' ? 'flex-row' : 'flex-col'} overflow-hidden shadow-2xl shrink-0 transition-all duration-500 scale-[0.5] sm:scale-[0.8] md:scale-100 ${
                 theme === 'dark' ? 'bg-[#0F172A]' : 'bg-white border border-slate-200'
               }`}
             >
@@ -264,10 +273,10 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
           )}
 
           {/* LEFT/TOP CONTENT */}
-          <div className={`p-12 flex flex-col justify-between relative z-10 ${format === 'business' ? 'flex-1 pr-6' : 'h-1/2 w-full pb-6'}`}>
+          <div className={`p-8 flex flex-col justify-between relative z-10 ${format === 'business' || format === 'large' ? 'flex-1 pr-4' : 'h-1/2 w-full pb-4'}`}>
             <div>
               <div className="mb-4">
-                <div className={`font-display font-black tracking-tighter leading-none uppercase italic ${format === 'business' ? 'text-5xl' : 'text-4xl'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                <div className={`font-display font-black tracking-tighter leading-none uppercase italic ${format === 'business' || format === 'large' ? 'text-3xl' : 'text-4xl'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                   {serviceName.includes('-') ? (
                     <>
                       {serviceName.split('-')[0]} 
@@ -286,21 +295,21 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
                 </div>
               </div>
 
-              <div className="h-1 w-20 bg-gradient-to-r from-orange-500 to-transparent rounded-full mb-8"></div>
+              <div className="h-1 w-20 bg-gradient-to-r from-orange-500 to-transparent rounded-full mb-6"></div>
 
-              <div className={`font-display font-black text-xl leading-tight mb-4 uppercase tracking-tight italic ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
+              <div className={`font-display font-black leading-tight mb-4 uppercase tracking-tight italic ${format === 'a5' ? 'text-3xl' : 'text-base'} ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
                 {slogan}
               </div>
 
-              {format === 'business' && (
-                <ul className="space-y-4">
+              {(format === 'business' || format === 'large' || format === 'a5') && (
+                <ul className={`${format === 'a5' ? 'space-y-6' : 'space-y-2'}`}>
                   {[
                     'Scannez le QR code',
                     'WhatsApp s\'ouvre direct',
                     'On prend en charge ! 💨'
                   ].map((step, i) => (
-                    <li key={i} className={`flex items-center gap-4 text-sm font-medium ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] text-orange-500 ${theme === 'dark' ? 'bg-white/5 border border-white/20' : 'bg-slate-100 border border-slate-200'}`}>
+                    <li key={i} className={`flex items-center gap-3 font-bold ${format === 'a5' ? 'text-lg' : 'text-[11px]'} ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] text-orange-500 ${theme === 'dark' ? 'bg-white/5 border border-white/20' : 'bg-slate-100 border border-slate-200'}`}>
                         {i + 1}
                       </div>
                       {step}
@@ -310,22 +319,22 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
               )}
             </div>
 
-            {(format === 'business' || format === 'square') && (
-              <div className="mt-8">
-                <div className={`space-y-1 mb-6 font-bold text-[11px] uppercase tracking-wide italic ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+            {(format === 'business' || format === 'large' || format === 'square' || format === 'a5') && (
+              <div className="mt-4">
+                <div className={`space-y-0.5 mb-4 font-bold uppercase tracking-wide italic ${format === 'a5' ? 'text-sm' : 'text-[9px]'} ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
                   <div>{zones}</div>
-                  {format === 'business' && <div>{zones2}</div>}
+                  {(format === 'business' || format === 'large' || format === 'a5') && <div>{zones2}</div>}
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
-                    <Smartphone className="w-5 h-5 text-orange-500" />
-                    <span className={`font-display font-black text-xl tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{phone}</span>
+                <div className="flex items-center gap-3">
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${theme === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
+                    <Smartphone className="w-4 h-4 text-orange-500" />
+                    <span className={`font-display font-black tracking-tight ${format === 'a5' ? 'text-2xl' : 'text-lg'}`}>{phone}</span>
                   </div>
-                  {format === 'business' && (
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-4">
+                  {(format === 'business' || format === 'large') && (
+                    <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest flex flex-col">
                       <span>💙 Wave</span>
-                      <span>🟠 Orange Money</span>
+                      <span>🟠 Orange</span>
                     </div>
                   )}
                 </div>
@@ -334,15 +343,15 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
           </div>
 
           {/* RIGHT/BOTTOM CONTENT (QR) */}
-          <div className={`bg-white/5 border-white/5 p-12 flex flex-col items-center justify-center gap-6 relative z-10 text-center ${
-            format === 'business' ? 'w-[300px] border-l' : 'flex-1 border-t w-full'
+          <div className={`bg-white/5 border-white/5 p-8 flex flex-col items-center justify-center gap-4 relative z-10 text-center ${
+            format === 'business' || format === 'large' ? 'w-[40%] border-l' : 'flex-1 border-t w-full'
           }`}>
-            <div className="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Scanner pour commander</div>
+            <div className="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Scanner</div>
             
-            <div className={`p-5 rounded-[2.5rem] shadow-2xl relative ${theme === 'light' ? 'bg-slate-50 border border-slate-200' : 'bg-white'}`}>
+            <div className={`p-4 rounded-[1.5rem] shadow-2xl relative ${theme === 'light' ? 'bg-slate-50 border border-slate-200' : 'bg-white'}`}>
               <QRCodeSVG 
                 value={waUrl} 
-                size={format === 'business' ? 160 : 200}
+                size={formatData[format].qrSize * (format === 'a5' ? 0.6 : 0.8)}
                 level="H"
                 includeMargin={false}
                 imageSettings={{
@@ -379,7 +388,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
           @media print {
             @page {
               size: auto;
-              margin: 0;
+              margin: 10mm;
             }
             body {
               background: white !important;
@@ -388,43 +397,42 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
             }
             body * {
               visibility: hidden;
+              overflow: visible !important;
             }
-            /* Ensure parents are visible for the card to be visible */
-            .max-w-7xl, .flex, .overflow-hidden, .flex-1, .w-full, .items-center {
+            /* Reset container for print */
+            #__next, main, .max-w-7xl, .flex, .flex-1, .w-full {
+              display: block !important;
               visibility: visible !important;
+              position: static !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              width: auto !important;
+              height: auto !important;
             }
             .no-print, .no-print * {
               display: none !important;
             }
-            #marketing-card, #marketing-card * {
+            #marketing-card {
               visibility: visible !important;
               display: flex !important;
-            }
-            #marketing-card {
-              position: fixed !important;
-              left: 50% !important;
-              top: 50% !important;
-              transform: translate(-50%, -50%) ${format === 'story' ? 'scale(0.6)' : 'scale(0.85)'} !important;
-              margin: 0 !important;
-              background: ${theme === 'dark' ? '#0F172A' : 'white'} !important;
-              color: ${theme === 'dark' ? 'white' : 'black'} !important;
+              position: relative !important;
+              margin: 0 auto !important;
+              transform: none !important;
+              left: auto !important;
+              top: auto !important;
               box-shadow: none !important;
-              border: ${theme === 'light' ? '1px solid #ddd' : 'none'} !important;
-              border-radius: 20px !important;
+              border: ${theme === 'light' ? '0.5pt solid #ddd' : 'none'} !important;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
-              z-index: 9999;
+              page-break-inside: avoid;
+              break-inside: avoid;
             }
-            #marketing-card .text-orange-500 {
-              color: #F97316 !important;
-            }
-            #marketing-card .bg-orange-500 {
-              background-color: #F97316 !important;
-            }
-            /* Ensure SVG is visible */
-            #marketing-card svg {
+            #marketing-card * {
               visibility: visible !important;
             }
+            #marketing-card .text-orange-500 { color: #F97316 !important; }
+            #marketing-card .bg-orange-500 { background-color: #F97316 !important; }
+            #marketing-card svg { display: block !important; }
           }
         `}</style>
       </div>
