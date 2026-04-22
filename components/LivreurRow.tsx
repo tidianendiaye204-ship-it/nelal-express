@@ -150,7 +150,7 @@ export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
         {/* Avatar & Info */}
         <div className="flex items-center gap-4 flex-1">
           <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-orange-500/20 flex-shrink-0">
-            {l.full_name.charAt(0).toUpperCase()}
+            {(l.full_name || 'L').charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
@@ -189,24 +189,26 @@ export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
             <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-1">Actives</div>
           </div>
           <div className="bg-orange-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[80px]">
-            <div className="font-display font-black text-orange-600 text-lg leading-none">{l.montant.toLocaleString('fr-FR')}</div>
+            <div className="font-display font-black text-orange-600 text-lg leading-none">{(l.montant || 0).toLocaleString('fr-FR')}</div>
             <div className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-1">FCFA</div>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 md:gap-1.5 flex-shrink-0 justify-end md:justify-center">
-          <a href={`tel:${l.phone}`} className="flex-1 md:flex-none w-auto md:w-11 h-11 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 active:scale-95 transition-all outline-none shadow-sm">
+          <a href={l.phone ? `tel:${l.phone}` : '#'} className="flex-1 md:flex-none w-auto md:w-11 h-11 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 active:scale-95 transition-all outline-none shadow-sm">
             <Phone className="w-4 h-4" />
           </a>
-          <a 
-            href={`https://wa.me/${l.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour ${l.full_name}, c'est l'administration Nelal Express.`)}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex-1 md:flex-none w-auto md:w-11 h-11 bg-[#25D366]/10 hover:bg-[#25D366]/20 rounded-xl flex items-center justify-center text-[#25D366] active:scale-95 transition-all outline-none shadow-sm"
-          >
-            <MessageCircle className="w-4 h-4" />
-          </a>
+          {l.phone && (
+            <a 
+              href={`https://wa.me/${l.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour ${l.full_name}, c'est l'administration Nelal Express.`)}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex-1 md:flex-none w-auto md:w-11 h-11 bg-[#25D366]/10 hover:bg-[#25D366]/20 rounded-xl flex items-center justify-center text-[#25D366] active:scale-95 transition-all outline-none shadow-sm"
+            >
+              <MessageCircle className="w-4 h-4" />
+            </a>
+          )}
         </div>
       </div>
     </div>
