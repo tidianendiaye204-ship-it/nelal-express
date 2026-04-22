@@ -8,69 +8,50 @@ import LivreurRow from '@/components/LivreurRow'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminLivreursPage() {
-  let statsByLivreur: any[] = []
-  let zones: any[] = []
-  let errorMsg: string | null = null
+  const supabase = await createClient()
 
-  try {
-    const supabase = await createClient()
+  // On récupère tout en parallèle avec des erreurs explicites
+  const [
+    { data: livreurs, error: lError },
+    { data: zones, error: zError },
+    { data: orderStats, error: oError }
+  ] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*, zone:zone_id(name, type)')
+      .eq('role', 'livreur')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('zones').select('*').order('type').order('name'),
+    supabase
+      .from('orders')
+      .select('livreur_id, status, price')
+      .not('livreur_id', 'is', null)
+  ])
 
-    const [
-      { data: livreurs, error: lError },
-      { data: zonesData, error: zError },
-      { data: orderStats, error: oError }
-    ] = await Promise.all([
-      supabase
-        .from('profiles')
-        .select(`
-          *,
-          zone:zones(name, type)
-        `)
-        .eq('role', 'livreur')
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('zones').select('*').order('type').order('name'),
-      supabase
-        .from('orders')
-        .select('livreur_id, status, price')
-        .not('livreur_id', 'is', null)
-    ])
+  if (lError) throw new Error(`Profiles Fetch Error: ${lError.message}`)
+  if (zError) throw new Error(`Zones Fetch Error: ${zError.message}`)
+  if (oError) throw new Error(`Orders Fetch Error: ${oError.message}`)
 
-    if (lError) throw new Error(`Profiles: ${lError.message}`)
-    if (zError) throw new Error(`Zones: ${zError.message}`)
-    if (oError) throw new Error(`Orders: ${oError.message}`)
+  // Mapping des stats
+  const statsByLivreur = (livreurs || []).map(l => {
+    const myOrders = orderStats?.filter(o => o.livreur_id === l.id) || []
+    const livres = myOrders.filter(o => ['livre', 'livre_partiel'].includes(o.status))
+    return {
+      ...l,
+      total: myOrders.length,
+      livres: livres.length,
+      en_cours: myOrders.filter(o => ['confirme', 'en_cours'].includes(o.status)).length,
+      montant: livres.reduce((sum, o) => sum + (o.price || 0), 0),
+    }
+  })
 
-    zones = zonesData || []
-
-    statsByLivreur = (livreurs || []).map(l => {
-      const myOrders = orderStats?.filter(o => o.livreur_id === l.id) || []
-      const livres = myOrders.filter(o => ['livre', 'livre_partiel'].includes(o.status))
-      return {
-        ...l,
-        total: myOrders.length,
-        livres: livres.length,
-        en_cours: myOrders.filter(o => ['confirme', 'en_cours'].includes(o.status)).length,
-        montant: livres.reduce((sum, o) => sum + (o.price || 0), 0),
-      }
-    })
-  } catch (e: any) {
-    console.error('[AdminLivreursPage] Critical Error:', e)
-    errorMsg = e.message || 'Erreur lors du chargement des données'
-  }
-
+  // Action simplifiée
   async function handleCreate(formData: FormData) {
     'use server'
+    const { createLivreur } = await import('@/actions/orders')
     const result = await createLivreur(formData)
     if (result?.success) redirect('/dashboard/admin/livreurs')
-  }
-
-  if (errorMsg) {
-    return (
-      <div className="p-8 text-center bg-red-50 rounded-3xl border border-red-100 m-4">
-        <h2 className="text-red-600 font-black uppercase tracking-tight mb-2">Erreur de chargement</h2>
-        <p className="text-red-500 text-xs font-medium">{errorMsg}</p>
-      </div>
-    )
   }
 
   return (
