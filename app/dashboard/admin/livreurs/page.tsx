@@ -29,9 +29,15 @@ export default async function AdminLivreursPage() {
       .not('livreur_id', 'is', null)
   ])
 
-  if (lError) throw new Error(`Profiles Fetch Error: ${lError.message}`)
-  if (zError) throw new Error(`Zones Fetch Error: ${zError.message}`)
-  if (oError) throw new Error(`Orders Fetch Error: ${oError.message}`)
+  if (lError || zError || oError) {
+    const msg = lError?.message || zError?.message || oError?.message
+    return (
+      <div className="p-8 text-center bg-red-50 rounded-3xl border border-red-100 m-8">
+        <h2 className="text-red-600 font-black uppercase tracking-tight mb-2">Erreur de données</h2>
+        <p className="text-red-500 text-xs font-medium">{msg}</p>
+      </div>
+    )
+  }
 
   // Mapping des stats
   const statsByLivreur = (livreurs || []).map(l => {
