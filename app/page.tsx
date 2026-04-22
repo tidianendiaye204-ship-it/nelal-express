@@ -1,6 +1,6 @@
 // app/page.tsx
 import Link from 'next/link'
-import { MapPin, Zap, Wallet, Navigation, Home, Truck, ArrowRight, ShieldCheck, Globe, Users } from 'lucide-react'
+import { MapPin, Zap, Wallet, Navigation, Home, Truck, ArrowRight, ShieldCheck, Globe, Users, Briefcase, CheckCircle2 } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -18,6 +18,9 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/auth/login" className="text-slate-400 text-[10px] sm:text-sm font-bold hover:text-white transition-colors">
               Connexion
+            </Link>
+            <Link href="#recrutement" className="hidden sm:block text-slate-400 text-[10px] sm:text-sm font-bold hover:text-white transition-colors">
+              Recrutement
             </Link>
             <Link href="/auth/signup"
               className="bg-white text-slate-900 px-3 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-sm font-black transition-all hover:bg-orange-500 hover:text-white active:scale-95 shadow-xl shadow-white/5">
@@ -258,6 +261,86 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* RECRUTEMENT - JOIN THE TEAM */}
+      <section id="recrutement" className="max-w-7xl mx-auto px-6 py-24 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-blue-500/5 blur-[120px] rounded-full -z-10"></div>
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-slate-900 border border-white/10 rounded-[2rem] p-8 sm:p-12 shadow-2xl">
+              <div className="inline-flex items-center gap-3 bg-orange-500/10 border border-orange-500/20 rounded-full px-4 py-1.5 mb-8">
+                <Briefcase className="w-4 h-4 text-orange-500" />
+                <span className="text-orange-500 text-[10px] font-black uppercase tracking-widest">Opportunité de Carrière</span>
+              </div>
+              <h2 className="font-display font-black text-3xl sm:text-5xl text-white mb-8 tracking-tighter uppercase leading-tight">
+                Devenez un Pilote <br />
+                <span className="text-orange-500 italic">Nelal Express.</span>
+              </h2>
+              <p className="text-slate-400 text-sm sm:text-base mb-10 leading-relaxed font-medium">
+                Vous possédez une moto ou un véhicule ? Vous connaissez Dakar ou la banlieue comme votre poche ? 
+                Rejoignez la flotte la plus dynamique du Sénégal et boostez vos revenus.
+              </p>
+              
+              <div className="space-y-5 mb-12">
+                {[
+                  "Revenus garantis et attractifs",
+                  "Flexibilité totale de vos horaires",
+                  "Assurance et support 24/7",
+                  "Formation et équipement fournis"
+                ].map((benefit, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-4 h-4 text-orange-500" />
+                    </div>
+                    <span className="text-white text-sm font-bold uppercase tracking-tight">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Link href="https://wa.me/221770000000?text=Bonjour,%20je%20souhaite%20rejoindre%20l'équipe%20Nelal%20Express%20en%20tant%20que%20livreur." target="_blank"
+                className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl font-display font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-orange-500 hover:text-white transition-all group">
+                Postuler via WhatsApp
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+
+          <div>
+             <div className="space-y-12">
+                <div>
+                   <h3 className="font-display font-black text-2xl text-white mb-4 uppercase italic">Pourquoi nous ?</h3>
+                   <p className="text-slate-500 text-sm leading-relaxed">
+                     Chez Nelal, nous ne voyons pas seulement des livreurs, mais des partenaires stratégiques. Nous valorisons votre travail et votre sécurité avant tout.
+                   </p>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                   <div className="p-6 bg-white/5 border border-white/10 rounded-3xl">
+                      <div className="font-display font-black text-3xl text-orange-500 mb-1">+25%</div>
+                      <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">Revenus Moyens</div>
+                   </div>
+                   <div className="p-6 bg-white/5 border border-white/10 rounded-3xl">
+                      <div className="font-display font-black text-3xl text-blue-500 mb-1">Libre</div>
+                      <div className="text-[9px] font-black uppercase tracking-widest text-slate-500">Planning</div>
+                   </div>
+                </div>
+                <div className="p-8 bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/20 rounded-[2rem]">
+                   <p className="text-white font-medium italic text-lg leading-relaxed">
+                     &quot;Depuis que j&apos;ai rejoint Nelal, j&apos;ai doublé mes courses quotidiennes grâce à l&apos;optimisation des trajets.&quot;
+                   </p>
+                   <div className="mt-6 flex items-center gap-4">
+                      <div className="w-12 h-12 bg-slate-800 rounded-full border border-white/10 flex items-center justify-center font-black text-orange-500">M.S</div>
+                      <div>
+                         <div className="text-white font-black text-xs uppercase tracking-widest">Moussa S.</div>
+                         <div className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Partenaire depuis 2025</div>
+                      </div>
+                   </div>
+                </div>
+             </div>
           </div>
         </div>
       </section>
