@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bell, CheckCircle, ShieldAlert } from 'lucide-react'
+import { Bell, CheckCircle } from 'lucide-react'
 import { subscribeToPush, isPushSubscribed } from '@/lib/push-notifications'
 
 export default function NotificationEnabler() {
