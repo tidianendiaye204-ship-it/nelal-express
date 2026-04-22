@@ -29,9 +29,13 @@ export default function NotificationEnabler() {
       if (sub) {
         setIsSubscribed(true)
         setPermission('granted')
+        alert('Notifications activées avec succès !')
+      } else {
+        alert('Impossible d\'activer les notifications. Vérifiez les réglages de votre navigateur.')
       }
     } catch (error) {
       console.error('Failed to subscribe', error)
+      alert('Erreur technique lors de l\'activation.')
     } finally {
       setLoading(false)
     }
