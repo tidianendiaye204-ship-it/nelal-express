@@ -6,7 +6,7 @@ import {
   Printer, 
   RotateCcw, 
   Smartphone, 
-  CheckCircle2, 
+  CheckCircle, 
   Info,
   Users,
   Sparkles
@@ -238,7 +238,7 @@ export default function AdminMarketingQR({ livreurs }: AdminMarketingQRProps) {
       {/* ── PREVIEW PANEL ── */}
       <div className="flex-1 w-full flex flex-col items-center gap-6 overflow-hidden">
         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 no-print flex items-center gap-2">
-          <CheckCircle2 className="w-3 h-3 text-green-500" /> Prévisualisation Adaptative
+          <CheckCircle className="w-3 h-3 text-green-500" /> Prévisualisation Adaptative
         </div>
 
         {/* RESPONSIVE CONTAINER FOR SCALE */}

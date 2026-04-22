@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { updateZoneTarif } from '@/actions/orders'
-import { CheckCircle2, Save } from 'lucide-react'
+import { CheckCircle, Save } from 'lucide-react'
 
 export default function ZoneTarifForm({ zone }: { zone: any }) {
   const [loading, setLoading] = useState(false)
@@ -51,7 +51,7 @@ export default function ZoneTarifForm({ zone }: { zone: any }) {
         {loading ? (
           <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
         ) : success ? (
-          <CheckCircle2 className="w-5 h-5" />
+          <CheckCircle className="w-5 h-5" />
         ) : (
           <Save className="w-4.5 h-4.5" />
         )}

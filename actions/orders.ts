@@ -3,8 +3,8 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { sendWhatsAppNotification, buildMessage } from '@/lib/whatsapp'
-import { sendPushToRole, sendPushToLivreursInZone, sendPushToUser } from '@/lib/web-push'
+import { buildMessage } from '@/lib/whatsapp'
+// Note: Notification functions are imported dynamically inside actions to prevent client-side bundling issues.
 import { incrementOrAddRepere } from '@/actions/reperes'
 import type { OrderStatus, PaymentMethod, OrderType, Order } from '@/lib/types'
 
@@ -118,6 +118,8 @@ async function notifyAdminsOnOrder(orderId: string) {
   }
 
   // ─── 🔔 WEB PUSH (gratuit, fonctionne même app fermée) ───────────
+  const { sendPushToRole, sendPushToLivreursInZone } = await import('@/lib/web-push')
+
   // Push à tous les admins
   sendPushToRole('admin', {
     title: '🚨 Nouvelle commande !',
@@ -137,6 +139,7 @@ async function notifyAdminsOnOrder(orderId: string) {
   }
 
   // ─── 📱 WHATSAPP (quand Twilio sera configuré) ───────────────────
+  const { sendWhatsAppNotification } = await import('@/lib/whatsapp')
   const msgAdmin = buildMessage('new_order_admin', msgData)
 
   // 1. Notify Admins via WhatsApp
@@ -146,23 +149,29 @@ async function notifyAdminsOnOrder(orderId: string) {
   let adminPhones: string[] = []
   if (admins && admins.length > 0) {
     adminPhones = admins.map(a => a.phone).filter(Boolean)
-  } else if (fallbackPhone) {
+  }
+  
+  // Toujours ajouter le numéro de fallback s'il existe et n'est pas déjà dans la liste
+  if (fallbackPhone && !adminPhones.includes(fallbackPhone)) {
     adminPhones.push(fallbackPhone)
   }
 
   for (const phone of adminPhones) {
-    await sendWhatsAppNotification(phone, msgAdmin)
+    try {
+      await sendWhatsAppNotification(phone, msgAdmin)
+    } catch (err) {
+      console.error(`[WhatsApp Admin Error] Failed to notify ${phone}:`, err)
+    }
   }
 
-  // 2. Notify Livreurs via WhatsApp (in zone and online recently)
-  const fiveMinsAgo = new Date(Date.now() - 5 * 60000).toISOString()
-  
+  // 2. Notify Livreurs via WhatsApp (tous les livreurs de la zone)
   const { data: livreurs } = await supabase
     .from('profiles')
     .select('id, phone')
     .eq('role', 'livreur')
     .eq('zone_id', order.zone_from_id)
-    .gte('last_seen_at', fiveMinsAgo)
+    // On retire la restriction de temps pour s'assurer qu'ils reçoivent la notif sur leur tel
+    // .gte('last_seen_at', fiveMinsAgo)
     
   if (livreurs && livreurs.length > 0) {
     const livreurIds = livreurs.map(l => l.id)
@@ -319,6 +328,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, no
         price: order.price,
         trackingUrl: `${BASE_URL}/suivi/${order.id}`,
       })
+      const { sendWhatsAppNotification } = await import('@/lib/whatsapp')
       await sendWhatsAppNotification(order.client.phone, msg)
     }
   }
@@ -403,6 +413,7 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
       finalMsg += `\n\n📌 *Note* : Un manque de monnaie de ${ardoise} FCFA a été signalé par le livreur. Ce montant a été crédité en votre faveur sur votre compte Nelal Express.`
     }
     
+    const { sendWhatsAppNotification } = await import('@/lib/whatsapp')
     await sendWhatsAppNotification(order.client.phone, finalMsg)
   }
 
@@ -503,11 +514,13 @@ export async function assignLivreur(orderId: string, livreurId: string) {
       price: order.price,
       trackingUrl: `${BASE_URL}/suivi/${order.id}`,
     })
+    const { sendWhatsAppNotification } = await import('@/lib/whatsapp')
     await sendWhatsAppNotification(order.client.phone, msg)
     
   }
 
   // Push notification au livreur assigné
+  const { sendPushToUser } = await import('@/lib/web-push')
   const ref = orderId.slice(0, 8).toUpperCase()
   sendPushToUser(livreurId, {
     title: '🚀 Nouvelle course assignée !',

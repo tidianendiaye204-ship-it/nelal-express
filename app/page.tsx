@@ -1,6 +1,6 @@
 // app/page.tsx
 import Link from 'next/link'
-import { MapPin, Zap, Wallet, Navigation, Home, Truck, ArrowRight, ShieldCheck, Globe, Users, Briefcase, CheckCircle2 } from 'lucide-react'
+import { MapPin, Zap, Wallet, Navigation, Home, Truck, ArrowRight, ShieldCheck, Globe, Users } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -274,7 +274,7 @@ export default function LandingPage() {
             <div className="absolute -inset-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative bg-slate-900 border border-white/10 rounded-[2rem] p-8 sm:p-12 shadow-2xl">
               <div className="inline-flex items-center gap-3 bg-orange-500/10 border border-orange-500/20 rounded-full px-4 py-1.5 mb-8">
-                <Briefcase className="w-4 h-4 text-orange-500" />
+                <Users className="w-4 h-4 text-orange-500" />
                 <span className="text-orange-500 text-[10px] font-black uppercase tracking-widest">Opportunité de Carrière</span>
               </div>
               <h2 className="font-display font-black text-3xl sm:text-5xl text-white mb-8 tracking-tighter uppercase leading-tight">
@@ -295,7 +295,7 @@ export default function LandingPage() {
                 ].map((benefit, i) => (
                   <div key={i} className="flex items-center gap-4">
                     <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-4 h-4 text-orange-500" />
+                      <ShieldCheck className="w-4 h-4 text-orange-500" />
                     </div>
                     <span className="text-white text-sm font-bold uppercase tracking-tight">{benefit}</span>
                   </div>

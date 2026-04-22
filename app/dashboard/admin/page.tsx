@@ -8,6 +8,7 @@ import {
   ShieldAlert, TrendingUp, HandCoins,
   CheckCircle, Clock
 } from 'lucide-react'
+import NotificationEnabler from '@/components/NotificationEnabler'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,6 +75,8 @@ export default async function AdminDashboard() {
           <Link href="/dashboard/admin/marketing" className="px-5 py-2.5 bg-white shadow-sm rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:text-orange-500 transition-colors">Marketing</Link>
         </div>
       </div>
+
+      <NotificationEnabler />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[

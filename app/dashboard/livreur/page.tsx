@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import NotificationEnabler from '@/components/NotificationEnabler'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,6 +58,10 @@ export default async function LivreurDashboard() {
     <div className="max-w-7xl mx-auto pb-24 px-4">
       <LiveOrderUpdater livreurId={profile?.id} />
       <ClientLocationSync livreurId={profile?.id || ''} hasActiveOrders={(orders?.length || 0) > 0} />
+      
+      <div className="mt-6">
+        <NotificationEnabler />
+      </div>
       
       <div className="grid lg:grid-cols-3 gap-8 pt-4">
         {/* LEFT COLUMN: ACTIVE MISSIONS */}
