@@ -91,7 +91,7 @@ export default async function CommandesPage({ searchParams }: { searchParams: Pr
         </div>
       ) : (
         <div className="space-y-2 px-2">
-          {orders.map((order: any) => {
+          {orders?.map((order: any) => {
             const isCancelled = order.status === 'annule'
             const isDelivered = order.status === 'livre'
 

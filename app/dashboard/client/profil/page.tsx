@@ -21,9 +21,10 @@ export default async function ProfilPage() {
 
   const stats = {
     total: orders?.length || 0,
-    livres: orders?.filter(o => o.status === 'livre').length || 0,
-    depenses: orders?.filter(o => o.status === 'livre').reduce((sum, o) => sum + (o.price || 0), 0) || 0,
+    livres: (orders || []).filter(o => o.status === 'livre').length || 0,
+    depenses: (orders || []).filter(o => o.status === 'livre').reduce((sum, o) => sum + (o.price || 0), 0) || 0,
   }
+
 
   return (
     <div className="max-w-2xl mx-auto pb-24 px-1">

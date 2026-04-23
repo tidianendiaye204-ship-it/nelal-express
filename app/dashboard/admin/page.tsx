@@ -16,7 +16,7 @@ export default async function AdminDashboard() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect('/auth/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -46,17 +46,18 @@ export default async function AdminDashboard() {
   ])
 
   const stats = {
-    pending: allOrdersForStats?.filter(o => o.status === 'en_attente').length || 0,
-    active: allOrdersForStats?.filter(o => o.status === 'en_cours' || o.status === 'confirme').length || 0,
-    totalDelivered: allOrdersForStats?.filter(o => o.status === 'livre' || o.status === 'livre_partiel').length || 0,
+    pending: (allOrdersForStats || []).filter(o => o.status === 'en_attente').length || 0,
+    active: (allOrdersForStats || []).filter(o => o.status === 'en_cours' || o.status === 'confirme').length || 0,
+    totalDelivered: (allOrdersForStats || []).filter(o => o.status === 'livre' || o.status === 'livre_partiel').length || 0,
     totalLivreurs: livreurs?.length || 0,
-    totalRevenue: allOrdersForStats?.filter(o => o.status === 'livre' || o.status === 'livre_partiel')
+    totalRevenue: (allOrdersForStats || []).filter(o => o.status === 'livre' || o.status === 'livre_partiel')
       .reduce((acc, o) => acc + (o.price || 0), 0) || 0,
     cashWithLivreurs: livreurs?.reduce((acc, l) => acc + (l.cash_held || 0), 0) || 0,
-    pendingCashCollection: allOrdersForStats?.filter(o => 
+    pendingCashCollection: (allOrdersForStats || []).filter(o => 
       (o.status === 'confirme' || o.status === 'en_cours') && o.payment_method === 'cash'
     ).reduce((acc, o) => acc + (o.price || 0), 0) || 0
   }
+
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-24 px-4 md:px-6">

@@ -37,7 +37,7 @@ export default async function AssignOrderPage({ params }: { params: Promise<{ id
   const FIVE_MINS = 5 * 60 * 1000
 
   const enrichedLivreurs = (livreurs || []).map(l => {
-    const activeCount = activeOrders?.filter(o => o.livreur_id === l.id).length || 0
+    const activeCount = (activeOrders || []).filter(o => o.livreur_id === l.id).length || 0
     const isOnline = l.last_seen_at ? (now - new Date(l.last_seen_at).getTime() < FIVE_MINS) : false
     const isSameZone = l.zone_id === order.zone_from_id
 

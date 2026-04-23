@@ -20,8 +20,8 @@ export default async function AdminWalletPage() {
     .eq('role', 'livreur')
     .order('cash_held', { ascending: false })
 
-  const totalCashHeld = livreurs?.reduce((sum, l) => sum + (l.cash_held || 0), 0) || 0
-  const blockedCount = livreurs?.filter(l => (l.cash_held || 0) >= (l.max_cash_limit || 25000)).length || 0
+  const totalCashHeld = (livreurs || []).reduce((sum, l) => sum + (l.cash_held || 0), 0) || 0
+  const blockedCount = (livreurs || []).filter(l => (l.cash_held || 0) >= (l.max_cash_limit || 25000)).length || 0
 
   return (
     <div className="max-w-4xl mx-auto pb-10 px-4">
