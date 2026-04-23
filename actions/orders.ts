@@ -2,6 +2,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { buildMessage } from '@/lib/whatsapp'
 // Note: Notification functions are imported dynamically inside actions to prevent client-side bundling issues.
