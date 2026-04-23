@@ -14,6 +14,7 @@ import { redirect } from 'next/navigation'
 import NotificationEnabler from '@/components/NotificationEnabler'
 import PickupPhotoHandler from '@/components/PickupPhotoHandler'
 import PWAInstallButton from '@/components/PWAInstallButton'
+import WhatsAppQuickActions from '@/components/WhatsAppQuickActions'
 
 export const dynamic = 'force-dynamic'
 
@@ -160,13 +161,16 @@ export default async function LivreurDashboard() {
                                <p className="text-sm text-slate-600 font-medium leading-relaxed">{order.pickup_address}</p>
                             </div>
 
-                            <div className="flex gap-3 ml-11">
-                              <a href={pickupMapLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                            <div className="grid grid-cols-2 gap-3 ml-11">
+                              <a href={pickupMapLink} target="_blank" rel="noopener noreferrer" className="bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
                                 <Map className="w-4 h-4 text-orange-500" /> Ouvrir GPS
                               </a>
-                              <a href={`tel:${order.client?.phone}`} className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                              <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
                                 <Phone className="w-4 h-4 text-blue-500" /> Appeler
                               </a>
+                              <div className="col-span-2">
+                                <WhatsAppQuickActions phone={order.client?.phone} orderId={order.id} type="pickup" />
+                              </div>
                             </div>
 
                             {!isPickupDone && (
@@ -198,13 +202,16 @@ export default async function LivreurDashboard() {
                                <p className="text-xs font-bold text-slate-500 mt-2 bg-slate-100 inline-block px-2 py-1 rounded-lg">👤 {order.recipient_name}</p>
                             </div>
 
-                            <div className="flex gap-3 ml-11">
-                              <a href={deliveryMapLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                            <div className="grid grid-cols-2 gap-3 ml-11">
+                              <a href={deliveryMapLink} target="_blank" rel="noopener noreferrer" className="bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
                                 <Map className="w-4 h-4 text-orange-500" /> Ouvrir GPS
                               </a>
-                              <a href={`tel:${order.recipient_phone}`} className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                              <a href={`tel:${order.recipient_phone}`} className="bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
                                 <Phone className="w-4 h-4 text-blue-500" /> Appeler
                               </a>
+                              <div className="col-span-2">
+                                <WhatsAppQuickActions phone={order.recipient_phone} orderId={order.id} type="delivery" />
+                              </div>
                             </div>
                          </div>
                        </div>
@@ -231,16 +238,20 @@ export default async function LivreurDashboard() {
           
           {/* WALLET STATUS */}
           {(profile?.cash_held || 0) > 0 && (
-            <div className={`p-8 rounded-[2.5rem] border flex flex-col gap-6 shadow-xl ${
-              (profile.cash_held || 0) >= (profile.max_cash_limit || 25000)
-                ? 'bg-red-600 border-red-500 text-white shadow-red-500/20'
-                : 'bg-white border-slate-100 shadow-slate-200/40'
-            }`}>
+            <Link 
+              href="/dashboard/livreur/portefeuille"
+              className={`p-8 rounded-[2.5rem] border flex flex-col gap-6 shadow-xl active:scale-[0.98] transition-all ${
+                (profile.cash_held || 0) >= (profile.max_cash_limit || 25000)
+                  ? 'bg-red-600 border-red-500 text-white shadow-red-500/20'
+                  : 'bg-white border-slate-100 shadow-slate-200/40 hover:bg-slate-50'
+              }`}
+            >
               <div className="flex items-center justify-between">
                 <Wallet className={`w-10 h-10 opacity-40 ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white' : 'text-slate-900'}`} />
                 {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) && (
                   <span className="bg-white text-red-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">BLOQUÉ</span>
                 )}
+                <ArrowUpRight className={`w-6 h-6 opacity-40 ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white' : 'text-slate-900'}`} />
               </div>
               <div>
                 <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white/60' : 'text-slate-400'}`}>Fonds encaissés</p>
@@ -251,9 +262,9 @@ export default async function LivreurDashboard() {
               <p className={`text-[10px] font-medium leading-relaxed ${profile.cash_held >= (profile.max_cash_limit || 25000) ? 'text-white/80' : 'text-slate-500'}`}>
                 {(profile.cash_held || 0) >= (profile.max_cash_limit || 25000) 
                   ? 'Versez vos fonds par Wave pour débloquer votre compte.' 
-                  : 'N&apos;oubliez pas de verser vos fonds régulièrement.'}
+                  : 'Cliquez pour voir le détail de vos gains.'}
               </p>
-            </div>
+            </Link>
           )}
 
           {/* PERFORMANCE JOURNÉE */}
