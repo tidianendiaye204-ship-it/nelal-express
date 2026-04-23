@@ -13,21 +13,12 @@ export function PWAInstallPrompt() {
     // Petit délai pour ne pas agresser l'utilisateur dès le chargement
     const timer = setTimeout(() => {
       if (!isInstalled && (isInstallable || isIOS)) {
-        // Vérifier si l'utilisateur l'a fermé temporairement dans cette session
-        const dismissed = sessionStorage.getItem('pwa-prompt-dismissed')
-        if (!dismissed) {
-          setIsVisible(true)
-        }
+        setIsVisible(true)
       }
     }, 2000)
 
     return () => clearTimeout(timer)
   }, [isInstallable, isInstalled, isIOS])
-
-  const dismissPrompt = () => {
-    setIsVisible(false)
-    sessionStorage.setItem('pwa-prompt-dismissed', 'true')
-  }
 
   if (!isVisible || isInstalled) return null
 
@@ -65,22 +56,8 @@ export function PWAInstallPrompt() {
                   Installer maintenant
                 </button>
               )}
-              
-              <button
-                onClick={dismissPrompt}
-                className="text-sm font-medium text-slate-400 transition-colors hover:text-white"
-              >
-                Plus tard
-              </button>
             </div>
           </div>
-
-          <button
-            onClick={dismissPrompt}
-            className="rounded-full p-1 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
         {/* Instructions spécifiques iOS */}
