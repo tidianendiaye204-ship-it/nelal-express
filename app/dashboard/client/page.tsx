@@ -8,6 +8,7 @@ import {
   ArrowRight, ShieldCheck, MessageSquare,
   Zap, Info, ListTodo
 } from 'lucide-react'
+import PWAInstallButton from '@/components/PWAInstallButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,8 @@ export default async function ClientDashboard() {
             </div>
             <ClientWalletCard balance={stats.balance} />
           </div>
+
+          <PWAInstallButton />
 
           {/* PRIMARY ACTION */}
           <section>

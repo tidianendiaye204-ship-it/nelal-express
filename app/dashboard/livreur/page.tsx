@@ -12,6 +12,8 @@ import {
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import NotificationEnabler from '@/components/NotificationEnabler'
+import PickupPhotoHandler from '@/components/PickupPhotoHandler'
+import PWAInstallButton from '@/components/PWAInstallButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -166,6 +168,12 @@ export default async function LivreurDashboard() {
                                 <Phone className="w-4 h-4 text-blue-500" /> Appeler
                               </a>
                             </div>
+
+                            {!isPickupDone && (
+                              <div className="mt-6 ml-11">
+                                <PickupPhotoHandler orderId={order.id} />
+                              </div>
+                            )}
                          </div>
 
                          {/* STEP 2: DELIVERY */}
@@ -219,6 +227,8 @@ export default async function LivreurDashboard() {
 
         {/* RIGHT COLUMN: WALLET, PERFORMANCE & HISTORY */}
         <div className="space-y-6">
+          <PWAInstallButton />
+          
           {/* WALLET STATUS */}
           {(profile?.cash_held || 0) > 0 && (
             <div className={`p-8 rounded-[2.5rem] border flex flex-col gap-6 shadow-xl ${

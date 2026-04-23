@@ -3,42 +3,56 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Camera, Loader2, Check } from 'lucide-react'
+import { compressImage } from '@/lib/utils/image'
 
 interface PhotoUploadButtonProps {
   onUploadComplete: (url: string) => void
   orderId: string
+  label?: string
+  bucket?: string
 }
 
-export default function PhotoUploadButton({ onUploadComplete, orderId }: PhotoUploadButtonProps) {
+export default function PhotoUploadButton({ 
+  onUploadComplete, 
+  orderId, 
+  label = 'Prendre une photo',
+  bucket = 'colis-photos'
+}: PhotoUploadButtonProps) {
   const [uploading, setUploading] = useState(false)
   const [uploaded, setUploaded] = useState(false)
   const supabase = createClient()
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
+      const originalFile = event.target.files?.[0]
+      if (!originalFile) return
+
       setUploading(true)
-      const file = event.target.files?.[0]
-      if (!file) return
 
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${orderId}-${Math.random()}.${fileExt}`
-      const filePath = `pickups/${fileName}`
+      // 1. Compression côté client (évite les erreurs mémoire et réduit le temps d'upload)
+      const compressedBlob = await compressImage(originalFile, 1200, 1200, 0.75)
+      
+      const fileName = `${orderId}-${Date.now()}.jpg`
+      const filePath = `uploads/${fileName}`
 
-      // Upload au bucket 'colis-photos'
+      // 2. Upload au bucket
       const { error: uploadError } = await supabase.storage
-        .from('colis-photos')
-        .upload(filePath, file)
+        .from(bucket)
+        .upload(filePath, compressedBlob, {
+          contentType: 'image/jpeg'
+        })
 
       if (uploadError) throw uploadError
 
-      // Récupérer l'URL publique
+      // 3. Récupérer l'URL publique
       const { data: { publicUrl } } = supabase.storage
-        .from('colis-photos')
+        .from(bucket)
         .getPublicUrl(filePath)
 
       setUploaded(true)
       onUploadComplete(publicUrl)
     } catch (error: any) {
+      console.error('Upload error:', error)
       alert('Erreur lors de l\'envoi de la photo : ' + error.message)
     } finally {
       setUploading(false)

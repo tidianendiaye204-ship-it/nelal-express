@@ -5,6 +5,7 @@ import { confirmDeliveryWithCode } from '@/actions/orders'
 import { CheckCircle, AlertCircle, Loader2, Coins, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import SignaturePad from './SignaturePad'
+import PhotoUploadButton from './PhotoUploadButton'
 
 interface DeliveryCompletionFormProps {
   order: any
@@ -16,6 +17,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   const [showArdoise, setShowArdoise] = useState(false)
   const [ardoiseVal, setArdoiseVal] = useState('')
   const [deliveryCode, setDeliveryCode] = useState('')
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   
   // -- Signature State --
   const [isUploading, setIsUploading] = useState(false)
@@ -67,7 +69,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   const handleUpdate = () => {
     startTransition(async () => {
       const ardoise = showArdoise ? parseInt(ardoiseVal) || 0 : 0
-      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, order.price, undefined, signatureUrl || undefined)
+      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, order.price, photoUrl || undefined, signatureUrl || undefined)
       setResult(res)
     })
   }
@@ -97,7 +99,17 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
         {uploadError && <p className="text-[9px] text-red-500 mt-2 font-bold">{uploadError}</p>}
       </div>
 
-      {/* 2. SÉCURITÉ : CODE DE LIVRAISON */}
+      {/* 2. PREUVE PHOTO (Nouveau) */}
+      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1 text-center">Photo de livraison obligatoire</p>
+        <PhotoUploadButton 
+          orderId={order.id} 
+          onUploadComplete={(url) => setPhotoUrl(url)} 
+          label="Prendre photo de livraison"
+        />
+      </div>
+
+      {/* 3. SÉCURITÉ : CODE DE LIVRAISON */}
       <div className="bg-blue-50 border border-blue-100 rounded-3xl p-5 shadow-inner">
         <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 ml-1 flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4" /> Code de confirmation (4 chiffres)
@@ -121,7 +133,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
         </div>
       )}
 
-      {/* 3. ARDOISE TOGGLE */}
+      {/* 4. ARDOISE TOGGLE */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
         <label className="flex items-center justify-between cursor-pointer group">
           <div className="flex items-center gap-3">
@@ -160,7 +172,7 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       {/* SUBMIT BUTTON */}
       <button
         onClick={handleUpdate}
-        disabled={isPending || isUploading || !deliveryCode || deliveryCode.length < 4 || !signatureUrl}
+        disabled={isPending || isUploading || !deliveryCode || deliveryCode.length < 4 || !signatureUrl || !photoUrl}
         className="w-full bg-green-500 hover:bg-green-600 text-white shadow-xl shadow-green-500/30 h-20 rounded-2xl font-black text-lg uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale"
       >
         {isPending || isUploading ? (
