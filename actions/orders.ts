@@ -534,44 +534,71 @@ export async function assignLivreur(orderId: string, livreurId: string) {
 }
 
 export async function createLivreur(formData: FormData) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  // 1. Vérifier que c'est bien l'Admin qui fait ça
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Non connecté' }
-  
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return { error: 'Seul un administrateur peut créer un livreur' }
+    // 1. Vérifier que c'est bien l'Admin qui fait ça
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    const user = userData?.user
+    if (!user || authError) return { error: 'Non connecté ou session expirée' }
+    
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return { error: 'Seul un administrateur peut créer un livreur' }
 
-  // 2. Créer un client "Super-Admin" qui a les droits de forcer la création d'un compte
-  const { createClient: createSupabaseClient } = require('@supabase/supabase-js')
-  const adminAuthClient = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+    // 2. Créer l'admin client (Service Role)
+    let adminAuthClient;
+    try {
+      adminAuthClient = createAdminClient()
+    } catch (e: any) {
+      console.error('[Admin Client Error]', e.message)
+      return { error: "Configuration serveur incomplète : Clé SERVICE_ROLE manquante sur Vercel." }
+    }
 
-  // 3. Créer l'utilisateur dans l'Auth Supabase
-  const { data, error } = await adminAuthClient.auth.admin.createUser({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-    user_metadata: {
-      full_name: formData.get('full_name') as string,
-      phone: formData.get('phone') as string,
-      role: 'livreur'
-    },
-    email_confirm: true,
-  })
+    // 3. Créer l'utilisateur dans l'Auth Supabase
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const full_name = formData.get('full_name') as string
+    const phone = formData.get('phone') as string
+    const zone_id = formData.get('zone_id') as string
 
-  if (error) return { error: error.message }
+    const { data: newUser, error: createError } = await adminAuthClient.auth.admin.createUser({
+      email,
+      password,
+      user_metadata: {
+        full_name,
+        phone,
+        role: 'livreur'
+      },
+      email_confirm: true,
+    })
 
-  // 4. Mettre à jour sa zone et son rôle dans la table `profiles`
-  await adminAuthClient.from('profiles').update({
-    role: 'livreur',
-    zone_id: (formData.get('zone_id') as string) || null,
-  }).eq('id', data?.user?.id)
+    if (createError) {
+      console.error('[CreateLivreur Auth Error]', createError.message)
+      return { error: `Erreur Auth: ${createError.message}` }
+    }
 
-  revalidatePath('/dashboard/admin/livreurs')
-  return { success: true }
+    if (!newUser?.user) return { error: "L'utilisateur a été créé mais aucune donnée n'a été retournée." }
+
+    // 4. Mettre à jour sa zone et son rôle dans la table `profiles`
+    // Note: Le trigger `handle_new_user` a déjà créé le profil, on met juste à jour les champs spécifiques
+    const { error: updateError } = await adminAuthClient.from('profiles').update({
+      role: 'livreur',
+      zone_id: zone_id || null,
+      full_name: full_name, // Au cas où le trigger n'a pas pris le metadata
+      phone: phone
+    }).eq('id', newUser.user.id)
+
+    if (updateError) {
+      console.error('[CreateLivreur Profile Error]', updateError.message)
+      return { error: `Erreur Profil: ${updateError.message}` }
+    }
+
+    revalidatePath('/dashboard/admin/livreurs')
+    return { success: true }
+  } catch (err: any) {
+    console.error('[CreateLivreur Global Error]', err.message)
+    return { error: "Une erreur critique est survenue lors de la création." }
+  }
 }
 
 export async function updateZoneTarif(zoneId: string, tarifBase: number) {
