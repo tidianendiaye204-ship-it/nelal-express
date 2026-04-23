@@ -44,7 +44,8 @@ export async function getProfile() {
   const supabase = await createClient();
   
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data, error: userError } = await supabase.auth.getUser();
+    const user = data?.user;
     
     if (userError || !user) {
       if (userError) console.error('getProfile getUser error:', userError);

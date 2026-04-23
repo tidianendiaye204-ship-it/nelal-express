@@ -50,7 +50,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     client: { label: 'Client', color: 'bg-blue-500/10 text-blue-400' },
     livreur: { label: 'Livreur', color: 'bg-orange-500/10 text-orange-400' },
     admin: { label: 'Admin', color: 'bg-purple-500/10 text-purple-400' },
-  }[role]
+  }[role] || { label: 'Utilisateur', color: 'bg-slate-500/10 text-slate-400' }
 
   return (
     <RealtimeProvider role={role} userId={profile.id}>
@@ -72,10 +72,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="bg-slate-800/40 rounded-[2rem] p-5 border border-slate-700/30 backdrop-blur-sm">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-inner">
-                {profile.full_name.charAt(0).toUpperCase()}
+                {profile.full_name?.charAt(0).toUpperCase() || '?'}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-white text-base font-bold truncate leading-tight">{profile.full_name}</div>
+                <div className="text-white text-base font-bold truncate leading-tight">{profile.full_name || 'Utilisateur'}</div>
                 <div className={`mt-1 inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border shadow-sm ${roleBadge.color} border-current/20`}>
                   {roleBadge.label}
                 </div>
@@ -127,7 +127,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           href={role === 'client' ? '/dashboard/client/profil' : '#'}
           className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-md shadow-orange-500/20"
         >
-          {profile.full_name.charAt(0).toUpperCase()}
+          {profile.full_name?.charAt(0).toUpperCase() || '?'}
         </Link>
       </div>
 

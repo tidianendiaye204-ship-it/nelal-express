@@ -15,8 +15,9 @@ export const dynamic = 'force-dynamic'
 export default async function AdminDashboard() {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login')
+  const { data, error: authError } = await supabase.auth.getUser()
+  const user = data?.user
+  if (!user || authError) redirect('/auth/login')
 
   const { data: profile } = await supabase
     .from('profiles')
