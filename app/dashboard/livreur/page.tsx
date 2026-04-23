@@ -104,66 +104,107 @@ export default async function LivreurDashboard() {
                 const isPickupDone = order.status === 'en_cours'
 
                 return (
-                  <div key={order.id} className="bg-white rounded-[3rem] border border-slate-200 shadow-2xl shadow-slate-200/30 overflow-hidden group">
-                    <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
-                       <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                  <div key={order.id} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/20 overflow-hidden">
+                    {/* CARD HEADER */}
+                    <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                       <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
                          {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
                        </div>
-                       <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                         <Clock className="w-3.5 h-3.5" /> {estimatedTime}
+                       <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase">
+                         <Clock className="w-4 h-4" /> {estimatedTime}
                        </div>
                     </div>
 
-                    <div className="p-8">
-                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-                         <div className="flex-1">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Colis à livrer</p>
-                            <h3 className="text-2xl font-display font-black text-slate-900 uppercase tracking-tight leading-tight">
+                    <div className="p-6 md:p-8">
+                       {/* DESCRIPTION & PRICE */}
+                       <div className="flex justify-between items-start gap-4 mb-8">
+                         <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Colis à livrer</p>
+                            <h3 className="text-xl font-bold text-slate-900 leading-tight">
                               {order.description}
                             </h3>
+                            <p className="text-xs text-slate-500 mt-1">ID: #{order.id.slice(0, 8)}</p>
                          </div>
-                         <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 shrink-0">
-                            <div className="flex items-baseline justify-end gap-1 text-orange-600">
-                              <span className="text-3xl font-display font-black leading-none">
-                                {order.price.toLocaleString('fr-FR')}
-                              </span>
-                              <span className="text-sm font-black italic">F</span>
-                            </div>
-                            <p className="text-[8px] font-black text-orange-500 uppercase tracking-widest mt-1 text-right">
+                         <div className="bg-orange-50 px-4 py-3 rounded-2xl border border-orange-100 text-right">
+                            <p className="text-2xl font-black text-orange-600 leading-none">
+                              {order.price.toLocaleString('fr-FR')} <span className="text-xs font-bold italic">F</span>
+                            </p>
+                            <p className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">
                               {order.payment_method === 'cash' ? '💵 Espèces' : '💳 Digital'}
                             </p>
                          </div>
                        </div>
 
-                       <div className="grid md:grid-cols-2 gap-6 mb-8">
-                         <div className={`rounded-3xl p-6 border transition-all ${!isPickupDone ? 'bg-orange-50 border-orange-200 shadow-lg shadow-orange-500/10' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
-                            <p className="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                               <Package className="w-4 h-4" /> Ramassage
-                            </p>
-                            <p className="text-base font-black text-slate-900 uppercase tracking-tight mb-1">{order.zone_from?.name}</p>
-                            <p className="text-xs text-slate-500 font-medium mb-6 leading-relaxed">{order.pickup_address}</p>
-                            <div className="flex gap-2">
-                              <a href={pickupMapLink} target="_blank" rel="noopener noreferrer" className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Map className="w-4 h-4 text-orange-500" /> GPS</a>
-                              <a href={`tel:${order.client?.phone}`} className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Phone className="w-4 h-4 text-blue-500" /> Appel</a>
+                       {/* STEPS FLOW */}
+                       <div className="space-y-4">
+                         {/* STEP 1: PICKUP */}
+                         <div className={`relative rounded-3xl p-5 border-2 transition-all ${!isPickupDone ? 'border-orange-500 bg-orange-50/30' : 'border-slate-100 bg-slate-50 opacity-50'}`}>
+                            {!isPickupDone && (
+                              <div className="absolute -top-3 left-6 bg-orange-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest animate-bounce">
+                                Action Requise
+                              </div>
+                            )}
+                            <div className="flex items-center gap-3 mb-4">
+                               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${!isPickupDone ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                                 <span className="text-xs font-black">1</span>
+                               </div>
+                               <p className={`text-[11px] font-black uppercase tracking-widest ${!isPickupDone ? 'text-orange-600' : 'text-slate-500'}`}>
+                                  Ramassage (Point de départ)
+                               </p>
+                            </div>
+                            
+                            <div className="mb-6 ml-11">
+                               <p className="text-base font-bold text-slate-900">{order.zone_from?.name}</p>
+                               <p className="text-sm text-slate-600 font-medium leading-relaxed">{order.pickup_address}</p>
+                            </div>
+
+                            <div className="flex gap-3 ml-11">
+                              <a href={pickupMapLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                                <Map className="w-4 h-4 text-orange-500" /> Ouvrir GPS
+                              </a>
+                              <a href={`tel:${order.client?.phone}`} className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                                <Phone className="w-4 h-4 text-blue-500" /> Appeler
+                              </a>
                             </div>
                          </div>
 
-                         <div className={`rounded-3xl p-6 border transition-all ${isPickupDone ? 'bg-blue-50 border-blue-200 shadow-lg shadow-blue-500/10' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
-                            <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                               <MapPin className="w-4 h-4" /> Livraison
-                            </p>
-                            <p className="text-base font-black text-slate-900 uppercase tracking-tight mb-1">{order.zone_to?.name}</p>
-                            <p className="text-xs text-slate-500 font-medium mb-6 leading-relaxed">{order.delivery_address}</p>
-                            <div className="flex gap-2">
-                              <a href={deliveryMapLink} target="_blank" rel="noopener noreferrer" className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Map className="w-4 h-4 text-orange-500" /> GPS</a>
-                              <a href={`tel:${order.recipient_phone}`} className="bg-white border border-slate-200 text-slate-700 px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 flex-1 justify-center active:scale-95 transition-transform"><Phone className="w-4 h-4 text-blue-500" /> Appel</a>
+                         {/* STEP 2: DELIVERY */}
+                         <div className={`relative rounded-3xl p-5 border-2 transition-all ${isPickupDone ? 'border-blue-500 bg-blue-50/30' : 'border-slate-100 bg-slate-50 opacity-50'}`}>
+                            {isPickupDone && (
+                              <div className="absolute -top-3 left-6 bg-blue-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest animate-bounce">
+                                Action Requise
+                              </div>
+                            )}
+                            <div className="flex items-center gap-3 mb-4">
+                               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isPickupDone ? 'bg-blue-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                                 <span className="text-xs font-black">2</span>
+                               </div>
+                               <p className={`text-[11px] font-black uppercase tracking-widest ${isPickupDone ? 'text-blue-600' : 'text-slate-500'}`}>
+                                  Livraison (Destinataire)
+                               </p>
+                            </div>
+
+                            <div className="mb-6 ml-11">
+                               <p className="text-base font-bold text-slate-900">{order.zone_to?.name}</p>
+                               <p className="text-sm text-slate-600 font-medium leading-relaxed">{order.delivery_address}</p>
+                               <p className="text-xs font-bold text-slate-500 mt-2 bg-slate-100 inline-block px-2 py-1 rounded-lg">👤 {order.recipient_name}</p>
+                            </div>
+
+                            <div className="flex gap-3 ml-11">
+                              <a href={deliveryMapLink} target="_blank" rel="noopener noreferrer" className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                                <Map className="w-4 h-4 text-orange-500" /> Ouvrir GPS
+                              </a>
+                              <a href={`tel:${order.recipient_phone}`} className="flex-1 bg-white border border-slate-200 text-slate-700 h-12 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+                                <Phone className="w-4 h-4 text-blue-500" /> Appeler
+                              </a>
                             </div>
                          </div>
                        </div>
 
-                       <div className="pt-4">
+                       {/* MAIN ACTION BUTTON */}
+                       <div className="mt-8 border-t border-slate-100 pt-6">
                           {order.status === 'confirme' ? (
-                             <StatusUpdateButton orderId={order.id} nextStatus="en_cours" note="Prise en charge effectuée" label="DÉBUTER LA LIVRAISON (COLIS RÉCUPÉRÉ)" variant="pickup" />
+                             <StatusUpdateButton orderId={order.id} nextStatus="en_cours" note="Prise en charge effectuée" label="J'AI RÉCUPÉRÉ LE COLIS" variant="pickup" />
                           ) : (
                              <DeliveryCompletionForm order={order} />
                           )}

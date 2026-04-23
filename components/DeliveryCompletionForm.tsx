@@ -81,10 +81,15 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   }
 
   return (
-    <div className="w-full space-y-4 mt-4 border-t border-slate-100 pt-4">
+    <div className="w-full space-y-6 mt-6 border-t border-slate-100 pt-6">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-black">2</div>
+        <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Finalisation de la livraison</h4>
+      </div>
       
       {/* 1. SIGNATURE (Preuve de livraison) */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Signature du destinataire</p>
         <SignaturePad 
           onSave={handleSignatureSave} 
           onClear={() => setSignatureUrl(null)} 
@@ -93,9 +98,9 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       </div>
 
       {/* 2. SÉCURITÉ : CODE DE LIVRAISON */}
-      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
-        <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5" /> Code de confirmation (4 chiffres)
+      <div className="bg-blue-50 border border-blue-100 rounded-3xl p-5 shadow-inner">
+        <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 ml-1 flex items-center gap-1.5">
+          <ShieldCheck className="w-4 h-4" /> Code de confirmation (4 chiffres)
         </label>
         <input
           type="text"
@@ -104,46 +109,49 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
           maxLength={4}
           value={deliveryCode}
           onChange={(e) => setDeliveryCode(e.target.value)}
-          placeholder="Demandez le code au destinataire"
-          className="w-full bg-white border border-orange-200 text-slate-900 rounded-xl px-4 py-3 text-lg font-black tracking-[0.5em] text-center focus:ring-2 focus:ring-orange-500 transition-all outline-none"
+          placeholder="Entrez les 4 chiffres"
+          className="w-full bg-white border-2 border-blue-200 text-blue-600 rounded-2xl px-4 py-4 text-3xl font-black tracking-[0.6em] text-center focus:border-blue-500 transition-all outline-none shadow-sm"
         />
+        <p className="text-[9px] text-blue-400 mt-3 text-center font-bold">Demandez le code secret au client pour valider</p>
       </div>
 
       {result?.error && (
-        <div className="bg-red-50 text-red-600 py-3 rounded-xl text-xs font-bold text-center flex items-center justify-center gap-2">
+        <div className="bg-red-50 text-red-600 py-3 rounded-2xl text-xs font-bold text-center flex items-center justify-center gap-2 border border-red-100 animate-shake">
           <AlertCircle className="w-4 h-4" /> {result.error}
         </div>
       )}
 
       {/* 3. ARDOISE TOGGLE */}
-      <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
         <label className="flex items-center justify-between cursor-pointer group">
-          <div className="flex items-center gap-2">
-            <Coins className={`w-4 h-4 ${showArdoise ? 'text-orange-500' : 'text-slate-400'}`} />
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${showArdoise ? 'bg-orange-100 text-orange-600' : 'bg-white text-slate-400 border border-slate-100'}`}>
+              <Coins className="w-5 h-5" />
+            </div>
             <div>
-              <p className="text-xs font-bold text-slate-800">Manque de monnaie ?</p>
-              <p className="text-[9px] text-slate-500">Signaler une ardoise au vendeur</p>
+              <p className="text-sm font-bold text-slate-800">Manque de monnaie ?</p>
+              <p className="text-[10px] text-slate-500 font-medium italic">Signaler une ardoise au vendeur</p>
             </div>
           </div>
-          <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center ${showArdoise ? 'bg-orange-500' : 'bg-slate-300'}`}>
+          <div className={`w-12 h-7 rounded-full transition-colors relative flex items-center ${showArdoise ? 'bg-orange-500' : 'bg-slate-300'}`}>
             <input 
               type="checkbox" 
               className="sr-only" 
               checked={showArdoise}
               onChange={(e) => setShowArdoise(e.target.checked)}
             />
-            <span className={`w-4 h-4 bg-white rounded-full transition-transform absolute ${showArdoise ? 'translate-x-5' : 'translate-x-1'}`} />
+            <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform absolute ${showArdoise ? 'translate-x-6' : 'translate-x-1'}`} />
           </div>
         </label>
 
         {showArdoise && (
-          <div className="mt-3 pt-3 border-t border-slate-200 animate-in slide-in-from-top-2">
+          <div className="mt-4 pt-4 border-t border-slate-200 animate-in slide-in-from-top-2">
             <input
               type="number"
               value={ardoiseVal}
               onChange={(e) => setArdoiseVal(e.target.value)}
-              placeholder="Montant de l'ardoise (FCFA)"
-              className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+              placeholder="Montant manquant (FCFA)"
+              className="w-full bg-white border border-slate-200 text-slate-900 rounded-xl px-4 py-4 text-base font-bold focus:ring-2 focus:ring-orange-500 outline-none"
             />
           </div>
         )}
@@ -153,12 +161,12 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
       <button
         onClick={handleUpdate}
         disabled={isPending || isUploading || !deliveryCode || deliveryCode.length < 4 || !signatureUrl}
-        className="w-full bg-slate-900 hover:bg-black text-white shadow-xl shadow-slate-900/20 py-4 rounded-xl font-black text-sm uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+        className="w-full bg-green-500 hover:bg-green-600 text-white shadow-xl shadow-green-500/30 h-20 rounded-2xl font-black text-lg uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale"
       >
         {isPending || isUploading ? (
-          <><Loader2 className="w-4 h-4 animate-spin" /> {isUploading ? 'Enregistrement...' : 'Validation...'}</>
+          <><Loader2 className="w-6 h-6 animate-spin" /> {isUploading ? 'ENREGISTREMENT...' : 'VALIDATION...'}</>
         ) : (
-          <><CheckCircle className="w-4 h-4" /> Finaliser la livraison</>
+          <><CheckCircle className="w-6 h-6" /> VALIDER LA LIVRAISON</>
         )}
       </button>
     </div>

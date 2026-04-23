@@ -51,13 +51,13 @@ export default function StatusUpdateButton({ orderId, nextStatus, note, label, v
   }
 
   const styles = {
-    pickup: 'bg-slate-900 text-white shadow-lg shadow-slate-900/20',
-    deliver: 'bg-green-500 text-white shadow-lg shadow-green-500/20',
+    pickup: 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 h-16 text-base',
+    deliver: 'bg-green-500 text-white shadow-xl shadow-green-500/20 h-16 text-base',
   }
 
   const icons = {
-    pickup: <Package className="w-4 h-4" />,
-    deliver: <CheckCircle className="w-4 h-4" />,
+    pickup: <Package className="w-5 h-5" />,
+    deliver: <CheckCircle className="w-5 h-5" />,
   }
 
   return (
@@ -65,11 +65,11 @@ export default function StatusUpdateButton({ orderId, nextStatus, note, label, v
       <button
         onClick={handleUpdate}
         disabled={isPending}
-        className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${styles[variant]}`}
+        className={`w-full rounded-2xl font-black uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-60 ${styles[variant]}`}
       >
         {isPending ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" /> Mise à jour...
+            <Loader2 className="w-5 h-5 animate-spin" /> Mise à jour...
           </>
         ) : (
           <>

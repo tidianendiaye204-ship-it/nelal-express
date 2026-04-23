@@ -46,7 +46,7 @@ export function PWAInstallPrompt() {
           <div className="flex-1">
             <h3 className="font-syne text-lg font-bold text-white">Nelal Express</h3>
             <p className="mt-1 text-sm text-slate-300 leading-relaxed">
-              Installez l'application pour une expérience plus rapide et recevoir vos notifications de livraison.
+              Installez l&apos;application pour une expérience plus rapide et recevoir vos notifications de livraison.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -55,7 +55,7 @@ export function PWAInstallPrompt() {
                   onClick={() => setShowIOSInstructions(true)}
                   className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-orange-600 active:scale-95"
                 >
-                  Installer l'App
+                  Installer l&apos;App
                 </button>
               ) : (
                 <button
@@ -88,11 +88,11 @@ export function PWAInstallPrompt() {
           <div className="mt-5 space-y-4 border-t border-white/10 pt-4 animate-in zoom-in-95 duration-300">
             <div className="flex items-center gap-3 text-sm text-slate-300">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 font-bold text-white">1</span>
-              <span>Appuyez sur le bouton de partage <Share className="inline h-4 w-4 mx-1" /> en bas de l'écran.</span>
+              <span>Appuyez sur le bouton de partage <Share className="inline h-4 w-4 mx-1" /> en bas de l&apos;écran.</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-slate-300">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 font-bold text-white">2</span>
-              <span>Faites défiler et appuyez sur "Sur l'écran d'accueil" <PlusSquare className="inline h-4 w-4 mx-1" />.</span>
+              <span>Faites défiler et appuyez sur &quot;Sur l&apos;écran d&apos;accueil&quot; <PlusSquare className="inline h-4 w-4 mx-1" />.</span>
             </div>
             <button 
               onClick={() => setShowIOSInstructions(false)}
