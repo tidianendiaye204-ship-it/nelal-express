@@ -78,8 +78,8 @@ export default function PhotoUploadButton({
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Camera className="w-6 h-6" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-center px-10">Prendre une photo du colis au ramassage</span>
-            <span className="text-[8px] opacity-50 font-medium">Requis pour preuve de départ</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-center px-10">{label}</span>
+            <span className="text-[8px] opacity-50 font-medium italic">Haute qualité recommandée</span>
           </div>
         )}
         <input 

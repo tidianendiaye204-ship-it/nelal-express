@@ -2,7 +2,7 @@ import { createClient, getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { 
-  ArrowLeft, Wallet, TrendingUp, 
+  ArrowLeft, TrendingUp, 
   Calendar, Clock, CheckCircle2, 
   ArrowUpRight, Coins, History
 } from 'lucide-react'

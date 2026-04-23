@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePWAInstall } from '@/hooks/usePWAInstall'
-import { X, Download, Share, PlusSquare } from 'lucide-react'
+import { Download, Share, PlusSquare } from 'lucide-react'
 
 export function PWAInstallPrompt() {
   const { isInstallable, isInstalled, isIOS, handleInstall } = usePWAInstall()

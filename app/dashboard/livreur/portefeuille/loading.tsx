@@ -1,4 +1,4 @@
-import { Skeleton, StatCardSkeleton, WalletCardSkeleton } from '@/components/Skeletons'
+import { Skeleton, WalletCardSkeleton } from '@/components/Skeletons'
 
 export default function Loading() {
   return (

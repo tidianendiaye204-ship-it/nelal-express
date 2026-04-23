@@ -1,15 +1,14 @@
 'use client'
 
-import { MessageSquare, Send, CheckCircle2, Clock } from 'lucide-react'
+import { MessageSquare, Send } from 'lucide-react'
 import { useState } from 'react'
 
 interface WhatsAppQuickActionsProps {
   phone: string
-  orderId: string
   type: 'pickup' | 'delivery'
 }
 
-export default function WhatsAppQuickActions({ phone, orderId, type }: WhatsAppQuickActionsProps) {
+export default function WhatsAppQuickActions({ phone, type }: WhatsAppQuickActionsProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const messages = type === 'pickup' ? [

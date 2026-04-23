@@ -6,8 +6,8 @@ import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
 import { getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import {
-  Wallet, Phone, MapPin, Clock, Package,
-  ChevronRight, TrendingUp, Award, Map, Zap
+  Wallet, Phone, Clock, Package,
+  ChevronRight, TrendingUp, Award, Map, Zap, ArrowUpRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -169,7 +169,7 @@ export default async function LivreurDashboard() {
                                 <Phone className="w-4 h-4 text-blue-500" /> Appeler
                               </a>
                               <div className="col-span-2">
-                                <WhatsAppQuickActions phone={order.client?.phone} orderId={order.id} type="pickup" />
+                                <WhatsAppQuickActions phone={order.client?.phone} type="pickup" />
                               </div>
                             </div>
 
@@ -210,7 +210,7 @@ export default async function LivreurDashboard() {
                                 <Phone className="w-4 h-4 text-blue-500" /> Appeler
                               </a>
                               <div className="col-span-2">
-                                <WhatsAppQuickActions phone={order.recipient_phone} orderId={order.id} type="delivery" />
+                                <WhatsAppQuickActions phone={order.recipient_phone} type="delivery" />
                               </div>
                             </div>
                          </div>
