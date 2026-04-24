@@ -32,11 +32,20 @@ export const metadata: Metadata = {
     siteName: 'Nelal Express',
     locale: 'fr_SN',
     type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Nelal Express — Livraison Élite',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Nelal Express',
     description: 'Le standard de l\'excellence logistique au Sénégal.',
+    images: ['/og-image.png'],
   },
   appleWebApp: {
     capable: true,
