@@ -27,7 +27,6 @@ export async function updateProfile(formData: FormData) {
 
   if (error) return { error: error.message }
 
-  revalidatePath('/dashboard/client/profil')
-  revalidatePath('/dashboard/client')
+  revalidatePath('/dashboard', 'layout')
   return { success: true }
 }
