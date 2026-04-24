@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import MobileNav from '@/components/MobileNav'
 import { RealtimeProvider, RealtimeBadge } from '@/components/RealtimeNotifications'
 import { Home, PlusCircle, Bike, BarChart3, Wallet, Users, Map, LogOut, Package, User, ClipboardList } from 'lucide-react'
+import UserAvatarMenu from '@/components/UserAvatarMenu'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile()
@@ -70,10 +71,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* Profile Card */}
         <div className="px-6 py-8">
           <div className="bg-slate-800/40 rounded-[2rem] p-5 border border-slate-700/30 backdrop-blur-sm">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-inner">
-                {profile.full_name?.charAt(0).toUpperCase() || '?'}
-              </div>
+            <div className="flex items-center gap-4">
+              <UserAvatarMenu profile={profile} align="left" />
               <div className="flex-1 min-w-0">
                 <div className="text-white text-base font-bold truncate leading-tight">{profile.full_name || 'Utilisateur'}</div>
                 <div className={`mt-1 inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border shadow-sm ${roleBadge.color} border-current/20`}>
@@ -123,12 +122,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
           <span className="font-display font-black text-slate-900 text-lg tracking-tight">Nelal Express</span>
         </Link>
-        <Link 
-          href={role === 'client' ? '/dashboard/client/profil' : '#'}
-          className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-md shadow-orange-500/20"
-        >
-          {profile.full_name?.charAt(0).toUpperCase() || '?'}
-        </Link>
+        <UserAvatarMenu profile={profile} align="right" />
       </div>
 
       {/* MOBILE BOTTOM NAV */}
