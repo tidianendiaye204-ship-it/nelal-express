@@ -40,10 +40,10 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.png',
+        url: 'https://nelal-express.vercel.app/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Nelal Express — Livraison Élite',
+        alt: 'Nelal Express — Livraison Élite au Sénégal',
       },
     ],
   },
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Nelal Express',
     description: 'Le standard de l\'excellence logistique au Sénégal.',
-    images: ['/og-image.png'],
+    images: ['https://nelal-express.vercel.app/og-image.png'],
   },
   appleWebApp: {
     capable: true,
