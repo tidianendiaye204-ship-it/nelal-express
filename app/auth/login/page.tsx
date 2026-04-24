@@ -124,11 +124,24 @@ export default function LoginPage() {
         return
       }
 
-      if (data.verification_url) {
-        window.location.href = data.verification_url
-      } else {
-        window.location.href = data.redirect || '/dashboard'
+      // Utiliser le token pour s'authentifier côté client
+      if (data.token_hash && data.email) {
+        const supabase = createClient()
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          email: data.email,
+          token_hash: data.token_hash,
+          type: 'magiclink',
+        })
+
+        if (verifyError) {
+          console.error('[Verify Error]', verifyError)
+          setError('Erreur de connexion. Réessayez.')
+          setLoading(false)
+          return
+        }
       }
+
+      window.location.href = data.redirect || '/dashboard'
     } catch {
       setError('Erreur de connexion. Vérifiez votre réseau.')
       setLoading(false)

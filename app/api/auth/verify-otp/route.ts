@@ -38,38 +38,55 @@ export async function POST(req: NextRequest) {
     await supabase.from('otp_codes').update({ used: true }).eq('id', otpRecord.id)
 
     // 3. Chercher un utilisateur existant avec ce numéro
-    const { data: existingProfile } = await supabase
+    let profile = null
+    
+    // Chercher avec format international (221XXXXXXXXX)
+    const { data: p1 } = await supabase
       .from('profiles')
       .select('id, role')
       .eq('phone', international)
       .maybeSingle()
+    profile = p1
 
-    // Aussi chercher avec le format sans préfixe (ex: 770000000)
-    let profile = existingProfile
+    // Aussi chercher avec format court (7XXXXXXXX)
     if (!profile) {
       const shortPhone = international.replace(/^221/, '')
-      const { data: altProfile } = await supabase
+      const { data: p2 } = await supabase
         .from('profiles')
         .select('id, role')
         .eq('phone', shortPhone)
         .maybeSingle()
-      profile = altProfile
+      profile = p2
+    }
+    
+    // Aussi chercher avec +221
+    if (!profile) {
+      const { data: p3 } = await supabase
+        .from('profiles')
+        .select('id, role')
+        .eq('phone', `+${international}`)
+        .maybeSingle()
+      profile = p3
     }
 
     let userId: string
+    let userEmail: string
     let role: string
 
     if (profile) {
-      // Utilisateur existant → on le connecte
+      // Utilisateur existant → récupérer son email
       userId = profile.id
       role = profile.role || 'client'
+      
+      const { data: userData } = await supabase.auth.admin.getUserById(userId)
+      userEmail = userData?.user?.email || `${international}@phone.nelal.sn`
     } else {
       // Nouvel utilisateur → on le crée
-      const fakeEmail = `${international}@phone.nelal.sn`
+      userEmail = `${international}@phone.nelal.sn`
       const randomPassword = crypto.randomUUID()
 
       const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-        email: fakeEmail,
+        email: userEmail,
         password: randomPassword,
         email_confirm: true,
         user_metadata: {
@@ -87,7 +104,7 @@ export async function POST(req: NextRequest) {
       userId = newUser.user.id
       role = 'client'
 
-      // Mettre à jour le profil avec le bon numéro
+      // Mettre à jour le profil
       await supabase.from('profiles').update({
         phone: international,
         full_name: otpRecord.full_name || `Client ${international.slice(-4)}`,
@@ -95,20 +112,10 @@ export async function POST(req: NextRequest) {
       }).eq('id', userId)
     }
 
-    // 4. Générer un lien magique pour connecter l'utilisateur
-    // On récupère l'email de l'utilisateur pour générer le lien
-    const { data: userData } = await supabase.auth.admin.getUserById(userId)
-    
-    if (!userData?.user?.email) {
-      return NextResponse.json({ error: 'Erreur de connexion' }, { status: 500 })
-    }
-
+    // 4. Générer un magic link et extraire le token
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
-      email: userData.user.email,
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'}/dashboard/${role}`,
-      }
+      email: userEmail,
     })
 
     if (linkError || !linkData) {
@@ -119,12 +126,12 @@ export async function POST(req: NextRequest) {
     // Nettoyer les anciens codes
     await supabase.from('otp_codes').delete().eq('phone', international)
 
+    // 5. Retourner le token pour que le client puisse s'authentifier
     return NextResponse.json({
       success: true,
       role,
-      // Le token_hash + hashed_token permettent la connexion côté client
-      verification_url: linkData.properties?.action_link,
-      hashed_token: linkData.properties?.hashed_token,
+      email: userEmail,
+      token_hash: linkData.properties?.hashed_token,
       redirect: `/dashboard/${role}`,
     })
 
