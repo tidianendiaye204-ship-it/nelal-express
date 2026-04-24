@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
     pathname === '/' || 
     pathname.startsWith('/api/whatsapp') || 
     pathname.startsWith('/api/cron') ||
+    pathname.startsWith('/api/auth/') ||
     pathname.startsWith('/t/') ||
     pathname.startsWith('/suivi/')
   ) {

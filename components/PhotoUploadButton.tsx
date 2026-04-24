@@ -32,15 +32,15 @@ export default function PhotoUploadButton({
       // 1. Compression côté client (évite les erreurs mémoire et réduit le temps d'upload)
       const compressedBlob = await compressImage(originalFile, 1200, 1200, 0.75)
       
-      const fileName = `${orderId}-${Date.now()}.jpg`
+      const fileName = `${orderId}-${Date.now()}.webp`
       const filePath = `uploads/${fileName}`
 
       // 2. Upload au bucket
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, compressedBlob, {
-          contentType: 'image/jpeg'
-        })
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(filePath, compressedBlob, {
+            contentType: 'image/webp' // Format WebP plus léger
+          })
 
       if (uploadError) throw uploadError
 
