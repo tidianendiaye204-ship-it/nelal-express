@@ -25,9 +25,16 @@ export function usePWAInstall() {
 
     setIsInstalled(isStandalone)
 
-    // Détecter iOS
+    // Détecter iOS — inclut iPhone, iPad (y compris iPadOS qui se déguise en Mac)
+    // et iPod. Couvre aussi les navigateurs tiers (Chrome, Firefox) sur iOS
+    // car ils utilisent tous WebKit sous le capot.
     const userAgent = window.navigator.userAgent.toLowerCase()
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent)
+    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || 
+      (userAgent.includes('macintosh') && 'ontouchend' in document) // iPadOS 13+
+    
+    // Sur iOS, on ne peut installer que depuis Safari
+    const isSafari = /safari/i.test(userAgent) && !/chrome|crios|fxios|edgios/i.test(userAgent)
+    
     setIsIOS(isIOSDevice)
 
     const handleBeforeInstallPrompt = (e: Event) => {

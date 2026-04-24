@@ -1,7 +1,7 @@
 'use client'
 
 import { usePWAInstall } from '@/hooks/usePWAInstall'
-import { Download, Share, PlusSquare, Smartphone } from 'lucide-react'
+import { Download, Share, PlusSquare, Smartphone, ArrowUp, X } from 'lucide-react'
 import { useState } from 'react'
 
 export default function PWAInstallButton() {
@@ -35,31 +35,61 @@ export default function PWAInstallButton() {
 
       {/* Modal d'instructions pour iOS */}
       {showIOSPopup && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-300">
+        <div 
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowIOSPopup(false) }}
+        >
+          <div className="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl relative">
+            {/* Close button */}
+            <button
+              onClick={() => setShowIOSPopup(false)}
+              className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center">
                 <Share className="w-8 h-8 text-orange-500" />
               </div>
             </div>
             
-            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter italic text-center mb-6">Installation iPhone</h3>
+            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter italic text-center mb-2">Installation iPhone</h3>
+            <p className="text-center text-sm text-slate-400 mb-6">Suivez ces 3 étapes simples</p>
             
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black shrink-0">1</div>
-                <p className="text-sm text-slate-600 font-medium">Appuyez sur le bouton de partage <Share className="inline h-4 w-4 mx-1 text-slate-900" /> en bas de Safari.</p>
+                <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-black shrink-0">1</div>
+                <p className="text-sm text-slate-600 font-medium pt-1">
+                  Appuyez sur le bouton <strong>Partager</strong> <ArrowUp className="inline h-4 w-4 mx-0.5 text-orange-500" /> en bas de Safari.
+                </p>
               </div>
               
               <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black shrink-0">2</div>
-                <p className="text-sm text-slate-600 font-medium">Choisissez <span className="font-bold">&quot;Sur l&apos;écran d&apos;accueil&quot;</span> <PlusSquare className="inline h-4 w-4 mx-1 text-slate-900" /> dans la liste.</p>
+                <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-black shrink-0">2</div>
+                <p className="text-sm text-slate-600 font-medium pt-1">
+                  Choisissez <strong>&quot;Sur l&apos;écran d&apos;accueil&quot;</strong> <PlusSquare className="inline h-4 w-4 mx-0.5 text-orange-500" /> dans la liste.
+                </p>
               </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-black shrink-0">3</div>
+                <p className="text-sm text-slate-600 font-medium pt-1">
+                  Appuyez sur <strong>&quot;Ajouter&quot;</strong> en haut à droite.
+                </p>
+              </div>
+            </div>
+
+            {/* Warning Chrome/Firefox */}
+            <div className="mt-5 p-3 bg-orange-50 rounded-xl border border-orange-100">
+              <p className="text-[11px] text-orange-600 font-medium text-center">
+                ⚠️ Fonctionne uniquement sur <strong>Safari</strong>. Si vous utilisez Chrome, ouvrez d&apos;abord le lien dans Safari.
+              </p>
             </div>
             
             <button 
               onClick={() => setShowIOSPopup(false)}
-              className="w-full mt-10 py-4 bg-orange-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+              className="w-full mt-6 py-4 bg-orange-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
             >
               C&apos;est compris !
             </button>
