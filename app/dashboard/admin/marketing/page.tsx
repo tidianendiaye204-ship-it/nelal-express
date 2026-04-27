@@ -3,7 +3,6 @@ import { createClient, getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Printer, Smartphone } from 'lucide-react'
-import AdminMarketingQR from '@/components/AdminMarketingQR'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,13 +13,6 @@ export default async function AdminMarketingPage() {
   if (profile?.role !== 'admin') {
     redirect('/dashboard')
   }
-
-  // Fetch livreurs to populate the selection list
-  const { data: livreurs } = await supabase
-    .from('profiles')
-    .select('id, full_name, phone')
-    .eq('role', 'livreur')
-    .order('full_name', { ascending: true })
 
   return (
     <div className="max-w-7xl mx-auto px-4 pb-24">
@@ -78,7 +70,7 @@ export default async function AdminMarketingPage() {
           Le Studio Marketing
         </h2>
         <p className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 relative z-10 leading-relaxed">
-          Nous avons basculé vers votre outil de génération externe optimisé pour l'impression HD et les exports PDF.
+          Nous avons basculé vers votre outil de génération externe optimisé pour l&apos;impression HD et les exports PDF.
         </p>
         
         <a 

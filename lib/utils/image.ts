@@ -54,8 +54,8 @@ export async function compressImage(
               reject(new Error('Erreur lors de la création du Blob'))
             }
           },
-          'image/webp', // Format WebP ultra-léger
-          0.6 // Qualité réduite à 60% (WebP gère très bien la basse qualité sans pixelisation)
+          'image/webp',
+          quality
         )
       }
       img.onerror = (err) => reject(err)

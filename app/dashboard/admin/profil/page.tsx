@@ -1,5 +1,4 @@
 // app/dashboard/admin/profil/page.tsx
-import { createClient } from '@/utils/supabase/server'
 import { getProfile } from '@/utils/supabase/server'
 import { signOut } from '@/actions/auth'
 import { updateProfile } from '@/actions/profile'
@@ -8,7 +7,6 @@ import Link from 'next/link'
 import { User, Phone, Mail, Shield, LogOut, ChevronRight, Edit3, BarChart3, Users, Map } from 'lucide-react'
 
 export default async function AdminProfilPage() {
-  const supabase = await createClient()
   const profile = await getProfile()
   if (!profile || profile.role !== 'admin') redirect('/auth/login')
 
