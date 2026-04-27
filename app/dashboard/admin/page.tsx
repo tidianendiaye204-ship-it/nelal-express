@@ -9,6 +9,7 @@ import {
   CheckCircle, Clock
 } from 'lucide-react'
 import NotificationEnabler from '@/components/NotificationEnabler'
+import AdminCharts from '@/components/AdminCharts'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +44,7 @@ export default async function AdminDashboard() {
       .order('created_at', { ascending: false })
       .limit(50),
     supabase.from('profiles').select('*').eq('role', 'livreur'),
-    supabase.from('orders').select('price, status, payment_method')
+    supabase.from('orders').select('price, status, payment_method, created_at')
   ])
 
   const stats = {
@@ -118,6 +119,8 @@ export default async function AdminDashboard() {
            <Link href="/dashboard/admin/livreurs" className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">Gérer <ArrowUpRight className="w-4 h-4 text-orange-500" /></Link>
         </div>
       </div>
+
+      <AdminCharts orders={allOrdersForStats || []} />
 
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2">
