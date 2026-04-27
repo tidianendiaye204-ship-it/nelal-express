@@ -52,7 +52,7 @@ export async function createOrder(formData: FormData) {
     zone_from_id,
     zone_to_id,
     parcel_size,
-    type: formData.get('type') as OrderType,
+    type: (formData.get('type') as OrderType) || 'particulier',
     description: formData.get('description') as string,
     pickup_address: formData.get('pickup_address') as string || 'Non spécifié',
     delivery_address: formData.get('delivery_address') as string || 'Non spécifié',
