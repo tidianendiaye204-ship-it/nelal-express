@@ -302,6 +302,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus, no
   revalidatePath(`/suivi/${orderId}`)
   revalidatePath('/dashboard/livreur')
   revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/client', 'layout')
 
   // Notification WhatsApp
   const { data: order } = await supabase
@@ -367,24 +368,29 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
     }
   }
 
-  await supabase.from('orders').update({ 
+  const { error: updateError } = await supabase.from('orders').update({ 
     status: statusToSet,
     ardoise_livreur: ardoise > 0 ? ardoise : 0,
     encaissement_reel: encaissementReel,
     delivery_photo_url: photoUrl,
     recipient_signature_url: signatureUrl
   }).eq('id', orderId)
+  
+  if (updateError) return { error: `Update failed: ${updateError.message}` }
 
-  await supabase.from('order_status_history').insert({
+  const { error: historyError } = await supabase.from('order_status_history').insert({
     order_id: orderId, 
     status: statusToSet, 
     note: ardoise > 0 ? `Livraison avec ardoise (${ardoise} F) par manque de monnaie` : 'Livraison validée par signature', 
     created_by: user.id,
   })
+  
+  if (historyError) return { error: `History failed: ${historyError.message}` }
 
   revalidatePath(`/suivi/${orderId}`)
   revalidatePath('/dashboard/livreur')
   revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/client', 'layout')
 
   // Notification WhatsApp
   const { data: order } = await supabase
@@ -474,6 +480,7 @@ export async function updatePickupPhoto(orderId: string, photoUrl: string) {
 
   revalidatePath(`/suivi/${orderId}`)
   revalidatePath('/dashboard/livreur')
+  revalidatePath('/dashboard/client', 'layout')
   return { success: true }
 }
 
@@ -531,6 +538,7 @@ export async function assignLivreur(orderId: string, livreurId: string) {
   }).catch(err => console.error('[Push Assign Error]', err))
 
   revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/client', 'layout')
   return { success: true }
 }
 
@@ -659,6 +667,7 @@ export async function adminUpdateOrder(orderId: string, updates: Partial<Order>)
 
   revalidatePath('/dashboard/admin')
   revalidatePath(`/suivi/${orderId}`)
+  revalidatePath('/dashboard/client', 'layout')
   return { success: true }
 }
 
@@ -681,6 +690,7 @@ export async function adminCancelOrder(orderId: string, reason: string) {
 
   revalidatePath('/dashboard/admin')
   revalidatePath(`/suivi/${orderId}`)
+  revalidatePath('/dashboard/client', 'layout')
   return { success: true }
 }
 
