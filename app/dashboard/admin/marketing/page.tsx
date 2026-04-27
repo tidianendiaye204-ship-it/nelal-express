@@ -71,7 +71,26 @@ export default async function AdminMarketingPage() {
       </div>
 
       {/* THE TOOL */}
-      <AdminMarketingQR livreurs={livreurs || []} />
+      <div className="bg-slate-900 rounded-[2.5rem] p-10 md:p-16 text-center shadow-2xl relative overflow-hidden border border-slate-800">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-orange-500/20 blur-[120px] rounded-full pointer-events-none"></div>
+        
+        <h2 className="font-display font-black text-3xl md:text-5xl text-white uppercase tracking-tight mb-6 relative z-10">
+          Le Studio Marketing
+        </h2>
+        <p className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 relative z-10 leading-relaxed">
+          Nous avons basculé vers votre outil de génération externe optimisé pour l'impression HD et les exports PDF.
+        </p>
+        
+        <a 
+          href="/generateur-qr.html" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-400 hover:to-orange-300 text-slate-900 px-8 py-5 rounded-2xl font-black text-lg uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl shadow-orange-500/20 relative z-10"
+        >
+          <Printer className="w-6 h-6" />
+          Ouvrir le Générateur Pro
+        </a>
+      </div>
       
     </div>
   )

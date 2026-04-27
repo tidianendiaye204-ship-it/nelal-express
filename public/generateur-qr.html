@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nelal Express — Générateur de carte QR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0A0A1E;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  /* ── ÉDITEUR ── */
+  .editor-bar {
+    background: #10102A;
+    border-bottom: 1px solid rgba(0,240,255,0.15);
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .editor-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #00F0FF;
+    white-space: nowrap;
+  }
+  .editor-title span { color: #F97316; }
+
+  .editor-fields {
+    display: flex;
+    gap: .8rem;
+    flex-wrap: wrap;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+  }
+  .field-group label {
+    font-size: .65rem;
+    color: #64748B;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .field-group input, .field-group textarea, .field-group select {
+    background: #1E2A4A;
+    border: 1px solid rgba(0,240,255,0.2);
+    color: #fff;
+    padding: .45rem .8rem;
+    border-radius: 8px;
+    font-size: .85rem;
+    outline: none;
+    transition: border-color .2s;
+    min-width: 160px;
+  }
+  .field-group input:focus,
+  .field-group textarea:focus {
+    border-color: #00F0FF;
+  }
+  .field-group textarea {
+    resize: none;
+    height: 60px;
+    font-size: .78rem;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: .6rem;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    padding: .55rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+  }
+  .btn-update {
+    background: #00F0FF;
+    color: #050510;
+  }
+  .btn-update:hover { box-shadow: 0 0 20px rgba(0,240,255,0.4); }
+  .btn-print {
+    background: #F97316;
+    color: #fff;
+  }
+  .btn-print:hover { box-shadow: 0 0 20px rgba(249,115,22,0.4); }
+  .btn-export {
+    background: #22C55E;
+    color: #fff;
+  }
+  .btn-export:hover { box-shadow: 0 0 20px rgba(34,197,94,0.4); }
+  .btn-save {
+    background: #6366F1;
+    color: #fff;
+  }
+  .btn-save:hover { box-shadow: 0 0 20px rgba(99,102,241,0.4); }
+  .btn-delete {
+    background: #EF4444;
+    color: #fff;
+    padding: .55rem .8rem;
+  }
+  .btn-delete:hover { box-shadow: 0 0 20px rgba(239,68,68,0.4); }
+
+  .livreur-selector {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: #1E2A4A;
+    padding: .4rem .8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0,240,255,0.2);
+  }
+  .livreur-selector select {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: .85rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .livreur-selector option {
+    background: #1E2A4A;
+    color: #fff;
+  }
+
+  /* ── PREVIEW ── */
+  .preview-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 2rem;
+    gap: 1.5rem;
+  }
+
+  .preview-label {
+    font-size: .72rem;
+    color: #3A4060;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* ── LA CARTE ── */
+  .card {
+    width: 860px;
+    min-height: 460px;
+    background: #0F172A;
+    border-radius: 20px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,240,255,0.1);
+    position: relative;
+  }
+
+  /* Bande gauche orange */
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 7px;
+    background: linear-gradient(to bottom, #F97316, #FBBF24);
+    border-radius: 20px 0 0 20px;
+  }
+
+  /* Ligne top cyan */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #00F0FF, #6366F1, transparent);
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* Cercle déco fond */
+  .card-bg-circle {
+    position: absolute;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(0,240,255,0.05), transparent 70%);
+    top: -80px; left: -50px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .card-bg-circle2 {
+    position: absolute;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(249,115,22,0.05), transparent 70%);
+    bottom: -50px; right: 320px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Contenu gauche */
+  .card-left {
+    flex: 1;
+    padding: 2.5rem 2rem 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-logo {
+    margin-bottom: .5rem;
+  }
+  .card-logo .logo-main {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .card-logo .logo-main span { color: #F97316; }
+  .card-logo .logo-sub {
+    font-size: .7rem;
+    color: #00F0FF;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: .3rem;
+  }
+
+  .card-divider {
+    width: 80px; height: 3px;
+    background: linear-gradient(to right, #00F0FF, transparent);
+    border-radius: 2px;
+    margin: 1rem 0;
+  }
+
+  .card-tagline {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.5;
+    margin-bottom: .6rem;
+  }
+
+  .card-slogan {
+    font-size: .85rem;
+    color: #64748B;
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .card-steps {
+    list-style: none;
+    margin-bottom: 1.2rem;
+  }
+  .card-steps li {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-size: .82rem;
+    color: #94A3B8;
+    padding: .25rem 0;
+  }
+  .step-num {
+    width: 20px; height: 20px;
+    background: rgba(0,240,255,0.1);
+    border: 1px solid rgba(0,240,255,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .65rem;
+    font-weight: 700;
+    color: #00F0FF;
+    flex-shrink: 0;
+  }
+
+  .card-zones {
+    font-size: .72rem;
+    color: #3A4060;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .card-phone {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(0,240,255,0.06);
+    border: 1px solid rgba(0,240,255,0.2);
+    padding: .4rem .9rem;
+    border-radius: 100px;
+    font-size: .82rem;
+    color: #00F0FF;
+    font-weight: 600;
+  }
+
+  .card-payments {
+    font-size: .72rem;
+    color: #475569;
+  }
+
+  /* Contenu droit — QR */
+  .card-right {
+    width: 260px;
+    background: rgba(255,255,255,0.02);
+    border-left: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    gap: 1rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .scan-label {
+    font-size: .65rem;
+    color: #00F0FF;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .qr-frame {
+    background: #fff;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,240,255,0.1);
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Coins tech autour du QR */
+  .qr-frame::before,
+  .qr-frame::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    border-color: #F97316;
+    border-style: solid;
+  }
+  .qr-frame::before {
+    top: -4px; left: -4px;
+    border-width: 3px 0 0 3px;
+    border-radius: 3px 0 0 0;
+  }
+  .qr-frame::after {
+    bottom: -4px; right: -4px;
+    border-width: 0 3px 3px 0;
+    border-radius: 0 0 3px 0;
+  }
+
+  #qrcode-display canvas,
+  #qrcode-display img {
+    display: block !important;
+    border-radius: 6px;
+  }
+
+  .scan-instruction {
+    text-align: center;
+    font-size: .72rem;
+    color: #475569;
+    line-height: 1.5;
+  }
+  .scan-instruction strong { color: #94A3B8; }
+
+  .wa-badge {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.2);
+    padding: .35rem .8rem;
+    border-radius: 100px;
+    font-size: .68rem;
+    color: #22C55E;
+    font-weight: 600;
+  }
+  .wa-dot {
+    width: 6px; height: 6px;
+    background: #22C55E;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* QR Container avec position relative pour le logo */
+  .qr-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Logo WhatsApp au centre du QR */
+  .qr-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38px;
+    height: 38px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 10;
+  }
+  .qr-logo svg {
+    width: 22px;
+    height: 22px;
+    fill: white;
+  }
+
+  /* Animation laser scan */
+  .qr-frame {
+    position: relative;
+    overflow: hidden;
+  }
+  .qr-frame.scanning::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #00F0FF, #F97316, transparent);
+    box-shadow: 0 0 10px #00F0FF, 0 0 20px #F97316;
+    animation: scanLaser 1.5s ease-in-out infinite;
+  }
+  @keyframes scanLaser {
+    0%, 100% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* Effet pulsation sur le cadre QR au survol */
+  .qr-frame:hover {
+    box-shadow: 0 0 40px rgba(0,240,255,0.2), 0 0 80px rgba(249,115,22,0.1);
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+  }
+
+  /* Lien cliquable sous le QR */
+  .qr-link {
+    font-size: .65rem;
+    color: #64748B;
+    text-decoration: none;
+    word-break: break-all;
+    text-align: center;
+    max-width: 180px;
+    display: block;
+    margin-top: .5rem;
+    transition: color .2s;
+  }
+  .qr-link:hover {
+    color: #00F0FF;
+  }
+
+  /* Bouton copier lien */
+  .copy-btn {
+    background: rgba(0,240,255,0.1);
+    border: 1px solid rgba(0,240,255,0.3);
+    color: #00F0FF;
+    padding: .4rem .9rem;
+    border-radius: 100px;
+    font-size: .72rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    transition: all .2s;
+    margin-top: .5rem;
+  }
+  .copy-btn:hover {
+    background: rgba(0,240,255,0.2);
+    border-color: #00F0FF;
+    transform: translateY(-1px);
+  }
+  .copy-btn.copied {
+    background: #22C55E;
+    border-color: #22C55E;
+    color: #fff;
+  }
+
+  /* Preview Mobile */
+  .mobile-preview-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(16,16,42,0.5);
+    border-radius: 16px;
+    border: 1px solid rgba(0,240,255,0.1);
+  }
+  .mobile-preview-label {
+    font-size: .75rem;
+    color: #64748B;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .mobile-frame {
+    width: 280px;
+    height: 560px;
+    background: #000;
+    border-radius: 30px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .mobile-frame::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 20px;
+    background: #1a1a1a;
+    border-radius: 10px;
+  }
+  .mobile-screen {
+    width: 100%;
+    height: 100%;
+    background: #0A0A1E;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .mobile-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to right, #075E54, #128C7E);
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    gap: .5rem;
+  }
+  .mobile-header span {
+    color: white;
+    font-size: .85rem;
+    font-weight: 600;
+  }
+  .mobile-qr-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 40px;
+  }
+  .mobile-qr-small {
+    width: 160px;
+    height: 160px;
+    background: white;
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .mobile-qr-small canvas,
+  .mobile-qr-small img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 4px;
+  }
+  .mobile-text {
+    text-align: center;
+    color: #94A3B8;
+    font-size: .75rem;
+    line-height: 1.5;
+  }
+  .mobile-text strong {
+    color: #00F0FF;
+    display: block;
+    margin-bottom: .3rem;
+    font-size: .85rem;
+  }
+  .mobile-instruction {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    padding: .8rem;
+    text-align: center;
+  }
+  .mobile-instruction p {
+    color: #22C55E;
+    font-size: .7rem;
+    margin: 0;
+  }
+  .mobile-instruction .arrow {
+    font-size: 1.5rem;
+    animation: bounce 1s infinite;
+    display: block;
+    margin-bottom: .3rem;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* Templates de messages rapides */
+  .message-templates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .5rem;
+    padding-top: .5rem;
+    border-top: 1px solid rgba(0,240,255,0.1);
+  }
+  .template-btn {
+    background: rgba(0,240,255,0.08);
+    border: 1px solid rgba(0,240,255,0.2);
+    color: #00F0FF;
+    padding: .35rem .7rem;
+    border-radius: 100px;
+    font-size: .7rem;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .template-btn:hover {
+    background: rgba(0,240,255,0.15);
+    border-color: #00F0FF;
+    transform: translateY(-1px);
+  }
+  .template-btn.active {
+    background: #00F0FF;
+    color: #050510;
+    font-weight: 600;
+  }
+
+  /* Stats QR */
+  .qr-stats {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .65rem;
+    color: #64748B;
+    margin-top: .5rem;
+  }
+  .qr-stats span {
+    color: #F97316;
+    font-weight: 600;
+  }
+
+  /* ── THÈMES ── */
+  .theme-light .card {
+    background: #ffffff;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1);
+  }
+  .theme-light .card-logo .logo-main { color: #0F172A; }
+  .theme-light .card-tagline { color: #1E293B; }
+  .theme-light .card-steps li { color: #475569; }
+  .theme-light .card-phone { background: rgba(0,240,255,0.1); }
+  .theme-light .card-zones { color: #64748B; }
+  .theme-light .scan-instruction { color: #64748B; }
+  .theme-light .scan-instruction strong { color: #0F172A; }
+
+  .theme-orange .card::before {
+    background: linear-gradient(to bottom, #F97316, #DC2626);
+    width: 10px;
+  }
+  .theme-orange .card::after {
+    background: linear-gradient(to right, #F97316, #FBBF24, transparent);
+    height: 6px;
+  }
+  .theme-orange .card-phone {
+    background: rgba(249,115,22,0.1);
+    border-color: rgba(249,115,22,0.3);
+    color: #F97316;
+  }
+  .theme-orange .step-num {
+    background: rgba(249,115,22,0.1);
+    border-color: rgba(249,115,22,0.3);
+    color: #F97316;
+  }
+  .theme-orange .card-divider {
+    background: linear-gradient(to right, #F97316, transparent);
+  }
+
+  /* ── MINIATURES LIVREURS ── */
+  .miniatures-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+  .miniatures-title {
+    font-size: 1rem;
+    color: #64748B;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .miniatures-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .mini-card {
+    background: #10102A;
+    border: 1px solid rgba(0,240,255,0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .mini-card:hover {
+    border-color: #00F0FF;
+    box-shadow: 0 0 20px rgba(0,240,255,0.2);
+  }
+  .mini-card.active {
+    border-color: #22C55E;
+    background: rgba(34,197,94,0.1);
+  }
+  .mini-card-name {
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .mini-card-phone {
+    color: #00F0FF;
+    font-size: 0.75rem;
+  }
+  .mini-card-qr {
+    width: 80px;
+    height: 80px;
+    margin: 0.5rem auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .mini-card-qr canvas,
+  .mini-card-qr img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 4px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; }
+    .editor-bar, .miniatures-section, .bulk-actions { display: none !important; }
+    .preview-wrap { padding: 0; }
+    .preview-label { display: none; }
+    .card {
+      box-shadow: none;
+      border: 1px solid #eee;
+      width: 100%;
+      margin: 0;
+    }
+    .card-logo .logo-main { color: #0F172A; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── BARRE ÉDITEUR ── -->
+<div class="editor-bar">
+  <div class="editor-title">NELAL <span>QR</span> · Éditeur</div>
+
+  <div class="editor-fields">
+
+    <div class="field-group">
+      <label>📋 Livreur</label>
+      <div class="livreur-selector">
+        <select id="livreur-select" onchange="loadLivreur()">
+          <option value="">Nouveau livreur...</option>
+        </select>
+        <button class="btn btn-delete" onclick="deleteLivreur()" title="Supprimer">🗑️</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Nom du livreur</label>
+      <input type="text" id="f-nom" value="Livreur 1" placeholder="Nom du livreur..."/>
+    </div>
+
+    <div class="field-group">
+      <label>Téléphone WhatsApp</label>
+      <input type="text" id="f-phone" value="77 036 26 16" placeholder="7X XXX XX XX"/>
+    </div>
+
+    <div class="field-group">
+      <label>Slogan</label>
+      <input type="text" id="f-slogan" value="Livraison rapide · Dakar, Banlieue & Intérieur" style="min-width:280px"/>
+    </div>
+
+    <div class="field-group">
+      <label>Zones couvertes</label>
+      <input type="text" id="f-zones" value="🏙 Dakar · Pikine · Guédiawaye · Rufisque · Keur Massar" style="min-width:340px"/>
+    </div>
+
+    <div class="field-group">
+      <label>Zones intérieur</label>
+      <input type="text" id="f-zones2" value="🚌 Saint-Louis · Ndioum · Touba · Thiès · Kaolack..."/>
+    </div>
+
+    <div class="field-group">
+      <label>Message WhatsApp pré-rempli</label>
+      <textarea id="f-message">Salam ! Commande via Nelal Express 🚀
+
+Colis:
+Départ:
+Destination:
+Destinataire:
+Tel:
+Paiement:</textarea>
+      <div class="message-templates">
+        <button class="template-btn" onclick="applyTemplate('commande')" title="Template commande complète">🚀 Commande</button>
+        <button class="template-btn" onclick="applyTemplate('devis')" title="Demande de devis">💰 Devis</button>
+        <button class="template-btn" onclick="applyTemplate('suivi')" title="Suivi de colis">📍 Suivi</button>
+        <button class="template-btn" onclick="applyTemplate('simple')" title="Message simple">💬 Simple</button>
+        <button class="template-btn" onclick="applyTemplate('compatible')" title="QR compatible tous scanners" style="background: rgba(34,197,94,0.15); border-color: #22C55E; color: #22C55E;">📱 Compatible</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="editor-actions">
+    <div class="field-group" style="min-width: auto;">
+      <label>🎨 Thème</label>
+      <select id="theme-select" onchange="changeTheme(this.value)" style="min-width: 100px;">
+        <option value="">🌙 Dark</option>
+        <option value="theme-light">☀️ Light</option>
+        <option value="theme-orange">🟠 Orange</option>
+      </select>
+    </div>
+    <button class="btn btn-save" onclick="saveLivreur()">💾 Sauver</button>
+    <button class="btn btn-update" onclick="updateCard()">✅ Appliquer</button>
+    <button class="btn btn-export" onclick="exportCard()">📱 PNG</button>
+    <button class="btn btn-print" onclick="exportPDF()">📄 PDF</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Impr.</button>
+  </div>
+</div>
+
+<!-- ── ACTIONS DE GESTION ── -->
+<div class="bulk-actions" style="background: #0F172A; padding: 0.8rem 2rem; border-bottom: 1px solid rgba(0,240,255,0.1); display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+  <button class="btn" style="background: #3B82F6; color: #fff;" onclick="exportLivreursJSON()">📤 Export JSON (sauvegarde)</button>
+  <label class="btn" style="background: #8B5CF6; color: #fff; cursor: pointer;">
+    📥 Import JSON
+    <input type="file" id="import-json" accept=".json" onchange="importLivreursJSON(this)" style="display: none;">
+  </label>
+</div>
+
+<!-- ── PRÉVISUALISATION ── -->
+<div class="preview-wrap">
+  <div class="preview-label">Prévisualisation — modifie et clique Appliquer</div>
+
+  <!-- LA CARTE -->
+  <div class="card" id="card">
+    <div class="card-bg-circle"></div>
+    <div class="card-bg-circle2"></div>
+
+    <!-- GAUCHE -->
+    <div class="card-left">
+      <div>
+        <div class="card-logo">
+          <div class="logo-main">NELAL <span>EX</span>PRESS</div>
+          <div class="logo-sub" id="c-livreur">Service de livraison · Sénégal 🇸🇳</div>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="card-tagline" id="c-slogan">
+          Livraison rapide · Dakar, Banlieue & Intérieur
+        </div>
+
+        <ul class="card-steps">
+          <li>
+            <span class="step-num">1</span>
+            Scannez le QR code avec votre téléphone
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            WhatsApp s'ouvre avec votre commande
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            On prend en charge et on livre ! 💨
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="card-zones">
+          <div id="c-zones">🏙 Dakar · Pikine · Guédiawaye · Rufisque · Keur Massar</div>
+          <div id="c-zones2">🚌 Saint-Louis · Ndioum · Touba · Thiès · Kaolack...</div>
+        </div>
+
+        <div class="card-footer">
+          <div class="card-phone">
+            📱 <span id="c-phone">77 036 26 16</span>
+          </div>
+          <div class="card-payments">💙 Wave &nbsp;🟠 Orange Money &nbsp;💵 Cash</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DROITE — QR -->
+    <div class="card-right">
+      <div class="scan-label">📸 Scanner pour commander</div>
+
+      <div class="qr-frame" id="qr-frame" onmouseenter="startScanAnimation()" onmouseleave="stopScanAnimation()">
+        <div id="qrcode-display"></div>
+      </div>
+
+      <div class="scan-instruction">
+        <strong>Ouvre WhatsApp</strong><br/>
+        remplis les infos<br/>
+        et envoie !
+      </div>
+
+      <div class="wa-badge">
+        <span class="wa-dot"></span>
+        WhatsApp direct
+      </div>
+
+      <button class="copy-btn" id="copy-link-btn" onclick="copyWhatsAppLink()" title="Copier le lien pour partager">
+        📋 Copier le lien
+      </button>
+    </div>
+  </div>
+
+  <!-- PREVIEW MOBILE -->
+  <div class="mobile-preview-section">
+    <div class="mobile-preview-label">📱 Aperçu sur téléphone</div>
+    <div class="mobile-frame">
+      <div class="mobile-screen">
+        <div class="mobile-header">
+          <span>📱 WhatsApp</span>
+        </div>
+        <div class="mobile-qr-area">
+          <div class="mobile-qr-small" id="mobile-qr-display"></div>
+          <div class="mobile-text">
+            <strong id="mobile-livreur-name">Nelal Express</strong>
+            <span id="mobile-phone">77 XXX XX XX</span>
+          </div>
+        </div>
+        <div class="mobile-instruction">
+          <span class="arrow">👆</span>
+          <p>Scannez ce code pour<br/>envoyer un message</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSEIL IMPRESSION -->
+  <div style="text-align:center; color:#3A4060; font-size:.75rem; max-width:600px; line-height:1.8;">
+    💡 <strong style="color:#64748B">Conseils impression :</strong>
+    Imprime en A5 ou A4 · Coupe en 2 pour avoir 2 cartes par A4 ·
+    Plastifie pour distribuer dans les boutiques · Partage aussi en image sur WhatsApp
+  </div>
+</div>
+
+<!-- ── MINIATURES ── -->
+<div class="miniatures-section" id="miniatures-container"></div>
+
+<script>
+// ── Générer le QR code ────────────────────────────────────────────
+let qrInstance = null;
+const STORAGE_KEY = 'nelal_livreurs';
+let miniQRCodes = {};
+
+function buildWaUrl(phone, message) {
+  const cleaned = phone.replace(/\D/g, '');
+  const intl = cleaned.startsWith('221') ? cleaned : '221' + cleaned;
+  
+  // Format 1: wa.me (court, mais parfois mal reconnu)
+  // Format 2: api.whatsapp.com (plus compatible avec les scanners)
+  const useCompatibleFormat = true; // Toujours utiliser le format compatible
+  
+  if (useCompatibleFormat) {
+    // Format plus universel, mieux reconnu par les scanners
+    return \`https://api.whatsapp.com/send?phone=\${intl}&text=\${encodeURIComponent(message)}\`;
+  }
+  
+  return \`https://wa.me/\${intl}?text=\${encodeURIComponent(message)}\`;
+}
+
+function generateQR(url, containerId = 'qrcode-display', size = 180) {
+  const container = document.getElementById(containerId);
+  if (!container) return null;
+  
+  // Nettoyer complètement le conteneur
+  container.innerHTML = '';
+  
+  // Supprimer toutes les références de la bibliothèque QRCode précédente
+  if (container.qrcode) {
+    container.qrcode.clear();
+    container.qrcode = null;
+  }
+
+  // Créer le conteneur avec position relative
+  const qrWrapper = document.createElement('div');
+  qrWrapper.className = 'qr-container';
+  qrWrapper.id = containerId + '-wrapper';
+  container.appendChild(qrWrapper);
+
+  // Forcer un reflow du DOM
+  void qrWrapper.offsetWidth;
+
+  // Générer le QR avec un délai minimal pour s'assurer que le DOM est prêt
+  setTimeout(() => {
+    const qr = new QRCode(qrWrapper, {
+      text: url,
+      width: size,
+      height: size,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+
+    // Stocker la référence
+    container.qrcode = qr;
+
+    // Ajouter le logo WhatsApp (seulement pour le QR principal)
+    if (containerId === 'qrcode-display' && size > 100) {
+      // Vérifier si le logo existe déjà
+      const existingLogo = qrWrapper.querySelector('.qr-logo');
+      if (!existingLogo) {
+        const logo = document.createElement('div');
+        logo.className = 'qr-logo';
+        logo.innerHTML = \`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.35-8.413"/></svg>\`;
+        qrWrapper.appendChild(logo);
+      }
+    }
+
+    return qr;
+  }, 0); // Ajout de l'accolade fermante manquante
+}
+
+function updateCard() {
+  const nom = document.getElementById('f-nom').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const slogan = document.getElementById('f-slogan').value.trim();
+  const zones = document.getElementById('f-zones').value.trim();
+  const zones2 = document.getElementById('f-zones2').value.trim();
+  const message = document.getElementById('f-message').value.trim();
+
+  // Mettre à jour les textes de la carte
+  document.getElementById('c-phone').textContent = phone;
+  document.getElementById('c-slogan').textContent = slogan;
+  document.getElementById('c-zones').textContent = zones;
+  document.getElementById('c-zones2').textContent = zones2;
+  
+  // Mettre à jour le nom du livreur sur la carte
+  const livreurDisplay = nom ? \`Livreur: \${nom} · Sénégal 🇸🇳\` : 'Service de livraison · Sénégal 🇸🇳';
+  document.getElementById('c-livreur').textContent = livreurDisplay;
+
+  // Regénérer le QR principal (taille réduite pour scan rapide)
+  const url = buildWaUrl(phone, message);
+  generateQR(url, 'qrcode-display', 140);
+
+  // Mettre à jour la preview mobile
+  updateMobilePreview(nom, phone, message);
+
+  // Stocker l'URL pour le bouton copier
+  window.currentWaUrl = url;
+}
+
+function changeTheme(theme) {
+  const card = document.getElementById('card');
+  card.classList.remove('theme-light', 'theme-orange');
+  if (theme) {
+    card.classList.add(theme);
+  }
+}
+
+// ── Templates de messages ────────────────────────────────────────────
+function applyTemplate(type) {
+  const templates = {
+    commande: \`Salam ! Commande via Nelal Express 🚀
+
+Colis:
+Départ:
+Destination:
+Destinataire:
+Tel:
+Paiement:\`,
+    devis: \`Bonjour, je voudrais un devis pour une livraison.
+
+Départ:
+Arrivée:
+Type de colis:
+Poids approximatif:
+
+Merci !\`,
+    suivi: \`Bonjour, je souhaite suivre mon colis.
+
+Référence:
+Date d'envoi:
+
+Merci\`,
+    simple: \`Salam, je contacte via Nelal Express 👋\`,
+    compatible: \`\` // Message vide pour QR minimal
+  };
+  
+  const message = templates[type] || templates.simple;
+  document.getElementById('f-message').value = message;
+  
+  // Mettre à jour le bouton actif
+  document.querySelectorAll('.template-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Si c'est le template compatible, générer un QR avec juste le numéro
+  if (type === 'compatible') {
+    const nom = document.getElementById('f-nom').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const cleaned = phone.replace(/\\D/g, '');
+    const intl = cleaned.startsWith('221') ? cleaned : '221' + cleaned;
+    
+    // Générer un QR avec juste le numéro de téléphone (format le plus universel)
+    const simpleUrl = \`https://wa.me/\${intl}\`;
+    generateQR(simpleUrl, 'qrcode-display', 140);
+    updateMobilePreview(nom, phone, message);
+    window.currentWaUrl = simpleUrl;
+    
+    // Feedback visuel
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = '✓ Compatible !';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 1500);
+    return;
+  }
+  
+  // Si c'est le template simple, mettre à jour immédiatement le QR pour un scan rapide
+  if (type === 'simple') {
+    const nom = document.getElementById('f-nom').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const url = buildWaUrl(phone, message);
+    generateQR(url, 'qrcode-display', 140);
+    updateMobilePreview(nom, phone, message);
+    window.currentWaUrl = url;
+    
+    // Feedback visuel
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = '✓ QR Minimal !';
+    btn.style.background = '#22C55E';
+    btn.style.color = '#fff';
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 1500);
+  }
+}
+
+// ── Animation scan laser ────────────────────────────────────────────
+function startScanAnimation() {
+  const frame = document.getElementById('qr-frame');
+  if (frame) frame.classList.add('scanning');
+}
+
+function stopScanAnimation() {
+  const frame = document.getElementById('qr-frame');
+  if (frame) frame.classList.remove('scanning');
+}
+
+// ── Copier le lien WhatsApp ────────────────────────────────────────────
+function copyWhatsAppLink() {
+  const url = window.currentWaUrl;
+  if (!url) {
+    alert('Générez d\\'abord un QR code');
+    return;
+  }
+
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copy-link-btn');
+    const originalText = btn.textContent;
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copié !';
+    
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = originalText;
+    }, 2000);
+  }).catch(err => {
+    // Fallback pour anciens navigateurs
+    const textArea = document.createElement('textarea');
+    textArea.value = url;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    const btn = document.getElementById('copy-link-btn');
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copié !';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = '📋 Copier le lien';
+    }, 2000);
+  });
+}
+
+// ── Mise à jour de la preview mobile ────────────────────────────────────────────
+function updateMobilePreview(nom, phone, message) {
+  // Mettre à jour les infos texte
+  const displayName = nom || 'Nelal Express';
+  document.getElementById('mobile-livreur-name').textContent = displayName;
+  document.getElementById('mobile-phone').textContent = phone || '77 XXX XX XX';
+
+  // Générer le QR mobile (plus petit)
+  const url = buildWaUrl(phone, message);
+  generateQR(url, 'mobile-qr-display', 140);
+}
+
+// ── Export PNG ────────────────────────────────────────────
+function exportCard() {
+  const card = document.getElementById('card');
+  const nom = document.getElementById('f-nom').value.trim() || 'carte';
+
+  // Forcer la génération d'un QR frais avant export
+  const phone = document.getElementById('f-phone').value.trim();
+  const message = document.getElementById('f-message').value.trim();
+  const url = buildWaUrl(phone, message);
+  generateQR(url, 'qrcode-display', 140);
+
+  // Attendre que le QR soit généré puis exporter
+  setTimeout(() => {
+    html2canvas(card, {
+      scale: 3,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      imageTimeout: 0
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = \`nelal-\${nom.replace(/\\s+/g, '-').toLowerCase()}.png\`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+    }).catch(err => {
+      alert('Erreur lors de l\\'export : ' + err.message);
+    });
+  }, 200);
+}
+
+// ── Export PDF multi-cartes ────────────────────────────────────────────
+async function exportPDF() {
+  const livreurs = getLivreurs();
+  const livreursList = Object.values(livreurs);
+  
+  if (livreursList.length === 0) {
+    alert('Aucun livreur sauvegardé. Créez des livreurs d\\'abord.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape A4
+  
+  const cardWidth = 860;
+  const cardHeight = 460;
+  const scale = 0.35; // Scale to fit on page
+  
+  let x = 10;
+  let y = 10;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  
+  for (let i = 0; i < livreursList.length; i++) {
+    const livreur = livreursList[i];
+    
+    // Charger temporairement les données du livreur
+    document.getElementById('f-nom').value = livreur.nom;
+    document.getElementById('f-phone').value = livreur.phone;
+    document.getElementById('f-slogan').value = livreur.slogan;
+    document.getElementById('f-zones').value = livreur.zones;
+    document.getElementById('f-zones2').value = livreur.zones2;
+    document.getElementById('f-message').value = livreur.message;
+    updateCard();
+    
+    // Attendre que le QR code soit généré
+    await new Promise(r => setTimeout(r, 300));
+    
+    // Capturer la carte
+    const canvas = await html2canvas(document.getElementById('card'), {
+      scale: 1.5,
+      backgroundColor: '#ffffff'
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 130; // mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    if (x + imgWidth > pageWidth - 10) {
+      x = 10;
+      y += imgHeight + 10;
+    }
+    
+    if (y + imgHeight > pdf.internal.pageSize.getHeight() - 10) {
+      pdf.addPage();
+      x = 10;
+      y = 10;
+    }
+    
+    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+    pdf.text(livreur.nom, x, y + imgHeight + 5);
+    
+    x += imgWidth + 10;
+  }
+  
+  pdf.save('nelal-cartes-livreurs.pdf');
+  
+  // Restaurer le livreur actuel
+  const currentNom = document.getElementById('livreur-select').value;
+  if (currentNom) {
+    loadLivreurByName(currentNom);
+  }
+}
+
+function loadLivreurByName(nom) {
+  if (!nom) return;
+  document.getElementById('livreur-select').value = nom;
+  loadLivreur();
+}
+
+// ── Import/Export JSON ────────────────────────────────────────────
+function exportLivreursJSON() {
+  const livreurs = getLivreurs();
+  const dataStr = JSON.stringify(livreurs, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = \`nelal-livreurs-\${new Date().toISOString().split('T')[0]}.json\`;
+  link.click();
+  
+  URL.revokeObjectURL(url);
+  alert('Livreurs exportés !');
+}
+
+function importLivreursJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      const existing = getLivreurs();
+      
+      // Fusionner les livreurs importés avec les existants
+      const merged = { ...existing, ...imported };
+      saveLivreurs(merged);
+      
+      updateLivreurSelector();
+      renderMiniatures();
+      
+      alert(\`\${Object.keys(imported).length} livreur(s) importé(s) !\`);
+    } catch (err) {
+      alert('Erreur lors de l\\'import : fichier JSON invalide');
+    }
+  };
+  reader.readAsText(file);
+  input.value = ''; // Reset pour permettre ré-import
+}
+
+// ── Miniatures ────────────────────────────────────────────
+function renderMiniatures() {
+  const container = document.getElementById('miniatures-container');
+  if (!container) return;
+  
+  const livreurs = getLivreurs();
+  container.innerHTML = '';
+  
+  Object.values(livreurs).forEach(livreur => {
+    const card = document.createElement('div');
+    card.className = 'mini-card';
+    card.onclick = () => selectMiniature(livreur.nom);
+    
+    const qrId = \`mini-qr-\${livreur.nom.replace(/\\s+/g, '-')}\`;
+    
+    card.innerHTML = \`
+      <div class="mini-card-name">\${livreur.nom}</div>
+      <div class="mini-card-qr" id="\${qrId}"></div>
+      <div class="mini-card-phone">\${livreur.phone}</div>
+    \`;
+    
+    container.appendChild(card);
+    
+    // Générer le QR mini
+    setTimeout(() => {
+      const url = buildWaUrl(livreur.phone, livreur.message);
+      generateQR(url, qrId, 70);
+    }, 10);
+  });
+}
+
+function selectMiniature(nom) {
+  document.getElementById('livreur-select').value = nom;
+  loadLivreur();
+  
+  // Mettre à jour la classe active
+  document.querySelectorAll('.mini-card').forEach(card => {
+    card.classList.remove('active');
+    if (card.querySelector('.mini-card-name').textContent === nom) {
+      card.classList.add('active');
+    }
+  });
+}
+
+// ── Gestion des livreurs ────────────────────────────────────────────
+function getLivreurs() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : {};
+}
+
+function saveLivreurs(livreurs) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(livreurs));
+}
+
+function saveLivreur() {
+  const nom = document.getElementById('f-nom').value.trim();
+  if (!nom) {
+    alert('Veuillez entrer un nom pour le livreur');
+    return;
+  }
+
+  const livreurs = getLivreurs();
+  livreurs[nom] = {
+    nom: nom,
+    phone: document.getElementById('f-phone').value.trim(),
+    slogan: document.getElementById('f-slogan').value.trim(),
+    zones: document.getElementById('f-zones').value.trim(),
+    zones2: document.getElementById('f-zones2').value.trim(),
+    message: document.getElementById('f-message').value.trim()
+  };
+
+  saveLivreurs(livreurs);
+  updateLivreurSelector();
+  renderMiniatures();
+  document.getElementById('livreur-select').value = nom;
+  alert('Livreur "' + nom + '" sauvegardé !');
+}
+
+function loadLivreur() {
+  const nom = document.getElementById('livreur-select').value;
+  if (!nom) {
+    // Nouveau livreur - réinitialiser
+    document.getElementById('f-nom').value = '';
+    document.getElementById('f-phone').value = '';
+    document.getElementById('f-slogan').value = 'Livraison rapide · Dakar, Banlieue & Intérieur';
+    document.getElementById('f-zones').value = '🏙 Dakar · Pikine · Guédiawaye · Rufisque · Keur Massar';
+    document.getElementById('f-zones2').value = '🚌 Saint-Louis · Ndioum · Touba · Thiès · Kaolack...';
+    document.getElementById('f-message').value = \`Salam ! Commande via Nelal Express 🚀
+
+Colis:
+Départ:
+Destination:
+Destinataire:
+Tel:
+Paiement:\`;
+    document.querySelectorAll('.mini-card').forEach(c => c.classList.remove('active'));
+    updateCard();
+    return;
+  }
+
+  const livreurs = getLivreurs();
+  const livreur = livreurs[nom];
+  if (!livreur) return;
+
+  document.getElementById('f-nom').value = livreur.nom;
+  document.getElementById('f-phone').value = livreur.phone;
+  document.getElementById('f-slogan').value = livreur.slogan;
+  document.getElementById('f-zones').value = livreur.zones;
+  document.getElementById('f-zones2').value = livreur.zones2;
+  document.getElementById('f-message').value = livreur.message;
+
+  updateCard();
+  
+  // Mettre à jour l'active sur les miniatures
+  document.querySelectorAll('.mini-card').forEach(card => {
+    card.classList.remove('active');
+    if (card.querySelector('.mini-card-name').textContent === nom) {
+      card.classList.add('active');
+    }
+  });
+}
+
+function deleteLivreur() {
+  const nom = document.getElementById('livreur-select').value;
+  if (!nom) {
+    alert('Sélectionnez un livreur à supprimer');
+    return;
+  }
+
+  if (!confirm('Supprimer "' + nom + '" ?')) return;
+
+  const livreurs = getLivreurs();
+  delete livreurs[nom];
+  saveLivreurs(livreurs);
+  updateLivreurSelector();
+  renderMiniatures();
+  document.getElementById('livreur-select').value = '';
+  loadLivreur();
+}
+
+function updateLivreurSelector() {
+  const select = document.getElementById('livreur-select');
+  const livreurs = getLivreurs();
+  const currentValue = select.value;
+
+  select.innerHTML = '<option value="">Nouveau livreur...</option>';
+
+  Object.keys(livreurs).sort().forEach(nom => {
+    const option = document.createElement('option');
+    option.value = nom;
+    option.textContent = nom;
+    select.appendChild(option);
+  });
+  
+  if (currentValue && livreurs[currentValue]) {
+    select.value = currentValue;
+  }
+}
+
+// ── Init au chargement ────────────────────────────────────────────
+window.addEventListener('load', () => {
+  updateLivreurSelector();
+  renderMiniatures();
+  const phone = document.getElementById('f-phone').value.trim();
+  const nom = document.getElementById('f-nom').value.trim();
+  const message = document.getElementById('f-message').value.trim();
+  const url = buildWaUrl(phone, message);
+  generateQR(url, 'qrcode-display', 140);
+  updateMobilePreview(nom, phone, message);
+  window.currentWaUrl = url;
+});
+</script>
+</body>
+</html>
