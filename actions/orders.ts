@@ -79,8 +79,14 @@ export async function createOrder(formData: FormData) {
     incrementOrAddRepere(zone_to_id, deliveryRepere).catch(console.error)
   }
 
-  // 🌍 Notifications : On prévient les admins et les livreurs dispos (sans bloquer la requête HTTP)
-  notifyAdminsOnOrder(order.id).catch(console.error)
+  // 🌍 Notifications & Dispatch Intelligent
+  // On tente d'assigner automatiquement (dispatch intelligent)
+  const dispatchResult = await autoDispatchOrder(order.id, user.id)
+  
+  if (!dispatchResult.success) {
+    // S'il n'y a pas de livreur dispo ou autre, on notifie les admins et tous les livreurs de la zone
+    notifyAdminsOnOrder(order.id).catch(console.error)
+  }
 
   revalidatePath('/dashboard/client')
   revalidatePath('/dashboard/admin')
@@ -263,7 +269,10 @@ export async function createQuickOrder(formData: FormData) {
     incrementOrAddRepere(zone_to_id, deliveryRepere).catch(console.error)
   }
 
-  notifyAdminsOnOrder(order.id).catch(console.error)
+  const dispatchResult = await autoDispatchOrder(order.id, user.id)
+  if (!dispatchResult.success) {
+    notifyAdminsOnOrder(order.id).catch(console.error)
+  }
 
   revalidatePath('/dashboard/client')
   revalidatePath('/dashboard/admin')
@@ -540,6 +549,137 @@ export async function assignLivreur(orderId: string, livreurId: string) {
   revalidatePath('/dashboard/admin')
   revalidatePath('/dashboard/client', 'layout')
   return { success: true }
+}
+
+export async function autoDispatchOrder(orderId: string, actionUserId?: string) {
+  const supabase = await createClient()
+
+  // 1. Get the order details
+  const { data: order } = await supabase
+    .from('orders')
+    .select('id, zone_from_id, status')
+    .eq('id', orderId)
+    .single()
+
+  if (!order || order.status !== 'en_attente' || !order.zone_from_id) {
+    return { success: false, reason: 'Invalid order or status' }
+  }
+
+  // 2. Find eligible livreurs in the pickup zone
+  const { data: livreurs } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('role', 'livreur')
+    .eq('zone_id', order.zone_from_id)
+
+  if (!livreurs || livreurs.length === 0) {
+    return { success: false, reason: 'No livreur in zone' }
+  }
+
+  // 3. Count active orders for each livreur to find "le moins de colis dans son sac"
+  const livreurIds = livreurs.map(l => l.id)
+  
+  const { data: activeOrders } = await supabase
+    .from('orders')
+    .select('livreur_id')
+    .in('livreur_id', livreurIds)
+    .in('status', ['confirme', 'en_cours'])
+
+  // Map of livreur_id -> active order count
+  const orderCounts: Record<string, number> = {}
+  livreurIds.forEach(id => orderCounts[id] = 0)
+  
+  if (activeOrders) {
+    activeOrders.forEach(o => {
+      if (o.livreur_id) orderCounts[o.livreur_id]++
+    })
+  }
+
+  // Find the optimal livreur (min active orders)
+  let bestLivreurId = livreurIds[0]
+  let minOrders = orderCounts[bestLivreurId]
+
+  for (const id of livreurIds) {
+    if (orderCounts[id] < minOrders) {
+      minOrders = orderCounts[id]
+      bestLivreurId = id
+    }
+  }
+
+  // Prevent overload (e.g., if even the best livreur has 5 active orders, maybe wait for admin to handle)
+  if (minOrders >= 5) {
+    return { success: false, reason: 'All livreurs are currently overloaded' }
+  }
+
+  // 4. Assign the order using the internal admin logic or normal assign logic
+  // We need the action user id for history
+  let userId = actionUserId
+  if (!userId) {
+    const { data: { user } } = await supabase.auth.getUser()
+    userId = user?.id
+  }
+
+  if (!userId) return { success: false, reason: 'No user context for history' }
+
+  await supabase.from('orders')
+    .update({ livreur_id: bestLivreurId, status: 'confirme' })
+    .eq('id', orderId)
+
+  await supabase.from('order_status_history').insert({
+    order_id: orderId, 
+    status: 'confirme',
+    note: 'Dispatch Intelligent : Assignation automatique au livreur le plus optimal.', 
+    created_by: userId,
+  })
+
+  // Notification WhatsApp au client
+  const { data: updatedOrder } = await supabase
+    .from('orders')
+    .select(`*, client:profiles!orders_client_id_fkey(full_name, phone), livreur:profiles!orders_livreur_id_fkey(full_name, phone), zone_from:zones!orders_zone_from_id_fkey(name), zone_to:zones!orders_zone_to_id_fkey(name)`)
+    .eq('id', orderId).single()
+
+  if (updatedOrder) {
+    const msg = buildMessage('order_confirmed', {
+      orderId: updatedOrder.id,
+      clientName: updatedOrder.client.full_name,
+      clientPhone: updatedOrder.client.phone,
+      recipientName: updatedOrder.recipient_name,
+      recipientPhone: updatedOrder.recipient_phone,
+      description: updatedOrder.description,
+      zoneFrom: updatedOrder.zone_from.name,
+      zoneTo: updatedOrder.zone_to.name,
+      livreurName: updatedOrder.livreur?.full_name,
+      livreurPhone: updatedOrder.livreur?.phone,
+      price: updatedOrder.price,
+      trackingUrl: `${BASE_URL}/suivi/${updatedOrder.id}`,
+    })
+    const { sendWhatsAppNotification } = await import('@/lib/whatsapp')
+    await sendWhatsAppNotification(updatedOrder.client.phone, msg)
+  }
+
+  // Push notification au livreur assigné
+  const { sendPushToUser } = await import('@/lib/web-push')
+  const ref = orderId.slice(0, 8).toUpperCase()
+  sendPushToUser(bestLivreurId, {
+    title: '🚀 Course AUTO-ASSIGNÉE !',
+    body: `L'algorithme de Nelal vous a attribué le colis #${ref}.`,
+    url: `/dashboard/livreur`,
+    tag: `assign-${ref}`,
+  }).catch(err => console.error('[Push Assign Error]', err))
+
+  // Notify admins that auto-dispatch worked
+  const { sendPushToRole } = await import('@/lib/web-push')
+  sendPushToRole('admin', {
+    title: '🤖 Dispatch Auto Réussi',
+    body: `La commande #${ref} a été automatiquement assignée au meilleur livreur disponible.`,
+    url: `/dashboard/admin`,
+    tag: `auto-dispatch-${ref}`,
+  }).catch(console.error)
+
+  revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/client', 'layout')
+  
+  return { success: true, assignedLivreurId: bestLivreurId }
 }
 
 export async function createLivreur(formData: FormData) {
