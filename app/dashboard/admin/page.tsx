@@ -86,7 +86,7 @@ export default async function AdminDashboard() {
           { label: 'Attente', val: stats.pending, icon: <Clock className="w-5 h-5" />, color: 'bg-orange-500', bg: 'bg-orange-50' },
           { label: 'En Cours', val: stats.active, icon: <Truck className="w-5 h-5" />, color: 'bg-blue-500', bg: 'bg-blue-50' },
           { label: 'Livreurs', val: stats.totalLivreurs, icon: <Users className="w-5 h-5" />, color: 'bg-purple-500', bg: 'bg-purple-50' },
-          { label: 'Missions', val: stats.totalDelivered, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-500', bg: 'bg-green-50' },
+          { label: 'Livrées', val: stats.totalDelivered, icon: <CheckCircle className="w-5 h-5" />, color: 'bg-green-500', bg: 'bg-green-50' },
         ].map((s, i) => (
           <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group">
             <div className={`absolute -right-4 -top-4 w-20 h-20 ${s.bg} rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`} />

@@ -2,6 +2,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -38,10 +39,11 @@ export async function collectCash(livreurId: string, amountToCollect: number) {
     return { error: `Le montant à collecter (${amountToCollect}) est supérieur au cash détenu par le livreur (${currentCash})` }
   }
 
-  // 3. Update wallet
+  // 3. Update wallet using Admin Client to bypass RLS
   const newBalance = currentCash - amountToCollect
   
-  const { error: updateError } = await supabase
+  const adminSupabase = createAdminClient()
+  const { error: updateError } = await adminSupabase
     .from('profiles')
     .update({ cash_held: newBalance })
     .eq('id', livreurId)

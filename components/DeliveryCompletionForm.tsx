@@ -69,7 +69,8 @@ export default function DeliveryCompletionForm({ order }: DeliveryCompletionForm
   const handleUpdate = () => {
     startTransition(async () => {
       const ardoise = showArdoise ? parseInt(ardoiseVal) || 0 : 0
-      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, order.price, photoUrl || undefined, signatureUrl || undefined)
+      const totalToCollect = order.price + (order.valeur_colis || 0)
+      const res = await confirmDeliveryWithCode(order.id, deliveryCode, ardoise, totalToCollect, photoUrl || undefined, signatureUrl || undefined)
       setResult(res)
     })
   }

@@ -3,7 +3,7 @@ import LiveOrderUpdater from '@/components/LiveOrderUpdater'
 import ClientLocationSync from '@/components/ClientLocationSync'
 import StatusUpdateButton from '@/components/StatusUpdateButton'
 import DeliveryCompletionForm from '@/components/DeliveryCompletionForm'
-import { getMapSearchLink, getEstimatedTime } from '@/lib/utils/maps'
+import { getMapSearchLink, getEstimatedTime, getMultiStopRouteLink } from '@/lib/utils/maps'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
 import {
   Wallet, Phone, Clock, Package,
@@ -84,6 +84,20 @@ export default async function LivreurDashboard() {
              )}
           </div>
 
+          {/* BOUTON ITINÉRAIRE MULTI-STOPS (Uniquement si batch) */}
+          {(orders?.length || 0) > 1 && (
+            <div className="px-2">
+              <a 
+                href={getMultiStopRouteLink(orders || [])}
+                target="_blank" rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-4 rounded-[2rem] font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/20 active:scale-95 transition-transform"
+              >
+                <Map className="w-5 h-5" /> 
+                Lancer l'itinéraire optimisé ({orders?.length} livraisons)
+              </a>
+            </div>
+          )}
+
           {!orders?.length ? (
             <div className="bg-slate-50 border border-slate-200 border-dashed rounded-[3rem] py-24 text-center">
                 <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-slate-100">
@@ -130,11 +144,18 @@ export default async function LivreurDashboard() {
                          </div>
                          <div className="bg-orange-50 px-4 py-3 rounded-2xl border border-orange-100 text-right">
                             <p className="text-2xl font-black text-orange-600 leading-none">
-                              {order.price.toLocaleString('fr-FR')} <span className="text-xs font-bold italic">F</span>
+                              {(order.price + (order.valeur_colis || 0)).toLocaleString('fr-FR')} <span className="text-xs font-bold italic">F</span>
                             </p>
-                            <p className="text-[8px] font-bold text-orange-400 uppercase tracking-widest mt-1">
-                              {order.payment_method === 'cash' ? '💵 Espèces' : '💳 Digital'}
-                            </p>
+                            <div className="flex flex-col items-end mt-1">
+                              <p className="text-[7px] font-black text-orange-400 uppercase tracking-widest">
+                                {order.payment_method === 'cash' ? '💵 Espèces' : '💳 Digital'}
+                              </p>
+                              {order.valeur_colis > 0 && (
+                                <p className="text-[7px] font-bold text-slate-400 uppercase mt-0.5">
+                                  Dont {order.valeur_colis.toLocaleString()} F (Vendeur)
+                                </p>
+                              )}
+                            </div>
                          </div>
                        </div>
 

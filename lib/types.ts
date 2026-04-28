@@ -57,6 +57,7 @@ export interface Order {
   articles?: any[]
   ardoise_livreur?: number
   encaissement_reel?: number
+  valeur_colis?: number
   created_at: string
   updated_at: string
   // Relations

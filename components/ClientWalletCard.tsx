@@ -40,11 +40,21 @@ export default function ClientWalletCard({ balance }: ClientWalletCardProps) {
           </div>
         </div>
         
-        <div className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-colors cursor-help group/info relative">
-          <Info className="w-4 h-4 text-white" />
-          <div className="absolute bottom-full right-0 mb-2 w-48 bg-slate-900 text-white text-[8px] p-2 rounded-lg opacity-0 pointer-events-none group-hover/info:opacity-100 transition-opacity shadow-xl z-50">
-            Cet avoir provient des petites coupures non rendues (ardoises) lors de vos précédentes livraisons. Vous pourrez l&apos;utiliser pour vos futurs envois.
+        <div className="flex flex-col items-end gap-2">
+          <div className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-colors cursor-help group/info relative">
+            <Info className="w-4 h-4 text-white" />
+            <div className="absolute bottom-full right-0 mb-2 w-48 bg-slate-900 text-white text-[8px] p-2 rounded-lg opacity-0 pointer-events-none group-hover/info:opacity-100 transition-opacity shadow-xl z-50">
+              Cet avoir inclut vos revenus de ventes (Nelal Pay) et les reliquats de monnaie. Vous pouvez l&apos;utiliser pour vos futurs envois ou demander un retrait.
+            </div>
           </div>
+          <a 
+            href={`https://wa.me/221711165368?text=${encodeURIComponent("Bonjour, je souhaite retirer mon solde Nelal Express de " + balance.toLocaleString() + " F.")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white text-orange-600 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+          >
+            Retirer
+          </a>
         </div>
       </div>
     </div>

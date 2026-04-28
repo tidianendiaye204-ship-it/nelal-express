@@ -26,6 +26,7 @@ export default function QuickOrderForm() {
   const [recipientName, setRecipientName] = useState('')
   const [recipientPhone, setRecipientPhone] = useState('')
   const [description, setDescription] = useState('')
+  const [valeurColis, setValeurColis] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('wave')
 
   const estimatedPrice = useMemo(() => {
@@ -75,6 +76,8 @@ export default function QuickOrderForm() {
     formData.append('payment_method', paymentMethod)
     formData.append('is_express', isExpress ? '1' : '0')
     formData.append('parcel_size', parcelSize)
+    formData.append('valeur_colis', valeurColis || '0')
+    formData.append('type', valeurColis && parseInt(valeurColis) > 0 ? 'vendeur' : 'particulier')
 
     try {
       const result = await createQuickOrder(formData)
@@ -265,6 +268,19 @@ export default function QuickOrderForm() {
                 />
                 <p className="text-[8px] text-slate-400 px-1 font-medium italic">
                   Ex: &quot;Acheter 2 kg de riz&quot;, &quot;Livrer mes clés&quot;, etc.
+                </p>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={valeurColis}
+                    onChange={(e) => setValeurColis(e.target.value)}
+                    placeholder="Prix de l'article (si Nelal Pay)"
+                    className="w-full bg-white border-2 border-orange-100 rounded-xl px-4 py-3 text-sm font-black text-orange-600 focus:border-orange-500 outline-none transition-all pl-10"
+                  />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 font-black text-xs">F</div>
+                </div>
+                <p className="text-[7px] text-orange-400 px-1 font-black uppercase tracking-widest">
+                  {valeurColis && parseInt(valeurColis) > 0 ? "Activé : Nelal Express collectera ce montant pour vous" : "Laissez vide si vous payez déjà l'article"}
                 </p>
                 <input
                   type="text"
