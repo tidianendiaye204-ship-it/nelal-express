@@ -81,6 +81,40 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* MARQUEE - LOGOS / QUARTIERS */}
+      <div className="py-6 border-b border-white/5 bg-[#0F172A] overflow-hidden flex whitespace-nowrap relative">
+        <style dangerouslySetInnerHTML={{__html: `
+          @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee {
+            animation: marquee 30s linear infinite;
+          }
+        `}} />
+        <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-[#0F172A] to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-[#0F172A] to-transparent z-10 pointer-events-none"></div>
+        
+        <div className="animate-marquee inline-flex gap-12 items-center min-w-full">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="flex gap-12 items-center px-6">
+              <span className="text-slate-500 font-display font-black text-xl uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-orange-500 transition-colors cursor-default">Yeumbeul</span>
+              <span className="w-2 h-2 rounded-full bg-orange-500/50"></span>
+              <span className="text-slate-500 font-display font-black text-xl uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-blue-500 transition-colors cursor-default">Almadies</span>
+              <span className="w-2 h-2 rounded-full bg-blue-500/50"></span>
+              <span className="text-slate-500 font-display font-black text-xl uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-green-500 transition-colors cursor-default">Ndioum</span>
+              <span className="w-2 h-2 rounded-full bg-green-500/50"></span>
+              <span className="text-slate-500 font-display font-black text-xl uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-purple-500 transition-colors cursor-default">Plateau</span>
+              <span className="w-2 h-2 rounded-full bg-purple-500/50"></span>
+              <span className="text-slate-500 font-display font-black text-xl uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-orange-500 transition-colors cursor-default">Keur Massar</span>
+              <span className="w-2 h-2 rounded-full bg-orange-500/50"></span>
+              <span className="text-slate-500 font-display font-black text-xl uppercase tracking-widest opacity-50 hover:opacity-100 hover:text-blue-500 transition-colors cursor-default">Saint-Louis</span>
+              <span className="w-2 h-2 rounded-full bg-blue-500/50"></span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* COMMENT ÇA MARCHE - TIMELINE INTERACTIVE */}
       <section className="py-24 px-6 relative border-y border-white/5 bg-[#0A0F1C]">
         <div className="absolute inset-0 bg-orange-500/5 blur-[120px] rounded-full pointer-events-none"></div>
@@ -386,6 +420,57 @@ export default function LandingPage() {
                    </div>
                 </div>
              </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TÉMOIGNAGES CLIENTS */}
+      <section className="py-24 px-6 relative border-t border-white/5 bg-[#0F172A] overflow-hidden">
+        <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="font-display font-black text-3xl md:text-5xl text-white mb-4 tracking-tighter uppercase">
+              Ils nous font <span className="text-orange-500">confiance</span>
+            </h2>
+            <div className="flex justify-center gap-1 mb-4">
+              {[1, 2, 3, 4, 5].map(star => (
+                <svg key={star} className="w-6 h-6 text-orange-500 fill-orange-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+              ))}
+            </div>
+            <p className="text-slate-400 text-sm md:text-lg max-w-2xl mx-auto font-medium">
+              Note moyenne de 4.9/5 basée sur plus de 500 avis.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: "Fatou Diop", role: "Boutique en ligne, Dakar", text: "Je cherchais un service fiable pour livrer mes clientes. Avec Nelal, non seulement c'est rapide, mais le retour d'argent est toujours sécurisé.", avatar: "FD" },
+              { name: "Amadou Kane", role: "Particulier, Yeumbeul", text: "J'ai envoyé des documents urgents au Plateau. Le livreur était là en 10 minutes et j'ai pu suivre son trajet sur l'application. Impressionnant !", avatar: "AK" },
+              { name: "Aïssatou Ba", role: "Commerçante, Ndioum", text: "L'axe Dakar-Ndioum est une bénédiction. Mes marchandises arrivent intactes et le tarif est imbattable. Je recommande à 100%.", avatar: "AB" }
+            ].map((review, i) => (
+              <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-3xl relative group hover:-translate-y-2 transition-transform duration-300 shadow-xl">
+                <div className="absolute top-8 right-8 text-orange-500/20 group-hover:text-orange-500/40 transition-colors">
+                  <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 32 32"><path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-1.1.9-2 2-2h4V8h-4zm18 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-1.1.9-2 2-2h4V8h-4z"/></svg>
+                </div>
+                <div className="flex gap-1 mb-6 relative z-10">
+                   {[1, 2, 3, 4, 5].map(star => (
+                    <svg key={star} className="w-4 h-4 text-orange-500 fill-orange-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                   ))}
+                </div>
+                <p className="text-slate-300 mb-8 italic relative z-10 leading-relaxed">
+                  &quot;{review.text}&quot;
+                </p>
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center font-display font-black text-white text-lg shadow-lg">
+                    {review.avatar}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-black text-sm uppercase tracking-wide">{review.name}</h4>
+                    <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">{review.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
