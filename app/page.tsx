@@ -1,6 +1,7 @@
 // app/page.tsx
 import Link from 'next/link'
-import { MapPin, Zap, Wallet, Navigation, Home, Truck, ArrowRight, ShieldCheck, Globe, Users } from 'lucide-react'
+import { MapPin, Zap, Wallet, Navigation, Home, Truck, ArrowRight, ShieldCheck, Globe, Users, CheckCircle2, Clock, Smartphone } from 'lucide-react'
+import WhatsAppBubble from '@/components/WhatsAppBubble'
 
 export default function LandingPage() {
   return (
@@ -39,10 +40,12 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 backdrop-blur-md rounded-full px-4 py-1.5 mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#25D366]"></span>
             </span>
-            <span className="text-white/70 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em]">Logistique Stratégique Sénégal</span>
+            <span className="text-white/90 text-[10px] sm:text-xs font-bold tracking-wide">
+              Déjà <strong className="text-orange-400">1,200+ livraisons</strong> réussies ce mois 🚀
+            </span>
           </div>
 
           <h1 className="font-display font-black text-3xl sm:text-5xl md:text-7xl leading-[0.95] mb-6 sm:mb-8 tracking-tighter uppercase italic">
@@ -70,6 +73,48 @@ export default function LandingPage() {
               Expédier Maintenant
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
+            <Link href="#zones"
+              className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-display font-black text-base sm:text-lg transition-all flex items-center justify-center gap-3">
+              Voir nos tarifs
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* COMMENT ÇA MARCHE - TIMELINE INTERACTIVE */}
+      <section className="py-24 px-6 relative border-y border-white/5 bg-[#0A0F1C]">
+        <div className="absolute inset-0 bg-orange-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto relative">
+          <div className="text-center mb-16">
+            <h2 className="font-display font-black text-3xl md:text-5xl text-white mb-4 tracking-tighter uppercase">
+              Comment ça <span className="text-orange-500">marche ?</span>
+            </h2>
+            <p className="text-slate-400 text-sm md:text-lg max-w-2xl mx-auto font-medium">
+              Une logistique fluide, pensée pour la simplicité.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 sm:gap-8 relative">
+            {/* Ligne de connexion (Desktop) */}
+            <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-orange-500/0 via-orange-500/20 to-orange-500/0 z-0"></div>
+
+            {[
+              { num: '01', title: 'Commande en ligne', desc: 'Remplissez le formulaire ou contactez-nous sur WhatsApp en 1 clic.', icon: <Smartphone className="w-6 h-6 text-orange-500" /> },
+              { num: '02', title: 'Un Pilote récupère', desc: 'Notre livreur le plus proche arrive pour récupérer votre colis.', icon: <MapPin className="w-6 h-6 text-blue-500" /> },
+              { num: '03', title: 'Suivi Temps Réel', desc: 'Vous êtes informé à chaque étape via notifications directes.', icon: <Clock className="w-6 h-6 text-purple-500" /> },
+              { num: '04', title: 'Livraison Confirmée', desc: 'Le destinataire signe, vous recevez le reçu instantanément.', icon: <CheckCircle2 className="w-6 h-6 text-green-500" /> },
+            ].map((step, i) => (
+              <div key={i} className="relative z-10 bg-[#121A2F]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 hover:-translate-y-2 transition-transform duration-300 group shadow-xl">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-slate-900 border border-white/10 rounded-2xl flex items-center justify-center font-display font-black text-lg text-white shadow-lg group-hover:border-orange-500/50 group-hover:text-orange-500 transition-colors">
+                  {step.num}
+                </div>
+                <div className="mt-8 mb-4 w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                  {step.icon}
+                </div>
+                <h3 className="text-center font-display font-black text-lg mb-2 uppercase tracking-tight text-white">{step.title}</h3>
+                <p className="text-center text-slate-400 text-xs sm:text-sm leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -386,6 +431,9 @@ export default function LandingPage() {
           <p className="text-slate-600 text-sm font-medium">© 2026 Nelal Express · Sénégal</p>
         </div>
       </footer>
+
+      {/* WhatsApp Floating Bubble */}
+      <WhatsAppBubble />
     </div>
   )
 }
