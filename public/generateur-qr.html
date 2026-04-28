@@ -1013,10 +1013,10 @@ function buildWaUrl(phone, message) {
   
   if (useCompatibleFormat) {
     // Format plus universel, mieux reconnu par les scanners
-    return \`https://api.whatsapp.com/send?phone=\${intl}&text=\${encodeURIComponent(message)}\`;
+    return `https://api.whatsapp.com/send?phone=${intl}&text=${encodeURIComponent(message)}`;
   }
   
-  return \`https://wa.me/\${intl}?text=\${encodeURIComponent(message)}\`;
+  return `https://wa.me/${intl}?text=${encodeURIComponent(message)}`;
 }
 
 function generateQR(url, containerId = 'qrcode-display', size = 180) {
@@ -1062,7 +1062,7 @@ function generateQR(url, containerId = 'qrcode-display', size = 180) {
       if (!existingLogo) {
         const logo = document.createElement('div');
         logo.className = 'qr-logo';
-        logo.innerHTML = \`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.35-8.413"/></svg>\`;
+        logo.innerHTML = `<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.35-8.413"/></svg>`;
         qrWrapper.appendChild(logo);
       }
     }
@@ -1086,7 +1086,7 @@ function updateCard() {
   document.getElementById('c-zones2').textContent = zones2;
   
   // Mettre à jour le nom du livreur sur la carte
-  const livreurDisplay = nom ? \`Livreur: \${nom} · Sénégal 🇸🇳\` : 'Service de livraison · Sénégal 🇸🇳';
+  const livreurDisplay = nom ? `Livreur: ${nom} · Sénégal 🇸🇳` : 'Service de livraison · Sénégal 🇸🇳';
   document.getElementById('c-livreur').textContent = livreurDisplay;
 
   // Regénérer le QR principal (taille réduite pour scan rapide)
@@ -1111,30 +1111,30 @@ function changeTheme(theme) {
 // ── Templates de messages ────────────────────────────────────────────
 function applyTemplate(type) {
   const templates = {
-    commande: \`Salam ! Commande via Nelal Express 🚀
+    commande: `Salam ! Commande via Nelal Express 🚀
 
 Colis:
 Départ:
 Destination:
 Destinataire:
 Tel:
-Paiement:\`,
-    devis: \`Bonjour, je voudrais un devis pour une livraison.
+Paiement:`,
+    devis: `Bonjour, je voudrais un devis pour une livraison.
 
 Départ:
 Arrivée:
 Type de colis:
 Poids approximatif:
 
-Merci !\`,
-    suivi: \`Bonjour, je souhaite suivre mon colis.
+Merci !`,
+    suivi: `Bonjour, je souhaite suivre mon colis.
 
 Référence:
 Date d'envoi:
 
-Merci\`,
-    simple: \`Salam, je contacte via Nelal Express 👋\`,
-    compatible: \`\` // Message vide pour QR minimal
+Merci`,
+    simple: `Salam, je contacte via Nelal Express 👋`,
+    compatible: `` // Message vide pour QR minimal
   };
   
   const message = templates[type] || templates.simple;
@@ -1148,11 +1148,11 @@ Merci\`,
   if (type === 'compatible') {
     const nom = document.getElementById('f-nom').value.trim();
     const phone = document.getElementById('f-phone').value.trim();
-    const cleaned = phone.replace(/\\D/g, '');
+    const cleaned = phone.replace(/\D/g, '');
     const intl = cleaned.startsWith('221') ? cleaned : '221' + cleaned;
     
     // Générer un QR avec juste le numéro de téléphone (format le plus universel)
-    const simpleUrl = \`https://wa.me/\${intl}\`;
+    const simpleUrl = `https://wa.me/${intl}`;
     generateQR(simpleUrl, 'qrcode-display', 140);
     updateMobilePreview(nom, phone, message);
     window.currentWaUrl = simpleUrl;
@@ -1205,7 +1205,7 @@ function stopScanAnimation() {
 function copyWhatsAppLink() {
   const url = window.currentWaUrl;
   if (!url) {
-    alert('Générez d\\'abord un QR code');
+    alert('Générez d\'abord un QR code');
     return;
   }
 
@@ -1272,11 +1272,11 @@ function exportCard() {
       imageTimeout: 0
     }).then(canvas => {
       const link = document.createElement('a');
-      link.download = \`nelal-\${nom.replace(/\\s+/g, '-').toLowerCase()}.png\`;
+      link.download = `nelal-${nom.replace(/\s+/g, '-').toLowerCase()}.png`;
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     }).catch(err => {
-      alert('Erreur lors de l\\'export : ' + err.message);
+      alert('Erreur lors de l\'export : ' + err.message);
     });
   }, 200);
 }
@@ -1287,7 +1287,7 @@ async function exportPDF() {
   const livreursList = Object.values(livreurs);
   
   if (livreursList.length === 0) {
-    alert('Aucun livreur sauvegardé. Créez des livreurs d\\'abord.');
+    alert('Aucun livreur sauvegardé. Créez des livreurs d\'abord.');
     return;
   }
 
@@ -1368,7 +1368,7 @@ function exportLivreursJSON() {
   
   const link = document.createElement('a');
   link.href = url;
-  link.download = \`nelal-livreurs-\${new Date().toISOString().split('T')[0]}.json\`;
+  link.download = `nelal-livreurs-${new Date().toISOString().split('T')[0]}.json`;
   link.click();
   
   URL.revokeObjectURL(url);
@@ -1392,9 +1392,9 @@ function importLivreursJSON(input) {
       updateLivreurSelector();
       renderMiniatures();
       
-      alert(\`\${Object.keys(imported).length} livreur(s) importé(s) !\`);
+      alert(`${Object.keys(imported).length} livreur(s) importé(s) !`);
     } catch (err) {
-      alert('Erreur lors de l\\'import : fichier JSON invalide');
+      alert('Erreur lors de l\'import : fichier JSON invalide');
     }
   };
   reader.readAsText(file);
@@ -1414,13 +1414,13 @@ function renderMiniatures() {
     card.className = 'mini-card';
     card.onclick = () => selectMiniature(livreur.nom);
     
-    const qrId = \`mini-qr-\${livreur.nom.replace(/\\s+/g, '-')}\`;
+    const qrId = `mini-qr-${livreur.nom.replace(/\s+/g, '-')}`;
     
-    card.innerHTML = \`
-      <div class="mini-card-name">\${livreur.nom}</div>
-      <div class="mini-card-qr" id="\${qrId}"></div>
-      <div class="mini-card-phone">\${livreur.phone}</div>
-    \`;
+    card.innerHTML = `
+      <div class="mini-card-name">${livreur.nom}</div>
+      <div class="mini-card-qr" id="${qrId}"></div>
+      <div class="mini-card-phone">${livreur.phone}</div>
+    `;
     
     container.appendChild(card);
     
@@ -1488,14 +1488,14 @@ function loadLivreur() {
     document.getElementById('f-slogan').value = 'Livraison rapide · Dakar, Banlieue & Intérieur';
     document.getElementById('f-zones').value = '🏙 Dakar · Pikine · Guédiawaye · Rufisque · Keur Massar';
     document.getElementById('f-zones2').value = '🚌 Saint-Louis · Ndioum · Touba · Thiès · Kaolack...';
-    document.getElementById('f-message').value = \`Salam ! Commande via Nelal Express 🚀
+    document.getElementById('f-message').value = `Salam ! Commande via Nelal Express 🚀
 
 Colis:
 Départ:
 Destination:
 Destinataire:
 Tel:
-Paiement:\`;
+Paiement:`;
     document.querySelectorAll('.mini-card').forEach(c => c.classList.remove('active'));
     updateCard();
     return;
