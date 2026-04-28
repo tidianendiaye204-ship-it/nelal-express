@@ -93,7 +93,7 @@ export default async function LivreurDashboard() {
                 className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-4 rounded-[2rem] font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-500/20 active:scale-95 transition-transform"
               >
                 <Map className="w-5 h-5" /> 
-                Lancer l'itinéraire optimisé ({orders?.length} livraisons)
+                Lancer l&apos;itinéraire optimisé ({orders?.length} livraisons)
               </a>
             </div>
           )}

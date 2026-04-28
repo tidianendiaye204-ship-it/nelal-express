@@ -7,7 +7,6 @@ import { ArrowLeft, Printer, Smartphone } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminMarketingPage() {
-  const supabase = await createClient()
   const profile = await getProfile()
 
   if (profile?.role !== 'admin') {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { LogOut, User, Shield, Phone, Mail, ChevronRight } from 'lucide-react'
+import { LogOut, User, Shield, Phone, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Profile } from '@/lib/types'
 import { signOut } from '@/actions/auth'

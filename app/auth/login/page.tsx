@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { Phone, ArrowRight, ShieldCheck, Loader2, MessageCircle, Mail } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Loader2, MessageCircle, Mail } from 'lucide-react'
 
 type LoginMethod = 'email' | 'whatsapp'
 type Step = 'choose' | 'otp'

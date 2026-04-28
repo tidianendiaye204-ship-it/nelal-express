@@ -5,7 +5,7 @@ import { signOut } from '@/actions/auth'
 import { updateProfile } from '@/actions/profile'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { User, Phone, Mail, Bike, LogOut, ChevronRight, Shield, Edit3, Wallet } from 'lucide-react'
+import { User, Phone, Mail, Bike, LogOut, ChevronRight, Edit3, Wallet } from 'lucide-react'
 
 export default async function LivreurProfilPage() {
   const supabase = await createClient()
