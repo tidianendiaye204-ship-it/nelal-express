@@ -22,7 +22,8 @@ export default function AdminOrderTable({
   const [editForm, setEditForm] = useState({
     price: 0,
     description: '',
-    status: '' as OrderStatus
+    status: '' as OrderStatus,
+    internal_notes: ''
   })
 
   const filteredOrders = useMemo(() => {
@@ -41,7 +42,8 @@ export default function AdminOrderTable({
     setEditForm({
       price: order.price,
       description: order.description,
-      status: order.status
+      status: order.status,
+      internal_notes: order.internal_notes || ''
     })
   }
 
@@ -111,6 +113,11 @@ export default function AdminOrderTable({
                     <div className="flex flex-col">
                       <span className="text-slate-900 font-bold text-xs">{order.description}</span>
                       <span className="text-[10px] text-slate-400">{order.client?.full_name}</span>
+                      {order.internal_notes && (
+                        <span className="mt-1 text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md w-fit flex items-center gap-1">
+                          <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" /> Note équipe
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center">
@@ -159,6 +166,11 @@ export default function AdminOrderTable({
               <div>
                 <h3 className="text-slate-900 font-black text-sm uppercase leading-tight">{order.description}</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">{order.client?.full_name}</p>
+                {order.internal_notes && (
+                  <div className="mt-2 text-[8px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg w-fit flex items-center gap-1">
+                    <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" /> Note équipe active
+                  </div>
+                )}
               </div>
               <div className="text-right">
                 <p className="text-sm font-black text-slate-900">{order.price.toLocaleString()} F</p>
@@ -209,6 +221,12 @@ export default function AdminOrderTable({
               <select value={editForm.status} onChange={e => setEditForm(p => ({ ...p, status: e.target.value as OrderStatus }))} className="w-full bg-slate-50 p-4 rounded-2xl text-[10px] font-black uppercase">
                 {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
+              <textarea 
+                placeholder="Notes Internes (Équipe)"
+                value={editForm.internal_notes} 
+                onChange={e => setEditForm(p => ({ ...p, internal_notes: e.target.value }))} 
+                className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold min-h-[100px]"
+              />
             </div>
             <div className="mt-8 flex gap-2">
               <button onClick={() => setEditingOrder(null)} className="flex-1 py-4 bg-slate-100 rounded-2xl font-black text-xs uppercase">Annuler</button>

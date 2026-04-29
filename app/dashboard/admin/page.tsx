@@ -27,7 +27,7 @@ export default async function AdminDashboard() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'admin') redirect('/dashboard')
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') redirect('/dashboard')
 
   const [
     { data: orders },

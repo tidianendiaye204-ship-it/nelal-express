@@ -522,6 +522,8 @@ export async function assignLivreur(orderId: string, livreurId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
 
   await supabase.from('orders')
     .update({ livreur_id: livreurId, status: 'confirme' })
@@ -815,7 +817,7 @@ export async function adminUpdateOrder(orderId: string, updates: Partial<Order>)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
   const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return { error: 'Accès réservé aux administrateurs' }
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
 
   const { error } = await supabase.from('orders').update(updates).eq('id', orderId)
   if (error) return { error: error.message }
@@ -838,7 +840,7 @@ export async function adminCancelOrder(orderId: string, reason: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
   const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return { error: 'Accès réservé aux administrateurs' }
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
 
   const { error } = await supabase.from('orders').update({ status: 'annule' }).eq('id', orderId)
   if (error) return { error: error.message }

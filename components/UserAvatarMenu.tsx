@@ -33,12 +33,14 @@ export default function UserAvatarMenu({ profile, align = 'left' }: UserAvatarMe
     client: { label: 'Client', color: 'bg-blue-500/10 text-blue-400' },
     livreur: { label: 'Livreur', color: 'bg-orange-500/10 text-orange-400' },
     admin: { label: 'Admin', color: 'bg-purple-500/10 text-purple-400' },
+    agent: { label: 'Agent', color: 'bg-emerald-500/10 text-emerald-400' },
   }[profile.role] || { label: 'Utilisateur', color: 'bg-slate-500/10 text-slate-400' }
 
   const profileLink = {
     client: '/dashboard/client/profil',
     livreur: '/dashboard/livreur/profil',
     admin: '/dashboard/admin/profil',
+    agent: '/dashboard/admin/profil',
   }[profile.role] || '/dashboard'
 
   return (
@@ -114,7 +116,7 @@ export default function UserAvatarMenu({ profile, align = 'left' }: UserAvatarMe
               <ChevronRight className="w-4 h-4 text-slate-600 group-hover:translate-x-1 transition-transform" />
             </Link>
 
-            {profile.role === 'admin' && (
+            {(profile.role === 'admin' || profile.role === 'agent') && (
               <Link 
                 href="/dashboard/admin"
                 onClick={() => setIsOpen(false)}

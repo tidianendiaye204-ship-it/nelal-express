@@ -8,6 +8,7 @@ import MobileNav from '@/components/MobileNav'
 import { RealtimeProvider, RealtimeBadge } from '@/components/RealtimeNotifications'
 import { Home, PlusCircle, Bike, BarChart3, Wallet, Users, Map, LogOut, Package, User, ClipboardList } from 'lucide-react'
 import UserAvatarMenu from '@/components/UserAvatarMenu'
+import { Role } from '@/lib/types'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile()
@@ -42,16 +43,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
       { href: '/dashboard/admin/livreurs', label: 'Livreurs', icon: <Users className="w-5 h-5" /> },
       { href: '/dashboard/admin/zones', label: 'Zones', icon: <Map className="w-5 h-5" /> },
     ],
+    agent: [
+      { href: '/dashboard/admin', label: 'Dispatcher', icon: <BarChart3 className="w-5 h-5" /> },
+      { href: '/dashboard/admin/livreurs', label: 'Livreurs', icon: <Users className="w-5 h-5" /> },
+    ],
   }
 
-  const role = profile.role as 'client' | 'livreur' | 'admin'
-  const links = navLinks[role] || navLinks.client
+  const role = profile.role as Role
+  const links = (navLinks as any)[role] || navLinks.client
 
-  const roleBadge = {
+  const roleBadgeMap: Record<string, { label: string; color: string }> = {
     client: { label: 'Client', color: 'bg-blue-500/10 text-blue-400' },
     livreur: { label: 'Livreur', color: 'bg-orange-500/10 text-orange-400' },
     admin: { label: 'Admin', color: 'bg-purple-500/10 text-purple-400' },
-  }[role] || { label: 'Utilisateur', color: 'bg-slate-500/10 text-slate-400' }
+    agent: { label: 'Agent Dispatch', color: 'bg-emerald-500/10 text-emerald-400' },
+  }
+  const roleBadge = roleBadgeMap[role] || { label: 'Utilisateur', color: 'bg-slate-500/10 text-slate-400' }
 
   return (
     <RealtimeProvider role={role} userId={profile.id} zoneId={profile.zone_id}>
@@ -85,7 +92,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         {/* Nav */}
         <nav className="flex-1 px-4 space-y-2">
-          {links.map((link) => (
+          {links.map((link: any) => (
             <Link
               key={link.href}
               href={link.href}

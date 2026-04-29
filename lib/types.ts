@@ -1,6 +1,6 @@
 // lib/types.ts
 
-export type Role = 'client' | 'livreur' | 'admin'
+export type Role = 'client' | 'livreur' | 'admin' | 'agent'
 export type ZoneType = 'dakar_centre' | 'banlieue' | 'interieur'
 export type OrderType = 'particulier' | 'vendeur'
 export type OrderStatus = 'en_attente' | 'confirme' | 'en_cours' | 'livre' | 'livre_partiel' | 'annule'
@@ -54,6 +54,7 @@ export interface Order {
   price: number
   payment_method: PaymentMethod
   notes?: string
+  internal_notes?: string
   articles?: any[]
   ardoise_livreur?: number
   encaissement_reel?: number
