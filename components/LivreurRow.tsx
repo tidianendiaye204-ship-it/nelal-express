@@ -10,6 +10,7 @@ import {
   Save, 
   Loader2
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { updateLivreur } from '@/actions/orders'
 
 interface Zone {
@@ -42,7 +43,7 @@ export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  // Form State
+  const router = useRouter()
   const [fullName, setFullName] = useState(l.full_name)
   const [phone, setPhone] = useState(l.phone)
   const [zoneId, setZoneId] = useState(l.zone_id || '')
@@ -64,6 +65,7 @@ export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
         setError(res.error)
       } else {
         setIsEditing(false)
+        router.refresh()
       }
     })
   }
