@@ -69,6 +69,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${syne.variable} ${dmSans.variable}`}>
       <body className="font-dm bg-slate-50 text-slate-900 antialiased">
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                  for (const registration of registrations) {
+                    registration.unregister();
+                    console.log('Service Worker désinstallé avec succès');
+                  }
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   )
