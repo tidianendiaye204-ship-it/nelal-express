@@ -57,6 +57,10 @@ export async function middleware(request: NextRequest) {
       
       const role = profile?.role || 'client'
       const redirectPath = role === 'agent' ? '/dashboard/admin' : `/dashboard/${role}`
+      
+      // NE PAS rediriger si on est déjà sur le bon chemin (évite la boucle infinie)
+      if (pathname === redirectPath) return supabaseResponse
+      
       return NextResponse.redirect(new URL(redirectPath, request.url))
     }
   }
