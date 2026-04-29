@@ -2,7 +2,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import './globals.css'
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
+
 
 const syne = Syne({
   subsets: ['latin'],
@@ -69,7 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${syne.variable} ${dmSans.variable}`}>
       <body className="font-dm bg-slate-50 text-slate-900 antialiased">
         {children}
-        <PWAInstallPrompt />
       </body>
     </html>
   )
