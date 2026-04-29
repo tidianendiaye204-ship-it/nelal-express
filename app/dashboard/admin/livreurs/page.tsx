@@ -49,10 +49,10 @@ export default async function AdminLivreursPage() {
     <div className="max-w-6xl mx-auto px-2 md:px-0 pb-24">
       {/* HEADER */}
       <div className="mb-8">
-        <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Gestion d'Équipe</h1>
+        <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Gestion d&apos;Équipe</h1>
         <div className="h-1 w-8 bg-orange-500 mt-2 rounded-full"></div>
         <p className="text-slate-500 text-xs font-bold mt-2 tracking-wide">
-          {statsByStaff.length} membre(s) dans l'équipe (Livreurs & Agents)
+          {statsByStaff.length} membre(s) dans l&apos;équipe (Livreurs & Agents)
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export default async function AdminLivreursPage() {
                 <Bike className="w-8 h-8" />
               </div>
               <h3 className="font-display font-black text-lg text-slate-900 uppercase tracking-tight">Aucun membre</h3>
-              <p className="text-slate-500 text-sm mt-1">Créez votre premier membre d'équipe ci-contre.</p>
+              <p className="text-slate-500 text-sm mt-1">Créez votre premier membre d&apos;équipe ci-contre.</p>
             </div>
           ) : (
             <div className="space-y-4">

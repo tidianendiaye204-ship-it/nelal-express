@@ -1,5 +1,5 @@
 // app/dashboard/admin/marketing/page.tsx
-import { createClient, getProfile } from '@/utils/supabase/server'
+import { getProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Printer, Smartphone } from 'lucide-react'

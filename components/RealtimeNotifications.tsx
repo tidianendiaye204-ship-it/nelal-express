@@ -82,7 +82,7 @@ export function RealtimeProvider({ children, role, userId, zoneId }: { children:
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [role, userId, router])
+  }, [role, userId, zoneId, router])
 
   return (
     <RealtimeContext.Provider value={newOrders}>
