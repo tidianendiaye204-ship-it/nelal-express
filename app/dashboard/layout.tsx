@@ -54,7 +54,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }[role] || { label: 'Utilisateur', color: 'bg-slate-500/10 text-slate-400' }
 
   return (
-    <RealtimeProvider role={role} userId={profile.id}>
+    <RealtimeProvider role={role} userId={profile.id} zoneId={profile.zone_id}>
       <div className="min-h-screen bg-white md:bg-slate-50 flex flex-col md:flex-row">
         {/* SIDEBAR (Desktop) */}
         <aside className="hidden md:flex w-72 bg-[#0F172A] min-h-screen flex-col sticky left-0 top-0 z-10 shadow-2xl">

@@ -138,12 +138,24 @@ async function notifyAdminsOnOrder(orderId: string) {
 
   // Push aux livreurs de la zone de départ
   if (order.zone_from_id) {
-    sendPushToLivreursInZone(order.zone_from_id, {
-      title: '🔔 Course dispo !',
-      body: `📦 ${order.description} — ${order.zone_from?.name || ''} → ${order.zone_to?.name || ''} — ${order.price.toLocaleString('fr-FR')} FCFA`,
-      url: `/dashboard/livreur/disponibles`,
-      tag: `new-order-livreur-${ref}`,
-    }).catch(err => console.error('[Push Livreur Error]', err))
+    const { data: livreursInZone } = await supabase.from('profiles').select('id').eq('role', 'livreur').eq('zone_id', order.zone_from_id)
+    
+    if (livreursInZone && livreursInZone.length > 0) {
+      sendPushToLivreursInZone(order.zone_from_id, {
+        title: '🔔 Course dispo !',
+        body: `📦 ${order.description} — ${order.zone_from?.name || ''} → ${order.zone_to?.name || ''} — ${order.price.toLocaleString('fr-FR')} FCFA`,
+        url: `/dashboard/livreur/disponibles`,
+        tag: `new-order-livreur-${ref}`,
+      }).catch(err => console.error('[Push Livreur Error]', err))
+    } else {
+      // Si aucun livreur n'est configuré dans cette zone, on notifie TOUS les livreurs
+      sendPushToRole('livreur', {
+        title: '🔔 Mission disponible !',
+        body: `📦 ${order.description} — ${order.zone_from?.name || ''} → ${order.zone_to?.name || ''}`,
+        url: `/dashboard/livreur/disponibles`,
+        tag: `new-order-all-${ref}`,
+      }).catch(err => console.error('[Push All Error]', err))
+    }
   }
 
   // ─── 📱 WHATSAPP (quand Twilio sera configuré) ───────────────────

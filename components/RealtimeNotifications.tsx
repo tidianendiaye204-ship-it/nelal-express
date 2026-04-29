@@ -7,7 +7,7 @@ import { sendBrowserNotification, requestNotificationPermission } from '@/lib/pu
 
 const RealtimeContext = createContext<number>(0)
 
-export function RealtimeProvider({ children, role, userId }: { children: React.ReactNode, role: string, userId: string }) {
+export function RealtimeProvider({ children, role, userId, zoneId }: { children: React.ReactNode, role: string, userId: string, zoneId?: string }) {
   const [newOrders, setNewOrders] = useState(0)
   const pathname = usePathname()
   const router = useRouter()
@@ -36,11 +36,26 @@ export function RealtimeProvider({ children, role, userId }: { children: React.R
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'orders' },
-        () => {
+        (payload) => {
           if (role === 'admin') {
             setNewOrders(prev => prev + 1)
             try { new Audio('/notification.mp3').play() } catch (e) { console.error('Audio log', e) }
             sendBrowserNotification('🚨 Nouvelle commande', 'Une nouvelle commande a été ajoutée sur Nelal Express.')
+            router.refresh()
+          }
+
+          // Alerte pour les livreurs : Nouvelle mission dispo
+          if (role === 'livreur') {
+            const orderZoneId = payload.new?.zone_from_id
+            const isMyZone = !zoneId || orderZoneId === zoneId
+            
+            setNewOrders(prev => prev + 1)
+            try { new Audio('/notification.mp3').play() } catch (e) { console.error('Audio log', e) }
+            
+            const title = isMyZone ? '🔔 Nouvelle mission dans votre zone !' : '🔔 Nouvelle mission disponible'
+            const body = `📦 ${payload.new?.description || 'Nouveau colis'} — ${payload.new?.price?.toLocaleString()} F`
+            
+            sendBrowserNotification(title, body, '/dashboard/livreur/disponibles')
             router.refresh()
           }
         }

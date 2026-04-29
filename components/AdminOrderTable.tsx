@@ -124,9 +124,16 @@ export default function AdminOrderTable({
                     </select>
                   </td>
                   <td className="px-6 py-5 text-center">
-                    <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
-                      {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
-                    </span>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
+                        {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                      </span>
+                      {order.status === 'en_attente' && !order.livreur_id && (
+                        <span className="text-[7px] font-black text-orange-500 uppercase tracking-tighter animate-pulse">
+                          📢 Livreurs notifiés
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-5 text-right font-display font-black text-xs">
                     {order.price.toLocaleString()} F
@@ -158,6 +165,11 @@ export default function AdminOrderTable({
                 <div className={`inline-block px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest border mt-1 ${STATUS_COLORS[order.status as keyof typeof STATUS_COLORS]}`}>
                   {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
                 </div>
+                {order.status === 'en_attente' && !order.livreur_id && (
+                  <div className="text-[7px] font-black text-orange-500 uppercase tracking-tighter mt-1 animate-pulse">
+                    📢 En attente de prise par un livreur
+                  </div>
+                )}
               </div>
             </div>
 

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import NotificationEnabler from '@/components/NotificationEnabler'
 import AdminCharts from '@/components/AdminCharts'
+import LiveOrderUpdater from '@/components/LiveOrderUpdater'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,7 @@ export default async function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-24 px-4 md:px-6">
+      <LiveOrderUpdater showAll />
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
           <h1 className="font-display font-black text-4xl text-slate-900 uppercase italic tracking-tighter leading-none">
