@@ -795,13 +795,15 @@ export async function updateLivreur(livreurId: string, formData: FormData) {
   const full_name = formData.get('full_name') as string
   const phone = formData.get('phone') as string
   const zone_id = formData.get('zone_id') as string
+  const role = formData.get('role') as string
 
   const { error } = await supabase
     .from('profiles')
     .update({
       full_name,
       phone,
-      zone_id: zone_id || null
+      zone_id: zone_id || null,
+      role: role || 'livreur'
     })
     .eq('id', livreurId)
 

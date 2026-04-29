@@ -10,12 +10,16 @@ export default async function AdminLivreursPage() {
   const supabase = await createClient()
 
   // On récupère tout séparément (plus robuste que les joins SQL complexes en cas d'erreur de cache)
+  // On récupère les livreurs ET les agents pour la gestion d'équipe
   const [
-    { data: livreurs, error: lError },
+    { data: staff, error: lError },
     { data: zones, error: zError },
     { data: orderStats, error: oError }
   ] = await Promise.all([
-    supabase.from('profiles').select('*').eq('role', 'livreur').order('created_at', { ascending: false }),
+    supabase.from('profiles')
+      .select('*')
+      .in('role', ['livreur', 'agent', 'admin'])
+      .order('created_at', { ascending: false }),
     supabase.from('zones').select('*').order('type').order('name'),
     supabase.from('orders').select('livreur_id, status, price').not('livreur_id', 'is', null)
   ])
@@ -26,7 +30,7 @@ export default async function AdminLivreursPage() {
   }
 
   // Mapping manuel des stats et zones
-  const statsByLivreur = (livreurs || []).map(l => {
+  const statsByStaff = (staff || []).map(l => {
     const z = zones?.find(zf => zf.id === l.zone_id)
     const myOrders = orderStats?.filter(o => o.livreur_id === l.id) || []
     const livres = myOrders.filter(o => ['livre', 'livre_partiel'].includes(o.status))
@@ -45,28 +49,28 @@ export default async function AdminLivreursPage() {
     <div className="max-w-6xl mx-auto px-2 md:px-0 pb-24">
       {/* HEADER */}
       <div className="mb-8">
-        <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Flotte Livreurs</h1>
-        <div className="h-1 w-8 bg-slate-900 mt-2 rounded-full"></div>
+        <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight uppercase leading-none">Gestion d'Équipe</h1>
+        <div className="h-1 w-8 bg-orange-500 mt-2 rounded-full"></div>
         <p className="text-slate-500 text-xs font-bold mt-2 tracking-wide">
-          {statsByLivreur.length} livreur(s) opérationnel(s)
+          {statsByStaff.length} membre(s) dans l'équipe (Livreurs & Agents)
         </p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 cursor-default">
 
-        {/* LISTE LIVREURS */}
+        {/* LISTE EQUIPE */}
         <div className="lg:col-span-2 order-2 lg:order-1">
-          {!statsByLivreur.length ? (
+          {!statsByStaff.length ? (
             <div className="bg-slate-50 border border-slate-100 rounded-3xl p-12 text-center">
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm text-slate-400">
                 <Bike className="w-8 h-8" />
               </div>
-              <h3 className="font-display font-black text-lg text-slate-900 uppercase tracking-tight">Aucun livreur</h3>
-              <p className="text-slate-500 text-sm mt-1">Créez votre premier compte livreur ci-contre.</p>
+              <h3 className="font-display font-black text-lg text-slate-900 uppercase tracking-tight">Aucun membre</h3>
+              <p className="text-slate-500 text-sm mt-1">Créez votre premier membre d'équipe ci-contre.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {statsByLivreur.map((l) => (
+              {statsByStaff.map((l) => (
                 <LivreurRow key={l.id} livreur={l as any} zones={zones || []} />
               ))}
             </div>
