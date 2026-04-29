@@ -20,6 +20,21 @@ as $$
   );
 $$;
 
+-- Sécurisation : on révoque l'exécution publique (évite l'exposition RPC)
+revoke execute on function public.is_collaborator() from public;
+revoke execute on function public.is_collaborator() from anon;
+revoke execute on function public.is_collaborator() from authenticated;
+
+-- On autorise uniquement les rôles internes
+grant execute on function public.is_collaborator() to postgres, service_role;
+
+-- 4. Mêmes mesures pour is_admin par précaution
+revoke execute on function public.is_admin() from public;
+revoke execute on function public.is_admin() from anon;
+revoke execute on function public.is_admin() from authenticated;
+grant execute on function public.is_admin() to postgres, service_role;
+
+
 -- Mettre à jour les politiques RLS pour permettre aux agents de tout voir
 drop policy if exists "orders_agent_all" on orders;
 create policy "orders_agent_all" on orders

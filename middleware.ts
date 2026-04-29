@@ -56,7 +56,8 @@ export async function middleware(request: NextRequest) {
         .maybeSingle()
       
       const role = profile?.role || 'client'
-      return NextResponse.redirect(new URL(`/dashboard/${role}`, request.url))
+      const redirectPath = role === 'agent' ? '/dashboard/admin' : `/dashboard/${role}`
+      return NextResponse.redirect(new URL(redirectPath, request.url))
     }
   }
 
