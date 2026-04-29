@@ -44,7 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       { href: '/dashboard/admin/zones', label: 'Zones', icon: <Map className="w-5 h-5" /> },
     ],
     agent: [
-      { href: '/dashboard/admin', label: 'Dispatcher', icon: <BarChart3 className="w-5 h-5" /> },
+      { href: '/dashboard/admin', label: 'Gestion Missions', icon: <BarChart3 className="w-5 h-5" /> },
       { href: '/dashboard/admin/livreurs', label: 'Livreurs', icon: <Users className="w-5 h-5" /> },
     ],
   }
