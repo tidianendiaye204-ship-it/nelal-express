@@ -33,6 +33,8 @@ export interface Profile {
   avatar_url?: string
   created_at: string
   last_seen_at?: string
+  lat?: number
+  lng?: number
   zone?: Zone
 }
 

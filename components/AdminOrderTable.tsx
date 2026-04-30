@@ -6,6 +6,7 @@ import {
   Search, Edit, Trash2
 } from 'lucide-react'
 import { adminUpdateOrder, adminCancelOrder, assignLivreur, adminDeleteOrder } from '@/actions/orders'
+import AgentWhatsAppActions from '@/components/AgentWhatsAppActions'
 
 export default function AdminOrderTable({ 
   initialOrders,
@@ -160,6 +161,13 @@ export default function AdminOrderTable({
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex justify-center gap-1">
+                      <AgentWhatsAppActions 
+                        orderRef={order.id.slice(0, 8).toUpperCase()}
+                        clientName={order.client?.full_name}
+                        clientPhone={order.client?.phone}
+                        livreurName={order.livreur?.full_name}
+                        livreurPhone={order.livreur?.phone}
+                      />
                       <button onClick={() => handleEditInit(order)} title="Modifier" className="p-2 bg-slate-50 rounded-lg hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-3.5 h-3.5" /></button>
                       {userRole === 'admin' && (
                         <button onClick={() => handleDelete(order.id)} title="Supprimer" className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -213,6 +221,13 @@ export default function AdminOrderTable({
                   </select>
                </div>
                <div className="flex gap-2">
+                  <AgentWhatsAppActions 
+                    orderRef={order.id.slice(0, 8).toUpperCase()}
+                    clientName={order.client?.full_name}
+                    clientPhone={order.client?.phone}
+                    livreurName={order.livreur?.full_name}
+                    livreurPhone={order.livreur?.phone}
+                  />
                   <button onClick={() => handleEditInit(order)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
                   {userRole === 'admin' && (
                     <button onClick={() => handleDelete(order.id)} className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
