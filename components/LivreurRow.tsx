@@ -36,9 +36,10 @@ interface Member {
 interface LivreurRowProps {
   livreur: Member
   zones: Zone[]
+  userRole?: string
 }
 
-export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
+export default function LivreurRow({ livreur: l, zones, userRole }: LivreurRowProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -173,13 +174,15 @@ export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-slate-900 text-base truncate">{l.full_name}</h3>
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-orange-500 transition-all"
-                title="Modifier le profil"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-              </button>
+              {userRole === 'admin' && (
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-orange-500 transition-all"
+                  title="Modifier le profil"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-2 mt-1">
               <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500">
@@ -214,10 +217,12 @@ export default function LivreurRow({ livreur: l, zones }: LivreurRowProps) {
             <div className="font-display font-black text-blue-600 text-xl leading-none">{l.en_cours}</div>
             <div className="text-[8px] font-black uppercase tracking-widest text-blue-500 mt-1">Actives</div>
           </div>
-          <div className="bg-orange-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[80px]">
-            <div className="font-display font-black text-orange-600 text-lg leading-none">{(l.montant || 0).toLocaleString('fr-FR')}</div>
-            <div className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-1">FCFA</div>
-          </div>
+          {userRole === 'admin' && (
+            <div className="bg-orange-50 px-3 py-2 rounded-xl flex-1 md:flex-none text-center min-w-[80px]">
+              <div className="font-display font-black text-orange-600 text-lg leading-none">{(l.montant || 0).toLocaleString('fr-FR')}</div>
+              <div className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-1">FCFA</div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}

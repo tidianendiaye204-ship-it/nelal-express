@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export default async function AdminMarketingPage() {
   const profile = await getProfile()
 
-  if (profile?.role !== 'admin' && profile?.role !== 'agent') {
+  if (profile?.role !== 'admin') {
     redirect('/dashboard')
   }
 

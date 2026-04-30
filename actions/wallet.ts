@@ -22,7 +22,7 @@ export async function collectCash(livreurId: string, amountToCollect: number) {
     .eq('id', user.id)
     .single()
     
-  if (adminProfile?.role !== 'admin' && adminProfile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
+  if (adminProfile?.role !== 'admin') return { error: 'Seul un administrateur peut collecter des fonds' }
 
   // 2. Fetch current livreur wallet
   const { data: livreurProfile, error: fetchError } = await supabase

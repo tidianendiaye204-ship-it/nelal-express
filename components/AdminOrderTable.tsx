@@ -9,10 +9,12 @@ import { adminUpdateOrder, adminCancelOrder, assignLivreur, adminDeleteOrder } f
 
 export default function AdminOrderTable({ 
   initialOrders, 
-  livreurs 
+  livreurs,
+  userRole
 }: { 
   initialOrders: any[], 
-  livreurs: Profile[] 
+  livreurs: Profile[],
+  userRole?: string
 }) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -154,7 +156,9 @@ export default function AdminOrderTable({
                   <td className="px-6 py-5">
                     <div className="flex justify-center gap-1">
                       <button onClick={() => handleEditInit(order)} title="Modifier" className="p-2 bg-slate-50 rounded-lg hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => handleDelete(order.id)} title="Supprimer" className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+                      {userRole === 'admin' && (
+                        <button onClick={() => handleDelete(order.id)} title="Supprimer" className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -205,7 +209,9 @@ export default function AdminOrderTable({
                </div>
                <div className="flex gap-2">
                   <button onClick={() => handleEditInit(order)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(order.id)} className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                  {userRole === 'admin' && (
+                    <button onClick={() => handleDelete(order.id)} className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                  )}
                </div>
             </div>
           </div>

@@ -29,6 +29,10 @@ export default async function AdminLivreursPage() {
     return <div className="p-10 text-red-500 bg-red-50 rounded-3xl m-8 border border-red-100 text-center font-bold">Erreur de données Supabase: {msg}</div>
   }
 
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: currentUserProfile } = await supabase.from('profiles').select('role').eq('id', user?.id).single()
+  const userRole = currentUserProfile?.role
+
   // Mapping manuel des stats et zones
   const statsByStaff = (staff || []).map(l => {
     const z = zones?.find(zf => zf.id === l.zone_id)
@@ -71,7 +75,7 @@ export default async function AdminLivreursPage() {
           ) : (
             <div className="space-y-4">
               {statsByStaff.map((l) => (
-                <LivreurRow key={l.id} livreur={l as any} zones={zones || []} />
+                <LivreurRow key={l.id} livreur={l as any} zones={zones || []} userRole={userRole} />
               ))}
             </div>
           )}

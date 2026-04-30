@@ -44,7 +44,7 @@ export default async function AdminDashboard() {
       `)
       .order('created_at', { ascending: false })
       .limit(50),
-    supabase.from('profiles').select('*').eq('role', 'livreur'),
+    supabase.from('profiles').select('*').in('role', ['livreur', 'agent']),
     supabase.from('orders').select('price, status, payment_method, created_at')
   ])
 
@@ -77,7 +77,9 @@ export default async function AdminDashboard() {
         <div className="flex bg-slate-100 p-1 rounded-2xl">
           <Link href="/dashboard/admin/livreurs" className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Livreurs</Link>
           <Link href="/dashboard/admin/zones" className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Tarification</Link>
-          <Link href="/dashboard/admin/marketing" className="px-5 py-2.5 bg-white shadow-sm rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:text-orange-500 transition-colors">Marketing</Link>
+          {profile?.role === 'admin' && (
+            <Link href="/dashboard/admin/marketing" className="px-5 py-2.5 bg-white shadow-sm rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:text-orange-500 transition-colors">Marketing</Link>
+          )}
         </div>
       </div>
 
@@ -99,37 +101,39 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-[100px] -mr-32 -mt-32" />
-          <div className="flex items-center justify-between mb-10 relative z-10">
-            <h3 className="font-display font-black text-xl uppercase italic tracking-tighter">Flux Financier <span className="text-orange-500">Global</span></h3>
-            <TrendingUp className="w-6 h-6 text-orange-500" />
+      {profile?.role === 'admin' && (
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-[100px] -mr-32 -mt-32" />
+            <div className="flex items-center justify-between mb-10 relative z-10">
+              <h3 className="font-display font-black text-xl uppercase italic tracking-tighter">Flux Financier <span className="text-orange-500">Global</span></h3>
+              <TrendingUp className="w-6 h-6 text-orange-500" />
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 relative z-10">
+               <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">CA Total</p><p className="text-3xl font-display font-black text-white">{stats.totalRevenue.toLocaleString()} F</p></div>
+               <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Chez Livreurs</p><p className="text-3xl font-display font-black text-orange-500">{stats.cashWithLivreurs.toLocaleString()} F</p></div>
+               <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">En Attente</p><p className="text-3xl font-display font-black text-blue-400">{stats.pendingCashCollection.toLocaleString()} F</p></div>
+            </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 relative z-10">
-             <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">CA Total</p><p className="text-3xl font-display font-black text-white">{stats.totalRevenue.toLocaleString()} F</p></div>
-             <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Chez Livreurs</p><p className="text-3xl font-display font-black text-orange-500">{stats.cashWithLivreurs.toLocaleString()} F</p></div>
-             <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">En Attente</p><p className="text-3xl font-display font-black text-blue-400">{stats.pendingCashCollection.toLocaleString()} F</p></div>
+          <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm flex flex-col justify-between">
+             <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center"><HandCoins className="w-6 h-6 text-slate-400" /></div>
+                <h4 className="font-display font-black text-sm uppercase tracking-tight">Encaissements</h4>
+             </div>
+             <p className="text-xs font-bold text-slate-600 mb-6 italic">Passif livreurs : <span className="text-orange-600 font-black">{stats.cashWithLivreurs.toLocaleString()} F</span></p>
+             <Link href="/dashboard/admin/livreurs" className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">Gérer <ArrowUpRight className="w-4 h-4 text-orange-500" /></Link>
           </div>
         </div>
-        <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm flex flex-col justify-between">
-           <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center"><HandCoins className="w-6 h-6 text-slate-400" /></div>
-              <h4 className="font-display font-black text-sm uppercase tracking-tight">Encaissements</h4>
-           </div>
-           <p className="text-xs font-bold text-slate-600 mb-6 italic">Passif livreurs : <span className="text-orange-600 font-black">{stats.cashWithLivreurs.toLocaleString()} F</span></p>
-           <Link href="/dashboard/admin/livreurs" className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">Gérer <ArrowUpRight className="w-4 h-4 text-orange-500" /></Link>
-        </div>
-      </div>
+      )}
 
-      <AdminCharts orders={allOrdersForStats || []} />
+      {profile?.role === 'admin' && <AdminCharts orders={allOrdersForStats || []} />}
 
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2">
            <h2 className="font-display font-black text-xl text-slate-900 uppercase italic tracking-tighter">Centre de <span className="text-orange-500">Missions</span></h2>
            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">50 Dernières</span>
         </div>
-        <AdminOrderTable initialOrders={orders || []} livreurs={livreurs || []} />
+        <AdminOrderTable initialOrders={orders || []} livreurs={livreurs || []} userRole={profile?.role} />
       </div>
     </div>
   )
