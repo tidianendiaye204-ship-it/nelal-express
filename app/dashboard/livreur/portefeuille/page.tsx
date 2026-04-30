@@ -13,7 +13,7 @@ export default async function LivreurPortefeuillePage() {
   const supabase = await createClient()
   const profile = await getProfile()
   
-  if (!profile || profile.role !== 'livreur') redirect('/auth/login')
+  if (!profile || (profile.role !== 'livreur' && profile.role !== 'agent')) redirect('/auth/login')
 
   // 1. Récupérer l'historique complet des livraisons réussies
   const { data: deliveredOrders } = await supabase

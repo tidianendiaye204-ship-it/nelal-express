@@ -10,7 +10,7 @@ import { User, Phone, Mail, Bike, LogOut, ChevronRight, Edit3, Wallet } from 'lu
 export default async function LivreurProfilPage() {
   const supabase = await createClient()
   const profile = await getProfile()
-  if (!profile || profile.role !== 'livreur') redirect('/auth/login')
+  if (!profile || (profile.role !== 'livreur' && profile.role !== 'agent')) redirect('/auth/login')
 
   // Stats (Livreur)
   const { data: orders } = await supabase

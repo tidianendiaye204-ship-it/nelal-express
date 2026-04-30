@@ -14,7 +14,7 @@ export default async function DisponiblesPage() {
   const supabase = await createClient()
   const profile = await getProfile()
 
-  if (!profile || profile.role !== 'livreur') redirect('/auth/login')
+  if (!profile || (profile.role !== 'livreur' && profile.role !== 'agent')) redirect('/auth/login')
 
   const cashHeld = profile.cash_held || 0
   const maxLimit = profile.max_cash_limit || 25000

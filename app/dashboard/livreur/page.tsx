@@ -22,7 +22,7 @@ export default async function LivreurDashboard() {
   const supabase = await createClient()
   const profile = await getProfile()
   
-  if (!profile || profile.role !== 'livreur') {
+  if (!profile || (profile.role !== 'livreur' && profile.role !== 'agent')) {
     redirect('/auth/login')
   }
 
