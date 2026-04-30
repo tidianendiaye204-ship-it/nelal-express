@@ -70,7 +70,10 @@ export default function AdminOrderTable({
 
   const handleDelete = async (orderId: string) => {
     if (confirm('SUPPRESSION DÉFINITIVE : Êtes-vous sûr de vouloir supprimer cette commande de la base de données ?')) {
-      await adminDeleteOrder(orderId)
+      const result = await adminDeleteOrder(orderId)
+      if (result?.error) {
+        alert(`Erreur lors de la suppression : ${result.error}`)
+      }
     }
   }
 

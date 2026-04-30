@@ -888,7 +888,13 @@ export async function adminDeleteOrder(orderId: string) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
 
-  const { error } = await supabase.from('orders').delete().eq('id', orderId)
+  const adminSupabase = createAdminClient()
+
+  // 1. Supprimer d'abord l'historique pour éviter les erreurs de contrainte de clé étrangère
+  await adminSupabase.from('order_status_history').delete().eq('order_id', orderId)
+
+  // 2. Supprimer la commande
+  const { error } = await adminSupabase.from('orders').delete().eq('id', orderId)
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/admin')
