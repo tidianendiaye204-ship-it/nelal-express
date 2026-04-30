@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 import { format, parseISO, subDays } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -24,6 +25,12 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function AdminCharts({ orders }: { orders: OrderStat[] }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // 1. CA par jour (les 7 derniers jours)
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = subDays(new Date(), 6 - i)
@@ -54,10 +61,17 @@ export default function AdminCharts({ orders }: { orders: OrderStat[] }) {
     originalKey: key
   }))
 
+  if (!mounted) return (
+    <div className="grid lg:grid-cols-3 gap-6 opacity-0">
+      <div className="lg:col-span-2 h-[400px] bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm" />
+      <div className="h-[400px] bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm" />
+    </div>
+  )
+
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       {/* Chart 1: Revenue by Day */}
-      <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
+      <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden min-h-[400px]">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500">
             <TrendingUp className="w-5 h-5" />
@@ -66,8 +80,8 @@ export default function AdminCharts({ orders }: { orders: OrderStat[] }) {
             Chiffre d&apos;Affaires <span className="text-slate-400 font-medium text-xs not-italic block">7 derniers jours</span>
           </h3>
         </div>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[300px] w-full min-h-[300px]">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <BarChart data={revenueByDay} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 600 }} />
@@ -84,7 +98,7 @@ export default function AdminCharts({ orders }: { orders: OrderStat[] }) {
       </div>
 
       {/* Chart 2: Status Distribution */}
-      <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col">
+      <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col min-h-[400px]">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
             <PieChartIcon className="w-5 h-5" />
@@ -93,8 +107,8 @@ export default function AdminCharts({ orders }: { orders: OrderStat[] }) {
             Répartition <span className="text-slate-400 font-medium text-xs not-italic block">Toutes les commandes</span>
           </h3>
         </div>
-        <div className="flex-1 min-h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="flex-1 min-h-[250px] w-full">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <PieChart>
               <Pie
                 data={statusData}
@@ -122,7 +136,7 @@ export default function AdminCharts({ orders }: { orders: OrderStat[] }) {
         <div className="mt-4 grid grid-cols-2 gap-2">
           {statusData.map((entry, index) => (
             <div key={index} className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: STATUS_COLORS[entry.originalKey] || COLORS[index % COLORS.length] }} />
+              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: STATUS_COLORS[entry.originalKey] || COLORS[index % COLORS.length] }} />
               <span className="text-[10px] font-bold text-slate-500 truncate">{entry.name}</span>
               <span className="ml-auto text-xs font-black text-slate-900">{entry.value}</span>
             </div>

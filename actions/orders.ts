@@ -791,13 +791,15 @@ export async function updateLivreur(livreurId: string, formData: FormData) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return { error: 'Accès refusé' }
 
-  // 2. Update profiles table
+  // 2. Use Admin Client to bypass RLS for profile updates
+  const adminSupabase = createAdminClient()
+
   const full_name = formData.get('full_name') as string
   const phone = formData.get('phone') as string
   const zone_id = formData.get('zone_id') as string
   const role = formData.get('role') as string
 
-  const { error } = await supabase
+  const { error } = await adminSupabase
     .from('profiles')
     .update({
       full_name,
