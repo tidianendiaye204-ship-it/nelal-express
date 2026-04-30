@@ -5,7 +5,7 @@ import { STATUS_LABELS, STATUS_COLORS, type OrderStatus, type Profile } from '@/
 import { 
   Search, Edit, Trash2
 } from 'lucide-react'
-import { adminUpdateOrder, adminCancelOrder, assignLivreur } from '@/actions/orders'
+import { adminUpdateOrder, adminCancelOrder, assignLivreur, adminDeleteOrder } from '@/actions/orders'
 
 export default function AdminOrderTable({ 
   initialOrders, 
@@ -61,6 +61,12 @@ export default function AdminOrderTable({
   const handleCancel = async (orderId: string) => {
     if (confirm('Annuler cette commande ?')) {
       await adminCancelOrder(orderId, 'Annulation admin')
+    }
+  }
+
+  const handleDelete = async (orderId: string) => {
+    if (confirm('SUPPRESSION DÉFINITIVE : Êtes-vous sûr de vouloir supprimer cette commande de la base de données ?')) {
+      await adminDeleteOrder(orderId)
     }
   }
 
@@ -147,8 +153,8 @@ export default function AdminOrderTable({
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex justify-center gap-1">
-                      <button onClick={() => handleEditInit(order)} className="p-2 bg-slate-50 rounded-lg hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => handleCancel(order.id)} className="p-2 bg-slate-50 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleEditInit(order)} title="Modifier" className="p-2 bg-slate-50 rounded-lg hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDelete(order.id)} title="Supprimer" className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -199,7 +205,7 @@ export default function AdminOrderTable({
                </div>
                <div className="flex gap-2">
                   <button onClick={() => handleEditInit(order)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-orange-500 hover:text-white transition-all"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleCancel(order.id)} className="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleDelete(order.id)} className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Trash2 className="w-4 h-4" /></button>
                </div>
             </div>
           </div>

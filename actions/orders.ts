@@ -880,3 +880,18 @@ export async function adminConfirmCashReceipt(livreurId: string, amount: number)
   revalidatePath('/dashboard/admin/livreurs')
   return { success: true }
 }
+
+export async function adminDeleteOrder(orderId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
+
+  const { error } = await supabase.from('orders').delete().eq('id', orderId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/client', 'layout')
+  return { success: true }
+}
