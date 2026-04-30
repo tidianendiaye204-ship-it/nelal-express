@@ -8,7 +8,7 @@ import { User, Phone, Mail, Shield, LogOut, ChevronRight, Edit3, BarChart3, User
 
 export default async function AdminProfilPage() {
   const profile = await getProfile()
-  if (!profile || profile.role !== 'admin') redirect('/auth/login')
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'agent')) redirect('/auth/login')
 
   return (
     <div className="max-w-2xl mx-auto pb-24 px-1">
@@ -19,9 +19,15 @@ export default async function AdminProfilPage() {
         </div>
         <h1 className="font-display font-black text-2xl text-slate-900 tracking-tight">{profile.full_name}</h1>
         <div className="flex items-center justify-center gap-2 mt-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-purple-50 text-purple-600 border border-purple-100">
-            <Shield className="w-3 h-3" /> Administrateur
-          </span>
+          {profile.role === 'admin' ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-purple-50 text-purple-600 border border-purple-100">
+              <Shield className="w-3 h-3" /> Administrateur
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <Shield className="w-3 h-3" /> Agent Dispatch
+            </span>
+          )}
         </div>
       </div>
 

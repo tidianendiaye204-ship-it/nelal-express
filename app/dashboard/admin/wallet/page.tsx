@@ -11,7 +11,7 @@ export default async function AdminWalletPage() {
   const supabase = await createClient()
   const profile = await getProfile()
   
-  if (profile?.role !== 'admin') redirect('/dashboard')
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') redirect('/dashboard')
 
   // Fetch all livreurs with their cash_held
   const { data: livreurs } = await supabase

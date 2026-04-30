@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
       role,
       email: userEmail,
       token_hash: linkData.properties?.hashed_token,
-      redirect: `/dashboard/${role}`,
+      redirect: role === 'agent' ? '/dashboard/admin' : `/dashboard/${role}`,
     })
 
   } catch (error: any) {
