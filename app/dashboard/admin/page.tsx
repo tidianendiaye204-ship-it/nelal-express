@@ -23,7 +23,7 @@ export default async function AdminDashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name')
     .eq('id', user.id)
     .single()
 
@@ -133,7 +133,7 @@ export default async function AdminDashboard() {
            <h2 className="font-display font-black text-xl text-slate-900 uppercase italic tracking-tighter">Centre de <span className="text-orange-500">Missions</span></h2>
            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">50 Dernières</span>
         </div>
-        <AdminOrderTable initialOrders={orders || []} livreurs={livreurs || []} userRole={profile?.role} />
+        <AdminOrderTable initialOrders={orders || []} livreurs={livreurs || []} userRole={profile?.role} userName={profile?.full_name} />
       </div>
     </div>
   )

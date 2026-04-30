@@ -8,13 +8,15 @@ import {
 import { adminUpdateOrder, adminCancelOrder, assignLivreur, adminDeleteOrder } from '@/actions/orders'
 
 export default function AdminOrderTable({ 
-  initialOrders, 
+  initialOrders,
   livreurs,
-  userRole
+  userRole,
+  userName
 }: { 
   initialOrders: any[], 
   livreurs: Profile[],
-  userRole?: string
+  userRole?: string,
+  userName?: string
 }) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -29,7 +31,7 @@ export default function AdminOrderTable({
   })
 
   const filteredOrders = useMemo(() => {
-    return initialOrders.filter(order => {
+    return initialOrders.filter((order: any) => {
       const matchesSearch = 
         order.description.toLowerCase().includes(search.toLowerCase()) ||
         order.client?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -115,7 +117,7 @@ export default function AdminOrderTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filteredOrders.map((order) => (
+              {filteredOrders.map((order: any) => (
                 <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-5">
                     <div className="flex flex-col">
@@ -170,7 +172,7 @@ export default function AdminOrderTable({
 
       {/* MOBILE VIEW (CARD LIST) */}
       <div className="md:hidden space-y-4">
-        {filteredOrders.map((order) => (
+        {filteredOrders.map((order: any) => (
           <div key={order.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
             <div className="flex items-start justify-between">
               <div>
@@ -241,6 +243,29 @@ export default function AdminOrderTable({
                   onChange={e => setEditForm(p => ({ ...p, internal_notes: e.target.value }))} 
                   className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold min-h-[100px] border border-transparent focus:border-orange-500 focus:bg-white outline-none transition-all"
                 />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Client injoignable",
+                  "Colis fragile",
+                  `Confirmation faite par ${userName || 'agent'}`
+                ].map((note) => (
+                  <button
+                    key={note}
+                    type="button"
+                    onClick={() => {
+                      const current = editForm.internal_notes;
+                      const separator = current ? " | " : "";
+                      if (!current.includes(note)) {
+                        setEditForm(p => ({ ...p, internal_notes: current + separator + note }));
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-orange-100 hover:text-orange-700 text-[9px] font-black uppercase tracking-tighter rounded-xl transition-colors border border-slate-200"
+                  >
+                    + {note}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="mt-8 flex gap-2">
