@@ -122,8 +122,8 @@ export default function AdminOrderTable({
                       <span className="text-slate-900 font-bold text-xs">{order.description}</span>
                       <span className="text-[10px] text-slate-400">{order.client?.full_name}</span>
                       {order.internal_notes && (
-                        <span className="mt-1 text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md w-fit flex items-center gap-1">
-                          <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" /> Note équipe
+                        <span className="mt-1 text-[8px] font-bold text-blue-600 bg-blue-50 px-1.5 py-1 rounded-md w-fit flex items-center gap-1 border border-blue-100 shadow-sm" title={order.internal_notes}>
+                          <span className="w-1 h-1 bg-blue-500 rounded-full animate-pulse" /> Coordination : {order.internal_notes}
                         </span>
                       )}
                     </div>
@@ -233,12 +233,15 @@ export default function AdminOrderTable({
               <select value={editForm.status} onChange={e => setEditForm(p => ({ ...p, status: e.target.value as OrderStatus }))} className="w-full bg-slate-50 p-4 rounded-2xl text-[10px] font-black uppercase">
                 {Object.entries(STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
-              <textarea 
-                placeholder="Notes Internes (Équipe)"
-                value={editForm.internal_notes} 
-                onChange={e => setEditForm(p => ({ ...p, internal_notes: e.target.value }))} 
-                className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold min-h-[100px]"
-              />
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Commentaire Interne (Admin/Agents uniquement)</label>
+                <textarea 
+                  placeholder="Notes de coordination (Client injoignable, colis fragile...)"
+                  value={editForm.internal_notes} 
+                  onChange={e => setEditForm(p => ({ ...p, internal_notes: e.target.value }))} 
+                  className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold min-h-[100px] border border-transparent focus:border-orange-500 focus:bg-white outline-none transition-all"
+                />
+              </div>
             </div>
             <div className="mt-8 flex gap-2">
               <button onClick={() => setEditingOrder(null)} className="flex-1 py-4 bg-slate-100 rounded-2xl font-black text-xs uppercase">Annuler</button>
