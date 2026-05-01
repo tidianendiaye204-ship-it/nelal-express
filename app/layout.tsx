@@ -16,10 +16,19 @@ const dmSans = DM_Sans({
   weight: ['400', '500', '600'],
 })
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL 
+  ? process.env.NEXT_PUBLIC_APP_URL 
+  : process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'https://nelalexpress.com';
+
 export const metadata: Metadata = {
   title: 'Nelal Express — Livraison Élite au Sénégal',
   description: 'Le standard de l\'excellence logistique à Dakar et dans les régions. Livraison rapide, sécurisée et professionnelle.',
   manifest: '/manifest.json',
+  metadataBase: new URL(appUrl),
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
@@ -33,6 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Nelal Express — Livraison Élite au Sénégal',
     description: 'Le standard de l\'excellence logistique à Dakar et dans les régions.',
+    url: '/',
     siteName: 'Nelal Express',
     locale: 'fr_SN',
     type: 'website',
