@@ -245,11 +245,12 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => { setMethod('whatsapp'); setError('') }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all relative ${
                     method === 'whatsapp' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-400'
                   }`}
                 >
                   <MessageCircle className="w-4 h-4" /> WhatsApp
+                  <span className="absolute -top-2 -right-1 bg-orange-500 text-white text-[8px] px-1.5 py-0.5 rounded-full shadow-sm font-black uppercase">Bientôt</span>
                 </button>
               </div>
 
@@ -286,40 +287,24 @@ export default function LoginPage() {
                 </form>
               )}
 
-              {/* ── WHATSAPP FORM ───────────────────── */}
+              {/* ── WHATSAPP FORM (Coming Soon) ───────────────────── */}
               {method === 'whatsapp' && (
-                <form onSubmit={handleSendOTP} className="space-y-5">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 mb-2 ml-1 uppercase tracking-widest">Téléphone</label>
-                    <div className="relative group">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400 pointer-events-none">🇸🇳 +221</span>
-                      <input type="tel" required autoFocus inputMode="numeric"
-                        value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))}
-                        placeholder="71 116 53 68"
-                        className="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 rounded-2xl pl-[100px] pr-5 py-4 text-lg placeholder:text-slate-300 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-black tracking-wider" />
-                    </div>
+                <div className="py-10 text-center space-y-4 animate-in fade-in zoom-in duration-300">
+                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="w-10 h-10 text-green-500 opacity-40" />
                   </div>
-                  <button type="button" onClick={() => setIsNewUser(!isNewUser)}
-                    className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors">
-                    {isNewUser ? '← J\'ai déjà un compte' : 'Nouveau ? Créer un compte →'}
+                  <h3 className="font-display font-black text-xl text-slate-800 uppercase tracking-tight">Bientôt disponible</h3>
+                  <p className="text-slate-500 text-sm px-4">
+                    La connexion simplifiée via WhatsApp arrive très prochainement. 
+                    En attendant, merci d&apos;utiliser votre <span className="font-bold text-orange-500">email</span>.
+                  </p>
+                  <button 
+                    onClick={() => setMethod('email')}
+                    className="mt-4 text-orange-600 font-black text-xs uppercase tracking-widest hover:underline decoration-2 underline-offset-4"
+                  >
+                    Utiliser mon email →
                   </button>
-                  {isNewUser && (
-                    <div className="animate-in slide-in-from-top-2 duration-200">
-                      <label className="block text-[10px] font-black text-slate-400 mb-2 ml-1 uppercase tracking-widest">Votre nom</label>
-                      <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Prénom Nom"
-                        className="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 rounded-2xl px-5 py-4 text-base placeholder:text-slate-300 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium" />
-                    </div>
-                  )}
-                  {error && (
-                    <div className="bg-red-50 border-2 border-red-100 text-red-600 text-sm font-bold rounded-2xl px-5 py-4 flex items-center gap-3">
-                      <span className="text-lg">⚠️</span>{error}
-                    </div>
-                  )}
-                  <button type="submit" disabled={loading || phone.replace(/\s/g, '').length < 9}
-                    className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white py-5 rounded-2xl font-display font-black text-xl shadow-xl shadow-green-500/20 transition-all active:scale-95 flex items-center justify-center gap-3">
-                    {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><MessageCircle className="w-5 h-5" /> Recevoir le code WhatsApp</>}
-                  </button>
-                </form>
+                </div>
               )}
 
               <div className="mt-10 pt-8 border-t border-slate-50 text-center">
