@@ -88,7 +88,7 @@ export default function SignupPage() {
                   type="tel"
                   required
                   autoComplete="tel"
-                  placeholder="77 XXX XX XX"
+                  placeholder="71 XXX XX XX"
                   className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl px-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium"
                 />
               </div>

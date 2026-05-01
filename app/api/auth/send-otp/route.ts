@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const international = cleaned.startsWith('221') ? cleaned : `221${cleaned}`
 
     if (international.length < 12) {
-      return NextResponse.json({ error: 'Numéro invalide. Exemple: 77 123 45 67' }, { status: 400 })
+      return NextResponse.json({ error: 'Numéro invalide. Exemple: 71 116 53 68' }, { status: 400 })
     }
 
     const supabase = createAdminClient()

@@ -18,7 +18,7 @@ export default function WhatsAppBubble() {
   if (isDismissed) {
     return (
       <a
-        href="https://wa.me/221770000000?text=Bonjour,%20j'ai%20besoin%20d'aide%20pour%20une%20livraison"
+        href="https://wa.me/221711165368?text=Bonjour,%20j'ai%20besoin%20d'aide%20pour%20une%20livraison"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#25D366]/30 transition-all hover:scale-110 active:scale-95"
@@ -46,7 +46,7 @@ export default function WhatsAppBubble() {
 
       {/* Bouton WhatsApp */}
       <a
-        href="https://wa.me/221770000000?text=Bonjour,%20j'ai%20besoin%20d'aide%20pour%20une%20livraison"
+        href="https://wa.me/221711165368?text=Bonjour,%20j'ai%20besoin%20d'aide%20pour%20une%20livraison"
         target="_blank"
         rel="noopener noreferrer"
         className="relative group flex items-center justify-center"

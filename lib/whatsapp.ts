@@ -123,50 +123,92 @@ export function whatsappLink(phone: string, message: string): string {
   return `https://wa.me/${international}?text=${encodeURIComponent(message || 'Bonjour, c\'est le livreur Nelal Express.')}`
 }
 
-// ── Envoi via Green-API (WhatsApp Web Bridge) ───────────────────────────────
+// ── Envoi via Meta Cloud API ou Green-API (Fallback) ───────────────────────────────
 export async function sendWhatsAppNotification(
   phone: string,
   message: string
 ): Promise<{ success: boolean; error?: string }> {
+  // 1. Priorité à l'API Officielle Meta (WhatsApp Cloud API)
+  const META_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
+  const PHONE_ID = process.env.WHATSAPP_PHONE_NUMBER_ID
+
+  if (META_TOKEN && PHONE_ID) {
+    try {
+      // Nettoyage du numéro : ex 221770000000
+      const cleaned = phone.replace(/\D/g, '')
+      const international = cleaned.startsWith('221') ? cleaned : `221${cleaned}`
+
+      const response = await fetch(
+        `https://graph.facebook.com/v21.0/${PHONE_ID}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${META_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: international,
+            type: "text",
+            text: {
+              preview_url: false,
+              body: message
+            }
+          }),
+        }
+      )
+
+      const result = await response.json()
+      
+      if (!response.ok) {
+        return { 
+          success: false, 
+          error: result.error?.message || 'Meta API Error' 
+        }
+      }
+
+      console.log('[WhatsApp Notif - META] Message envoyé avec succès')
+      return { success: true }
+    } catch (error: any) {
+      console.error('[WhatsApp Notif - META] Exception:', error)
+      // On laisse une chance au fallback si Meta échoue ? 
+      // Non, si Meta est configuré on devrait s'y tenir ou logger l'erreur.
+    }
+  }
+
+  // 2. Fallback vers Green-API (WhatsApp Web Bridge)
   const ID_INSTANCE = process.env.GREEN_API_ID_INSTANCE
   const API_TOKEN_INSTANCE = process.env.GREEN_API_TOKEN_INSTANCE
 
-  // Mode développement : juste logger le message si clés absentes
-  if (!ID_INSTANCE || !API_TOKEN_INSTANCE) {
-    console.warn('[WhatsApp Notif - DEV MODE] Green-API keys missing. Message not sent via API.')
-    console.log(`To: ${phone}\nMessage:\n${message}`)
-    return { success: true }
-  }
+  if (ID_INSTANCE && API_TOKEN_INSTANCE) {
+    try {
+      const cleaned = phone.replace(/\D/g, '')
+      const international = cleaned.startsWith('221') ? cleaned : `221${cleaned}`
+      const chatId = `${international}@c.us`
 
-  try {
-    // Nettoyage du numéro : on veut seulement les chiffres ex: 221770000000
-    const cleaned = phone.replace(/\D/g, '')
-    const international = cleaned.startsWith('221') ? cleaned : `221${cleaned}`
-    
-    // Format Green-API pour un chat individuel
-    const chatId = `${international}@c.us`
+      const response = await fetch(
+        `https://api.green-api.com/waInstance${ID_INSTANCE}/sendMessage/${API_TOKEN_INSTANCE}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId: chatId, message: message }),
+        }
+      )
 
-    const response = await fetch(
-      `https://api.green-api.com/waInstance${ID_INSTANCE}/sendMessage/${API_TOKEN_INSTANCE}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chatId: chatId,
-          message: message,
-        }),
+      if (!response.ok) {
+        const err = await response.json()
+        return { success: false, error: err.message || 'Green-API Error' }
       }
-    )
 
-    if (!response.ok) {
-      const err = await response.json()
-      return { success: false, error: err.message || 'Error sending message' }
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
-
-    return { success: true }
-  } catch (error: any) {
-    return { success: false, error: error.message }
   }
+
+  // 3. Mode développement (Local / No Keys)
+  console.warn('[WhatsApp Notif - DEV] Aucune clé API configurée. Message loggé uniquement.')
+  console.log(`To: ${phone}\nMessage:\n${message}`)
+  return { success: true }
 }

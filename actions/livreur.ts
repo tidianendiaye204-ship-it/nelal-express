@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { sendWhatsAppNotification, buildMessage } from '@/lib/whatsapp'
 import type { OrderStatus } from '@/lib/types'
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelalexpress.com'
 
 /**
  * Livreur accepts an available order (en_attente → confirme)

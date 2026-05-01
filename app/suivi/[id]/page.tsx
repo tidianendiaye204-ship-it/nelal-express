@@ -250,7 +250,7 @@ export default async function SuiviPage({ params }: { params: Promise<{ id: stri
                 <p className="text-green-500/50 text-[10px] font-medium">Envoyez ce lien sur WhatsApp.</p>
               </div>
               <a
-                href={`https://wa.me/?text=Suivez%20ma%20commande%20Nelal%20Express%20ici%20%3A%20${encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL || 'https://nelal-express.vercel.app'}/suivi/${order.id}`)}`}
+                href={`https://wa.me/?text=Suivez%20ma%20commande%20Nelal%20Express%20ici%20%3A%20${encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL || 'https://nelalexpress.com'}/suivi/${order.id}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-green-500 text-white hover:bg-green-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95"

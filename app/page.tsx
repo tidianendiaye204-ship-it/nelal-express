@@ -381,7 +381,7 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <Link href="https://wa.me/221770000000?text=Bonjour,%20je%20souhaite%20rejoindre%20l'équipe%20Nelal%20Express%20en%20tant%20que%20livreur." target="_blank"
+              <Link href="https://wa.me/221711165368?text=Bonjour,%20je%20souhaite%20rejoindre%20l'équipe%20Nelal%20Express%20en%20tant%20que%20livreur." target="_blank"
                 className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl font-display font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-orange-500 hover:text-white transition-all group">
                 Postuler via WhatsApp
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

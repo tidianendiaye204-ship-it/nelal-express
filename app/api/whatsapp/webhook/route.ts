@@ -6,97 +6,84 @@ import { createAdminClient } from '@/utils/supabase/admin'
 export const dynamic = 'force-dynamic'
 
 /**
- * RÉCEPTION DES WEBHOOKS GREEN-API
- * Stabilisé avec imports top-level pour éviter les ECONNRESET sur Vercel Edge
+ * RÉCEPTION DES WEBHOOKS (Meta Cloud API & Green-API)
  */
 export async function POST(req: NextRequest) {
   const adminSupabase = createAdminClient()
   try {
-    const rawBody = await req.text()
-    const body = JSON.parse(rawBody)
-    const type = body.typeWebhook
+    const body = await req.json()
 
-    // LOGGING DE DEBUG (Aide à comprendre pourquoi le bot ne répond pas)
-    try {
-      await adminSupabase.from('whatsapp_logs').insert({
-        type_webhook: type,
-        payload: body,
-        wa_id: body.senderData?.chatId?.split('@')[0] || body.chatId?.split('@')[0] || 'N/A'
-      })
-    } catch (logErr) {
-      console.error('[Logging Error] Could not write to whatsapp_logs:', logErr)
-    }
+    // --- LOGGING ---
+    await adminSupabase.from('whatsapp_logs').insert({
+      type_webhook: body.object || body.typeWebhook || 'unknown',
+      payload: body,
+      wa_id: 'webhook-received'
+    }).catch(console.error)
 
-    // CAS 1 : RÉCEPTION DE MESSAGE (Client -> Bot)
-    if (type === 'incomingMessageReceived') {
-      const chatId = body.senderData?.chatId
-      const senderName = body.senderData?.senderName || 'Inconnu'
+    // --- CAS A : META CLOUD API ---
+    if (body.object === 'whatsapp_business_account') {
+      const entry = body.entry?.[0]
+      const change = entry?.changes?.[0]
+      const value = change?.value
       
-      // Extraction du texte (Gère les messages simples ET enrichis avec preview)
-      const text = 
-        body.messageData?.textMessageData?.textMessage || 
-        body.messageData?.extendedTextMessageData?.text ||
-        ''
+      if (value?.messages?.[0]) {
+        const message = value.messages[0]
+        const waId = message.from
+        const text = message.text?.body
 
-      if (chatId && text) {
-        const waId = chatId.split('@')[0]
-        console.log(`[Bot] Incoming from ${senderName} (${waId}): "${text}"`)
-        
-        try {
+        if (waId && text) {
           const responseText = await handleWhatsAppMessage(waId, text)
           if (responseText) {
-            const sendResult = await sendWhatsAppNotification(waId, responseText)
-            if (!sendResult.success) {
-              console.error(`[Bot] Failed to send reply to ${waId}:`, sendResult.error)
-            }
+            await sendWhatsAppNotification(waId, responseText)
           }
-        } catch (botError: any) {
-          console.error(`[Bot Logic Error] for ${waId}:`, botError?.message || botError)
-          // Optionnel : Notification d'erreur au client ?
-          // await sendWhatsAppNotification(waId, "⚠️ Une erreur technique est survenue. Nos équipes sont prévenues.")
         }
-      } else {
-        console.log(`[Bot] Ignored incoming webhook: missing text or chatId. Type: ${body.messageData?.typeMessage}`)
+      }
+      return NextResponse.json({ status: 'success' })
+    }
+
+    // --- CAS B : GREEN-API (Ancien système) ---
+    const type = body.typeWebhook
+    if (type === 'incomingMessageReceived') {
+      const chatId = body.senderData?.chatId
+      const text = body.messageData?.textMessageData?.textMessage || body.messageData?.extendedTextMessageData?.text
+      
+      if (chatId && text) {
+        const waId = chatId.split('@')[0]
+        const responseText = await handleWhatsAppMessage(waId, text)
+        if (responseText) {
+          await sendWhatsAppNotification(waId, responseText)
+        }
       }
     }
 
-    // CAS 2 : RÉCEPTION DE MESSAGE SORTANT (Humain ou Bot -> Client)
-    // On ne met en pause le bot QUE si le message vient physiquement du téléphone (Manual Takeover)
-    if (type === 'outgoingMessageReceived') {
-      const chatId = body.chatId
-      const isApiMessage = body.sendByApi === true // Green-API indique si ça vient de l'API
-
-      if (chatId && !isApiMessage) {
-        const waId = chatId.split('@')[0]
-        console.log(`[Bot] Manual takeover detected for ${waId}. Bot PAUSED.`)
-        
-        try {
-          const adminSupabase = createAdminClient()
-          await adminSupabase
-            .from('conversations')
-            .update({ 
-              state: 'PAUSED',
-              updated_at: new Date().toISOString()
-            })
-            .eq('wa_id', waId)
-        } catch (dbError: any) {
-          console.error('[DB Pause Error]', dbError?.message || dbError)
-        }
+    if (type === 'outgoingMessageReceived' && !body.sendByApi) {
+      const waId = body.chatId?.split('@')[0]
+      if (waId) {
+        await adminSupabase.from('conversations').update({ state: 'PAUSED' }).eq('wa_id', waId)
       }
     }
 
     return NextResponse.json({ status: 'success' })
 
   } catch (error: any) {
-    console.error('[Webhook Global Error]', error?.message || error)
-    // Retourne 200 pour éviter que Green-API ne boucle sur l'erreur
-    return NextResponse.json({ status: 'error', message: error?.message }, { status: 200 })
+    console.error('[Webhook Error]', error.message)
+    return NextResponse.json({ status: 'error' }, { status: 200 })
   }
 }
 
 /**
- * GET pour vérification de l'Url
+ * VÉRIFICATION DU WEBHOOK (Requis par Meta)
  */
-export async function GET() {
-  return new NextResponse('Green-API Webhook is Active', { status: 200 })
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const mode = searchParams.get('hub.mode')
+  const token = searchParams.get('hub.verify_token')
+  const challenge = searchParams.get('hub.challenge')
+
+  if (mode === 'subscribe' && token === process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN) {
+    console.log('[Webhook] Meta Verification Success')
+    return new NextResponse(challenge, { status: 200 })
+  }
+
+  return new NextResponse('Verification Failed', { status: 403 })
 }

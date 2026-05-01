@@ -125,5 +125,5 @@ ${sizes.map(size => `
 
 fs.writeFileSync(path.join(publicDir, 'generate-icons.html'), helperHtml);
 console.log('Created public/generate-icons.html');
-console.log('👉 Open https://nelal-express.vercel.app/generate-icons.html in your browser');
+console.log('👉 Open https://nelalexpress.com/generate-icons.html in your browser');
 console.log('   then download the PNG icons and place them in public/');

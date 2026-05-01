@@ -295,7 +295,7 @@ export default function LoginPage() {
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400 pointer-events-none">🇸🇳 +221</span>
                       <input type="tel" required autoFocus inputMode="numeric"
                         value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))}
-                        placeholder="77 123 45 67"
+                        placeholder="71 116 53 68"
                         className="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 rounded-2xl pl-[100px] pr-5 py-4 text-lg placeholder:text-slate-300 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-black tracking-wider" />
                     </div>
                   </div>

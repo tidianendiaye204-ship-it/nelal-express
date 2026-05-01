@@ -129,7 +129,7 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
 
     case 'AWAITING_NAME': {
       await updateConvo(waId, 'AWAITING_PHONE', { ...data, recipientName: cleanText })
-      return `📞 Merci. Quel est le *numéro WhatsApp* du destinataire ?\n_(Format : 77XXXXXXX)_`
+      return `📞 Merci. Quel est le *numéro WhatsApp* du destinataire ?\n_(Format : 71XXXXXXX)_`
     }
 
     case 'AWAITING_PHONE': {
@@ -137,7 +137,7 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
       const phoneMatch = cleaned.match(/^(?:221)?(70|75|76|77|78)\d{7}$/)
       
       if (!phoneMatch) {
-        return "⚠️ Le format du numéro semble incorrect.\n\nVeuillez saisir un numéro sénégalais valide (ex: 771234567)."
+        return "⚠️ Le format du numéro semble incorrect.\n\nVeuillez saisir un numéro sénégalais valide (ex: 711165368)."
       }
       
       const phone = cleaned.slice(-9)
@@ -170,7 +170,7 @@ export async function handleWhatsAppMessage(waId: string, text: string) {
                  `🆔 Référence : *NEL-${order.id.slice(0, 4).toUpperCase()}*\n` +
                  `🔐 Code de sécurité : *${order.delivery_code}* (À donner au livreur)\n\n` +
                  `📍 *Suivi en temps réel* :\n` +
-                 `https://nelal-express.vercel.app/t/${trackingToken}\n\n` +
+                 `https://nelalexpress.com/t/${trackingToken}\n\n` +
                  `Merci de faire confiance à *Nelal Express* ! 🌍`
         } catch (err: any) {
           console.error('[Bot Order Error]', err)

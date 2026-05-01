@@ -13,7 +13,7 @@ describe('WhatsApp buildMessage', () => {
       zoneFrom: 'Dakar',
       zoneTo: 'Pikine',
       price: 2500,
-      trackingUrl: 'https://nelal-express.vercel.app/suivi/123'
+      trackingUrl: 'https://nelalexpress.com/suivi/123'
     }
     
     const message = buildMessage('order_confirmed', data)
