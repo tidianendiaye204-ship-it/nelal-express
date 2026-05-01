@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   title: 'Nelal Express — Livraison Élite au Sénégal',
   description: 'Le standard de l\'excellence logistique à Dakar et dans les régions. Livraison rapide, sécurisée et professionnelle.',
   manifest: '/manifest.json',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://nelalexpress.com'),
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
@@ -34,24 +33,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Nelal Express — Livraison Élite au Sénégal',
     description: 'Le standard de l\'excellence logistique à Dakar et dans les régions.',
-    url: '/',
     siteName: 'Nelal Express',
     locale: 'fr_SN',
     type: 'website',
-    images: [
-      {
-        url: 'https://nelalexpress.com/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Nelal Express — Livraison Élite au Sénégal',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Nelal Express',
     description: 'Le standard de l\'excellence logistique au Sénégal.',
-    images: ['https://nelalexpress.com/og-image.png'],
   },
   appleWebApp: {
     capable: true,
