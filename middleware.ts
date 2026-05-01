@@ -7,6 +7,8 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   // 1. EXCLUSIONS TOTALES (Zéro log, zéro check auth)
+  // On retourne NextResponse.next() explicitement pour que les bots (Facebook, WhatsApp)
+  // reçoivent bien un code HTTP 200 OK valide lors du scraping Open Graph.
   if (
     pathname === '/' || 
     pathname.startsWith('/api/whatsapp') || 
@@ -15,7 +17,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/t/') ||
     pathname.startsWith('/suivi/')
   ) {
-    return 
+    return NextResponse.next()
   }
 
   // Utilise le helper standard pour rafraîchir la session et obtenir la réponse
