@@ -14,11 +14,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
 
     // --- LOGGING ---
-    await adminSupabase.from('whatsapp_logs').insert({
-      type_webhook: body.object || body.typeWebhook || 'unknown',
-      payload: body,
-      wa_id: 'webhook-received'
-    }).catch(console.error)
+    try {
+      await adminSupabase.from('whatsapp_logs').insert({
+        type_webhook: body.object || body.typeWebhook || 'unknown',
+        payload: body,
+        wa_id: 'webhook-received'
+      })
+    } catch (logErr) {
+      console.error('[Logging Error]', logErr)
+    }
 
     // --- CAS A : META CLOUD API ---
     if (body.object === 'whatsapp_business_account') {
