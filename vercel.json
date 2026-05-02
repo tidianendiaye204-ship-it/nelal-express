@@ -7,15 +7,6 @@
   ],
   "headers": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "all"
-        }
-      ]
-    },
-    {
       "source": "/og-image.png",
       "headers": [
         {

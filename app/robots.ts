@@ -7,19 +7,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: 'facebookexternalhit',
-        allow: '/',
+        disallow: '',
       },
       {
         userAgent: 'Twitterbot',
-        allow: '/',
+        disallow: '',
       },
       {
         userAgent: 'WhatsApp',
-        allow: '/',
+        disallow: '',
       },
       {
         userAgent: '*',
-        allow: '/',
         disallow: ['/dashboard/', '/api/'],
       },
     ],
