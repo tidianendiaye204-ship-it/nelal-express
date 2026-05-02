@@ -3,10 +3,33 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 
+// User-agents des crawlers sociaux (Facebook, WhatsApp, Twitter, LinkedIn, etc.)
+const SOCIAL_BOTS = [
+  'facebookexternalhit',
+  'Facebot',
+  'Twitterbot',
+  'WhatsApp',
+  'LinkedInBot',
+  'Slackbot',
+  'TelegramBot',
+  'Googlebot',
+  'bingbot',
+]
+
+function isSocialBot(request: NextRequest): boolean {
+  const ua = request.headers.get('user-agent') || ''
+  return SOCIAL_BOTS.some(bot => ua.toLowerCase().includes(bot.toLowerCase()))
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // 1. EXCLUSIONS TOTALES (Zéro log, zéro check auth)
+  // 1. CRAWLERS SOCIAUX → toujours laisser passer avec un 200 propre
+  if (isSocialBot(request)) {
+    return NextResponse.next()
+  }
+
+  // 2. EXCLUSIONS TOTALES (Zéro log, zéro check auth)
   if (
     pathname === '/' || 
     pathname.startsWith('/api/whatsapp') || 
@@ -15,13 +38,13 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/t/') ||
     pathname.startsWith('/suivi/')
   ) {
-    return 
+    return NextResponse.next()
   }
 
   // Utilise le helper standard pour rafraîchir la session et obtenir la réponse
   const supabaseResponse = await updateSession(request)
 
-  // 2. PROTECTION DES ROUTES & REDIRECTIONS
+  // 3. PROTECTION DES ROUTES & REDIRECTIONS
   // On recréé un client temporaire pour checker l'auth (car updateSession ne retourne pas le client)
   // Note: C'est safe car updateSession a déjà rafraîchi les cookies dans supabaseResponse
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -73,3 +96,4 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
+
