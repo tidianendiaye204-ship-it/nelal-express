@@ -55,6 +55,9 @@ export const metadata: Metadata = {
     description: 'Le standard de l\'excellence logistique au Sénégal.',
     images: [`${appUrl}/og-image.png`],
   },
+  other: {
+    'fb:app_id': '1418781620266257',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
