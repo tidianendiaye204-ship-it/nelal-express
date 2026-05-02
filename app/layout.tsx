@@ -16,19 +16,7 @@ const dmSans = DM_Sans({
   weight: ['400', '500', '600'],
 })
 
-let appUrl = process.env.NEXT_PUBLIC_APP_URL 
-  ? process.env.NEXT_PUBLIC_APP_URL 
-  : process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'https://www.nelalexpress.com';
-
-// Le scraper Facebook plante s'il rencontre une redirection 307 sur l'og:url.
-// Vercel redirige l'apex (nelalexpress.com) vers www.nelalexpress.com avec un 307.
-if (appUrl === 'https://nelalexpress.com') {
-  appUrl = 'https://www.nelalexpress.com';
-}
+const appUrl = 'https://www.nelalexpress.com';
 
 export const metadata: Metadata = {
   title: 'Nelal Express — Livraison Élite au Sénégal',
