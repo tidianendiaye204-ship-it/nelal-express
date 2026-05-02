@@ -5,7 +5,7 @@ import { signOut } from '@/actions/auth'
 import { updateProfile } from '@/actions/profile'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { User, Phone, Mail, Package, LogOut, ChevronRight, Shield, Edit3 } from 'lucide-react'
+import { User, Phone, Mail, Package, LogOut, ChevronRight, Shield, Edit3, Wallet } from 'lucide-react'
 
 export default async function ProfilPage() {
   const supabase = await createClient()
@@ -125,8 +125,23 @@ export default async function ProfilPage() {
       {/* QUICK LINKS */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50 mb-4">
         <Link
+          href="/dashboard/client/wallet"
+          className="flex items-center justify-between px-5 py-4 group hover:bg-slate-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500">
+              <Wallet className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900">Mon Portefeuille (Nelal Pay)</p>
+              <p className="text-[10px] text-slate-400 font-medium">Gérer mes fonds collectés</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
+        </Link>
+        <Link
           href="/dashboard/client/commandes"
-          className="flex items-center justify-between px-5 py-4 group"
+          className="flex items-center justify-between px-5 py-4 group hover:bg-slate-50 transition-colors"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
