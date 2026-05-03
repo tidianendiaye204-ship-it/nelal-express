@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- 1. Création de la table quartiers
 CREATE TABLE IF NOT EXISTS quartiers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nom TEXT NOT NULL,
+  nom TEXT UNIQUE NOT NULL,
   zone_id UUID REFERENCES zones(id) ON DELETE SET NULL, -- FK vers la table zones
   code_postal TEXT,
   frais_livraison_base INT DEFAULT 1000,
@@ -60,7 +60,8 @@ BEGIN
   ('Zone de Captage', v_dakar_centre, 1200),
   ('Grand Yoff', v_dakar_centre, 1000),
   ('HLM', v_dakar_centre, 1000),
-  ('Colobane', v_dakar_centre, 1000);
+  ('Colobane', v_dakar_centre, 1000)
+  ON CONFLICT (nom) DO NOTHING;
 
   -- Insertions Banlieue
   INSERT INTO quartiers (nom, zone_id, frais_livraison_base) VALUES
@@ -84,7 +85,8 @@ BEGIN
   ('Diamniadio', v_banlieue, 3000),
   ('Sebikotane', v_banlieue, 3000),
   ('ZAC Mbao', v_banlieue, 2000),
-  ('Fass Mbao', v_banlieue, 2000);
+  ('Fass Mbao', v_banlieue, 2000)
+  ON CONFLICT (nom) DO NOTHING;
 
   -- Optionnel: Activer la RLS si elle est utile sur les quartiers
   -- ALTER TABLE public.quartiers ENABLE ROW LEVEL SECURITY;

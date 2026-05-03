@@ -5,7 +5,7 @@
 -- ZONES DE LIVRAISON
 create table if not exists zones (
   id uuid primary key default gen_random_uuid(),
-  name text not null,
+  name text unique not null,
   type text check (type in ('dakar_centre', 'banlieue', 'interieur')) not null,
   tarif_base integer not null default 1000, -- en FCFA
   created_at timestamptz default now()
@@ -206,4 +206,4 @@ values
   ('Touba', 'interieur', 7000),
   ('Kaolack', 'interieur', 7000),
   ('Ziguinchor', 'interieur', 15000)
-on conflict do nothing;
+on conflict (name) do nothing;

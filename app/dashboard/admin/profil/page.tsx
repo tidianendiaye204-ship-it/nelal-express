@@ -42,7 +42,14 @@ export default async function AdminProfilPage() {
 
         <form action={async (formData: FormData) => {
           'use server'
-          await updateProfile(formData)
+          const res = await updateProfile(formData)
+          if (res?.error) {
+            console.error('Profile update error:', res.error)
+            // We can't use alert() in a server component directly, but we can throw to error boundary
+            // Or better, we just log it. Since this is an inline action in a server component without state.
+            // A quick fix to show error:
+            throw new Error(res.error)
+          }
         }} className="space-y-3">
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
