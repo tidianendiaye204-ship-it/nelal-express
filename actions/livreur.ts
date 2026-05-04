@@ -24,8 +24,8 @@ export async function acceptOrder(orderId: string) {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'livreur') {
-    return { error: `Accès refusé. Votre compte est configuré comme [${profile?.role || 'inconnu'}]. Contactez l'admin pour passer en livreur.` }
+  if (profile?.role !== 'livreur' && profile?.role !== 'agent') {
+    return { error: `Accès refusé. Votre compte est configuré comme [${profile?.role || 'inconnu'}]. Seuls les livreurs et les agents peuvent accepter des missions.` }
   }
 
   // Blocage si trop de cash en main

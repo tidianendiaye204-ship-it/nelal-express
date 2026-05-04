@@ -867,7 +867,7 @@ export async function adminConfirmCashReceipt(livreurId: string, amount: number)
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return { error: 'Accès réservé aux administrateurs' }
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès réservé aux administrateurs et agents' }
 
   const { data: livreur } = await supabase.from('profiles').select('cash_held').eq('id', livreurId).single()
   if (!livreur) return { error: 'Livreur introuvable' }
