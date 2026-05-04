@@ -59,14 +59,21 @@ export async function createOrder(formData: FormData) {
     gps_link: (formData.get('gps_link') as string) || null,
     recipient_name: (formData.get('recipient_name') as string) || 'Destinataire',
     recipient_phone: (formData.get('recipient_phone') as string) || 'Non spécifié',
-    address_landmark: (formData.get('address_landmark') as string) || null,
     payment_method: (formData.get('payment_method') as PaymentMethod) || 'cash',
     price,
     valeur_colis: parseInt(formData.get('valeur_colis') as string) || 0,
     delivery_code: deliveryCode,
+    address_landmark: (formData.get('pickup_repere') as string) || (formData.get('delivery_repere') as string) || (formData.get('address_landmark') as string) || null,
   }).select().single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: `Erreur lors de la création : ${error.message}` }
+
+  // 🎫 Génération du Token de suivi court (ex: NEL-XJ)
+  const shortToken = Math.random().toString(36).substring(2, 8).toUpperCase()
+  await supabase.from('tracking_tokens').insert({
+    order_id: order.id,
+    token: shortToken
+  })
 
   // 🌍 Crowdsourcing : On alimente l'algorithme avec les repères saisis par le client
   const pickupRepere = formData.get('pickup_repere') as string
@@ -91,7 +98,7 @@ export async function createOrder(formData: FormData) {
 
   revalidatePath('/dashboard/client')
   revalidatePath('/dashboard/admin')
-  return { success: true, orderId: order.id }
+  return { success: true, orderId: order.id, token: shortToken }
 }
 
 async function notifyAdminsOnOrder(orderId: string) {
@@ -105,10 +112,14 @@ async function notifyAdminsOnOrder(orderId: string) {
     
   if (!order) return
 
-  // Format tracking links
+  // Retrieve tracking token
+  const { data: tokenData } = await supabase.from('tracking_tokens').select('token').eq('order_id', orderId).maybeSingle()
+  const shortToken = tokenData?.token || order.id.slice(0, 8)
+  
   const assignUrl = `${BASE_URL}/dashboard/admin/orders/${order.id}/assign`
   const acceptUrl = `${BASE_URL}/dashboard/livreur/disponibles`
-  const ref = order.id.slice(0, 8).toUpperCase()
+  const trackingUrl = `${BASE_URL}/t/${shortToken}`
+  const ref = shortToken.toUpperCase()
 
   const msgData = {
     orderId: order.id,
@@ -123,6 +134,7 @@ async function notifyAdminsOnOrder(orderId: string) {
     paymentMethod: order.payment_method,
     assignUrl,
     acceptUrl,
+    trackingUrl,
   }
 
   // ─── 🔔 WEB PUSH (gratuit, fonctionne même app fermée) ───────────
@@ -213,7 +225,7 @@ async function notifyAdminsOnOrder(orderId: string) {
   }
 }
 
-export async function createQuickOrder(formData: FormData) {
+export async function createQuickOrder(formData: FormData): Promise<{ success?: boolean; orderId?: string; token?: string; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non connecté' }
@@ -264,14 +276,21 @@ export async function createQuickOrder(formData: FormData) {
     description: (formData.get('description') as string) || 'Colis',
     recipient_name: (formData.get('recipient_name') as string) || 'Destinataire',
     recipient_phone: (formData.get('recipient_phone') as string) || 'Non spécifié',
-    address_landmark: (formData.get('pickup_repere') as string) || null,
     payment_method: (formData.get('payment_method') as PaymentMethod) || 'cash',
     price,
     valeur_colis: parseInt(formData.get('valeur_colis') as string) || 0,
     delivery_code: deliveryCode,
+    address_landmark: (formData.get('pickup_repere') as string) || (formData.get('delivery_repere') as string) || null,
   }).select().single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: `Erreur : ${error.message}` }
+
+  // 🎫 Génération du Token de suivi court
+  const shortToken = Math.random().toString(36).substring(2, 8).toUpperCase()
+  await supabase.from('tracking_tokens').insert({
+    order_id: order.id,
+    token: shortToken
+  })
 
   const pickupRepere = formData.get('pickup_repere') as string
   const deliveryRepere = formData.get('delivery_repere') as string
@@ -290,7 +309,7 @@ export async function createQuickOrder(formData: FormData) {
 
   revalidatePath('/dashboard/client')
   revalidatePath('/dashboard/admin')
-  return { success: true, orderId: order.id }
+  return { success: true, orderId: order.id, token: shortToken }
 }
 
 export async function cancelOrder(orderId: string) {
@@ -589,11 +608,11 @@ export async function autoDispatchOrder(orderId: string, actionUserId?: string) 
     return { success: false, reason: 'Invalid order or status' }
   }
 
-  // 2. Find eligible livreurs in the pickup zone
+  // 2. Find eligible livreurs (and agents who deliver) in the pickup zone
   const { data: livreurs } = await supabase
     .from('profiles')
     .select('id')
-    .eq('role', 'livreur')
+    .in('role', ['livreur', 'agent'])
     .eq('zone_id', order.zone_from_id)
 
   if (!livreurs || livreurs.length === 0) {
@@ -716,7 +735,7 @@ export async function createLivreur(formData: FormData) {
     if (!user || authError) return { error: 'Non connecté ou session expirée' }
     
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return { error: 'Seul un administrateur peut créer un livreur' }
+    if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès refusé : seuls les administrateurs et agents peuvent créer des livreurs.' }
 
     // 2. Créer l'admin client (Service Role)
     let adminAuthClient;
@@ -731,8 +750,18 @@ export async function createLivreur(formData: FormData) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const full_name = formData.get('full_name') as string
-    const phone = formData.get('phone') as string
+    const phone = (formData.get('phone') as string)?.replace(/\s/g, '')
     const zone_id = formData.get('zone_id') as string
+
+    // 3. Vérifier si le téléphone ou l'email existent déjà
+    const [{ data: existingPhone }, { data: existingProfile }] = await Promise.all([
+      adminAuthClient.from('profiles').select('role, full_name').eq('phone', phone).maybeSingle(),
+      adminAuthClient.from('profiles').select('role').eq('email', email).maybeSingle()
+    ])
+
+    if (existingPhone) {
+      return { error: `Ce numéro (${phone}) appartient déjà à ${existingPhone.full_name} (${existingPhone.role}). Un utilisateur ne peut pas avoir deux rôles différents avec le même numéro.` }
+    }
 
     const { data: newUser, error: createError } = await adminAuthClient.auth.admin.createUser({
       email,
@@ -747,7 +776,10 @@ export async function createLivreur(formData: FormData) {
 
     if (createError) {
       console.error('[CreateLivreur Auth Error]', createError.message)
-      return { error: `Erreur Auth: ${createError.message}` }
+      if (createError.message.toLowerCase().includes('already registered')) {
+        return { error: "Cette adresse email est déjà associée à un compte existant. Veuillez utiliser une autre adresse." }
+      }
+      return { error: `Erreur d'inscription : ${createError.message}` }
     }
 
     if (!newUser?.user) return { error: "L'utilisateur a été créé mais aucune donnée n'a été retournée." }

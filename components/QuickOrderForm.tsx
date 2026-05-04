@@ -21,6 +21,9 @@ export default function QuickOrderForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [orderId, setOrderId] = useState<string | null>(null)
+  const [trackingToken, setTrackingToken] = useState<string | null>(null)
+  const [pickupRepereVal, setPickupRepereVal] = useState('')
+  const [deliveryRepereVal, setDeliveryRepereVal] = useState('')
   
   // Modal state
   const [recipientName, setRecipientName] = useState('')
@@ -62,16 +65,11 @@ export default function QuickOrderForm() {
     formData.append('quartier_depart_id', depart.id)
     formData.append('quartier_arrivee_id', arrivee.id)
     
-    // Repères cachés de l'autocomplete (nécessite de récupérer les valeurs via document ou ref, ou on les passe si gérés)
-    // Pour simplifier et utiliser le RepereAutocomplete de base, on encapsulera tout dans le form global ou on capture via refs
-    const departRepereEl = document.querySelector('input[name="pickup_repere"]') as HTMLInputElement
-    const arriveeRepereEl = document.querySelector('input[name="delivery_repere"]') as HTMLInputElement
-    
-    if (departRepereEl) formData.append('pickup_repere', departRepereEl.value)
-    if (arriveeRepereEl) formData.append('delivery_repere', arriveeRepereEl.value)
+    formData.append('pickup_repere', pickupRepereVal)
+    formData.append('delivery_repere', deliveryRepereVal)
 
     formData.append('recipient_name', recipientName)
-    formData.append('recipient_phone', recipientPhone)
+    formData.append('recipient_phone', recipientPhone.replace(/\s/g, ''))
     formData.append('description', description)
     formData.append('payment_method', paymentMethod)
     formData.append('is_express', isExpress ? '1' : '0')
@@ -83,6 +81,7 @@ export default function QuickOrderForm() {
       const result = await createQuickOrder(formData)
       if (result?.success && result.orderId) {
         setOrderId(result.orderId)
+        setTrackingToken(result.token || null)
         setShowModal(false)
       } else if (result?.error) {
         setError(result.error)
@@ -95,7 +94,9 @@ export default function QuickOrderForm() {
   }
 
   if (orderId) {
-    const trackingUrl = `${window.location.origin}/suivi/${orderId}`
+    const trackingUrl = trackingToken 
+      ? `${window.location.origin}/t/${trackingToken}`
+      : `${window.location.origin}/suivi/${orderId}`
     return (
       <div className="bg-white rounded-3xl border border-slate-100 p-8 text-center space-y-6 shadow-2xl animate-in zoom-in-95 duration-500">
         <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 mx-auto">
@@ -153,6 +154,7 @@ export default function QuickOrderForm() {
                   name="pickup_repere"
                   zoneId={depart.zone_id}
                   placeholder="Repère d'enlèvement (optionnel)"
+                  onValueChange={setPickupRepereVal}
                   className="bg-slate-50/50"
                 />
               </div>
@@ -173,6 +175,7 @@ export default function QuickOrderForm() {
                   name="delivery_repere"
                   zoneId={arrivee.zone_id}
                   placeholder="Repère de livraison (optionnel)"
+                  onValueChange={setDeliveryRepereVal}
                   className="bg-slate-50/50"
                 />
               </div>

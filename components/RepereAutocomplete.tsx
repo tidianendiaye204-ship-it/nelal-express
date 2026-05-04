@@ -13,6 +13,7 @@ interface RepereAutocompleteProps {
   required?: boolean
   className?: string
   icon?: React.ReactNode
+  onValueChange?: (val: string) => void
 }
 
 export default function RepereAutocomplete({
@@ -22,12 +23,18 @@ export default function RepereAutocomplete({
   defaultValue = "",
   required = false,
   className,
-  icon
+  icon,
+  onValueChange
 }: RepereAutocompleteProps) {
   const [query, setQuery] = useState(defaultValue)
   const [results, setResults] = useState<any[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
+
+  // Notify parent of changes
+  useEffect(() => {
+    onValueChange?.(query)
+  }, [query, onValueChange])
   
   const wrapperRef = useRef<HTMLDivElement>(null)
 
