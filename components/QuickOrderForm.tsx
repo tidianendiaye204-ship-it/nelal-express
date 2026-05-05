@@ -7,7 +7,7 @@ import { Quartier } from '@/lib/types'
 import { createQuickOrder } from '@/actions/orders'
 import { calculateDynamicPrice, type ParcelSize } from '@/lib/utils/pricing'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, Route, ArrowRight, Zap, X, MapPin, Package, StickyNote, Box } from 'lucide-react'
+import { X } from 'lucide-react'
 
 export default function QuickOrderForm() {
   const router = useRouter()
@@ -100,7 +100,7 @@ export default function QuickOrderForm() {
     return (
       <div className="bg-white rounded-3xl border border-slate-100 p-8 text-center space-y-6 shadow-2xl animate-in zoom-in-95 duration-500">
         <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-500 mx-auto">
-          <CheckCircle className="w-12 h-12" />
+          <span className="material-symbols-rounded text-5xl">check_circle</span>
         </div>
         <div>
           <h2 className="font-display font-black text-2xl text-slate-900 tracking-tight">Commande Validée !</h2>
@@ -108,12 +108,12 @@ export default function QuickOrderForm() {
         </div>
         <div className="bg-slate-50 p-4 rounded-2xl">
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(`Suivez mon colis Nelal Express ici : ${trackingUrl}`)}`}
+            href={`https://wa.me/?text=${encodeURIComponent(`📦 *Nelal Express — Suivi de Colis*\n\nVotre commande a été validée ! Suivez son trajet en temps réel ici :\n👉 ${trackingUrl}\n\nMerci de nous faire confiance. 🇸🇳`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center shadow-lg active:scale-95 transition-all"
+            className="w-full bg-[#25D366] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
           >
-            Partager le lien WhatsApp
+            <span className="material-symbols-rounded text-lg">share</span> Partager le lien WhatsApp
           </a>
         </div>
         <button
@@ -138,7 +138,7 @@ export default function QuickOrderForm() {
         <div className="space-y-6 relative">
           
           <div className="absolute left-6 top-16 bottom-16 w-0.5 bg-slate-100 flex flex-col justify-center items-center z-0">
-             <div className="bg-white p-1 rounded-full"><Route className="w-3 h-3 text-slate-300" /></div>
+             <div className="bg-white p-1 rounded-full"><span className="material-symbols-rounded text-[10px] text-slate-300">route</span></div>
           </div>
 
           <div className="relative z-10 space-y-4">
@@ -167,7 +167,7 @@ export default function QuickOrderForm() {
               placeholder="Ex: Keur Massar..."
               value={arrivee}
               onChange={setArrivee}
-              icon={<MapPin className="w-4 h-4 text-orange-500" />}
+              icon={<span className="material-symbols-rounded text-lg text-orange-500">location_on</span>}
             />
             {arrivee?.zone_id && (
               <div className="pl-14">
@@ -188,9 +188,9 @@ export default function QuickOrderForm() {
            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Type de colis</label>
            <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'petit', label: 'Petit', icon: <StickyNote className="w-3 h-3" />, desc: 'Doc, Plats' },
-                { id: 'moyen', label: 'Moyen', icon: <Package className="w-3 h-3" />, desc: 'Carton, Sac' },
-                { id: 'gros', label: 'Gros', icon: <Box className="w-3 h-3" />, desc: 'Valise, 50kg' },
+                { id: 'petit', label: 'Petit', icon: 'drafts', desc: 'Doc, Plats' },
+                { id: 'moyen', label: 'Moyen', icon: 'package_2', desc: 'Carton, Sac' },
+                { id: 'gros', label: 'Gros', icon: 'inventory_2', desc: 'Valise, 50kg' },
               ].map((size) => (
                 <button
                   key={size.id}
@@ -202,7 +202,7 @@ export default function QuickOrderForm() {
                       : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
                   }`}
                 >
-                  {size.icon}
+                  <span className="material-symbols-rounded text-base">{size.icon}</span>
                   <span className="text-[10px] font-black uppercase leading-tight">{size.label}</span>
                   <span className="text-[7px] font-medium opacity-60 leading-none">{size.desc}</span>
                 </button>
@@ -219,7 +219,7 @@ export default function QuickOrderForm() {
                   isExpress ? 'bg-orange-500 text-white shadow-md' : 'bg-slate-100 text-slate-500'
                 }`}
               >
-                <Zap className="w-3 h-3" /> Express
+                <span className="material-symbols-rounded text-xs">bolt</span> Express
               </button>
             )}
           </div>
@@ -235,7 +235,7 @@ export default function QuickOrderForm() {
           onClick={openConfirmation}
           className="w-full mt-6 bg-slate-900 hover:bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-slate-900/20"
         >
-          Continuer <ArrowRight className="w-4 h-4" />
+          Continuer <span className="material-symbols-rounded text-lg">arrow_forward</span>
         </button>
       </div>
 

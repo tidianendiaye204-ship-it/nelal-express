@@ -11,7 +11,7 @@ import type { OrderStatus, PaymentMethod, OrderType, Order } from '@/lib/types'
 
 import { calculateDynamicPrice, type ParcelSize } from '@/lib/utils/pricing'
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nelalexpress.com'
+const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://nelalexpress.com').replace(/\/$/, '')
 
 // ── CLIENT ──────────────────────────────────────────────
 

@@ -133,17 +133,17 @@ export default function LandingPage() {
             <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-orange-500/0 via-orange-500/20 to-orange-500/0 z-0"></div>
 
             {[
-              { num: '01', title: 'Commande en ligne', desc: 'Remplissez le formulaire ou contactez-nous sur WhatsApp en 1 clic.', icon: <Smartphone className="w-6 h-6 text-orange-500" /> },
-              { num: '02', title: 'Un Pilote récupère', desc: 'Notre livreur le plus proche arrive pour récupérer votre colis.', icon: <MapPin className="w-6 h-6 text-blue-500" /> },
-              { num: '03', title: 'Suivi Temps Réel', desc: 'Vous êtes informé à chaque étape via notifications directes.', icon: <Clock className="w-6 h-6 text-purple-500" /> },
-              { num: '04', title: 'Livraison Confirmée', desc: 'Le destinataire signe, vous recevez le reçu instantanément.', icon: <CheckCircle2 className="w-6 h-6 text-green-500" /> },
+              { num: '01', title: 'Commande en ligne', desc: 'Remplissez le formulaire ou contactez-nous sur WhatsApp en 1 clic.', icon: 'smartphone' },
+              { num: '02', title: 'Un Pilote récupère', desc: 'Notre livreur le plus proche arrive pour récupérer votre colis.', icon: 'location_on' },
+              { num: '03', title: 'Suivi Temps Réel', desc: 'Vous êtes informé à chaque étape via notifications directes.', icon: 'history' },
+              { num: '04', title: 'Livraison Confirmée', desc: 'Le destinataire signe, vous recevez le reçu instantanément.', icon: 'check_circle' },
             ].map((step, i) => (
               <div key={i} className="relative z-10 bg-[#121A2F]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 hover:-translate-y-2 transition-transform duration-300 group shadow-xl">
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-slate-900 border border-white/10 rounded-2xl flex items-center justify-center font-display font-black text-lg text-white shadow-lg group-hover:border-orange-500/50 group-hover:text-orange-500 transition-colors">
                   {step.num}
                 </div>
                 <div className="mt-8 mb-4 w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                  {step.icon}
+                  <span className="material-symbols-rounded text-2xl text-orange-500">{step.icon}</span>
                 </div>
                 <h3 className="text-center font-display font-black text-lg mb-2 uppercase tracking-tight text-white">{step.title}</h3>
                 <p className="text-center text-slate-400 text-xs sm:text-sm leading-relaxed">{step.desc}</p>
@@ -164,13 +164,13 @@ export default function LandingPage() {
               </h2>
               <div className="space-y-6">
                 {[
-                  { title: "Point Yeumbeul Nord", desc: "Notre plateforme banlieue assure le maillage complet de Keur Massar à Pikine.", icon: <Home className="text-orange-500" />},
-                  { title: "Service Dakar Elite", desc: "Rapidité absolue pour vos documents et colis précieux en centre-ville.", icon: <Navigation className="text-blue-500" />},
-                  { title: "Transit Ndioum-Fouta", desc: "Le pont logistique direct pour vos envois vers le Nord du Sénégal.", icon: <Truck className="text-green-500" />},
+                  { title: "Point Yeumbeul Nord", desc: "Notre plateforme banlieue assure le maillage complet de Keur Massar à Pikine.", icon: 'home' },
+                  { title: "Service Dakar Elite", desc: "Rapidité absolue pour vos documents et colis précieux en centre-ville.", icon: 'navigation' },
+                  { title: "Transit Ndioum-Fouta", desc: "Le pont logistique direct pour vos envois vers le Nord du Sénégal.", icon: 'local_shipping' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-6 group">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-orange-500/10 group-hover:border-orange-500/20 transition-all">
-                      {item.icon}
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-orange-500/10 group-hover:border-orange-500/20 transition-all text-orange-500">
+                      <span className="material-symbols-rounded text-2xl">{item.icon}</span>
                     </div>
                     <div>
                       <h4 className="font-display font-black text-lg mb-1 uppercase tracking-tight">{item.title}</h4>
@@ -185,22 +185,22 @@ export default function LandingPage() {
                <div className="relative bg-white/5 border border-white/10 rounded-3xl sm:rounded-[3rem] p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500"><ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500"><span className="material-symbols-rounded">shield_with_heart</span></div>
                         <div className="font-display font-black text-xl sm:text-2xl uppercase">100%</div>
                         <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Sécurité Colis</div>
                     </div>
                     <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4 sm:mt-8">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500"><Globe className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500"><span className="material-symbols-rounded">public</span></div>
                         <div className="font-display font-black text-xl sm:text-2xl uppercase">Direct</div>
                         <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Dakar ↔ Ndioum</div>
                     </div>
                     <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500"><Users className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500"><span className="material-symbols-rounded">groups</span></div>
                         <div className="font-display font-black text-xl sm:text-2xl uppercase">Local</div>
                         <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Équipe Dakaroise</div>
                     </div>
                     <div className="bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/5 space-y-3 sm:space-y-4 sm:mt-8">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500"><Zap className="w-5 h-5 sm:w-6 sm:h-6" /></div>
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-500"><span className="material-symbols-rounded">bolt</span></div>
                         <div className="font-display font-black text-xl sm:text-2xl uppercase">Express</div>
                         <div className="text-[8px] font-black uppercase tracking-widest text-slate-500">Service Prioritaire</div>
                     </div>
@@ -215,13 +215,13 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { value: 'Yeumbeul Nord', label: 'Notre quartier général', icon: <MapPin className="w-6 h-6" />, color: 'text-orange-400 bg-orange-500/10 border-orange-500/20' },
-            { value: 'Transit Ndioum', label: 'Spécialité Nord-Sénégal', icon: <Zap className="w-6 h-6" />, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
-            { value: 'Sécurité TOTALE', label: 'Paiement à la livraison', icon: <Wallet className="w-6 h-6" />, color: 'text-green-400 bg-green-500/10 border-green-500/20' },
+            { value: 'Yeumbeul Nord', label: 'Notre quartier général', icon: 'map', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20' },
+            { value: 'Transit Ndioum', label: 'Spécialité Nord-Sénégal', icon: 'bolt', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+            { value: 'Sécurité TOTALE', label: 'Paiement à la livraison', icon: 'account_balance_wallet', color: 'text-green-400 bg-green-500/10 border-green-500/20' },
           ].map((stat) => (
             <div key={stat.label} className={`bg-white/5 border rounded-[2.5rem] p-8 text-center group hover:bg-white/10 transition-all ${stat.color}`}>
               <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:scale-110 transition-transform">
-                {stat.icon}
+                <span className="material-symbols-rounded text-3xl">{stat.icon}</span>
               </div>
               <div className="font-display font-black text-2xl mb-2 uppercase tracking-tight">{stat.value}</div>
               <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">{stat.label}</div>
@@ -243,29 +243,32 @@ export default function LandingPage() {
           {[
             {
               type: 'Dakar Elite',
-              icon: <Navigation className="w-10 h-10 text-blue-500 mb-6" />,
+              icon: 'navigation',
               zones: ['Plateau / Médina', 'Yoff / Almadies', 'Point E / Liberté', 'Fann / Mermoz'],
               tarif: 'Dès 1 000 F',
-              color: 'bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/10'
+              color: 'bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/10',
+              iconColor: 'text-blue-500'
             },
             {
               type: 'Focus Yeumbeul',
-              icon: <Home className="w-10 h-10 text-orange-500 mb-6" />,
+              icon: 'home',
               zones: ['Yeumbeul Nord/Sud', 'Keur Massar', 'Pikine / Guédiawaye', 'Rufisque / Mbao'],
               tarif: 'Local dès 800 F',
-              color: 'bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/10'
+              color: 'bg-gradient-to-br from-orange-500/10 to-transparent border-orange-500/10',
+              iconColor: 'text-orange-500'
             },
             {
               type: 'Ligne Ndioum',
-              icon: <Truck className="w-10 h-10 text-green-500 mb-6" />,
+              icon: 'local_shipping',
               zones: ['Ndioum (Hub Nord)', 'Saint-Louis', 'Podor / Matam', 'Thiès / Touba'],
               tarif: 'Dès 1 500 F',
-              color: 'bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10'
+              color: 'bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10',
+              iconColor: 'text-green-500'
             },
           ].map((section) => (
             <div key={section.type} className={`border rounded-3xl sm:rounded-[3rem] p-6 sm:p-10 flex flex-col items-center text-center transition-all hover:-translate-y-2 duration-300 ${section.color}`}>
-              <div className="bg-[#0F172A] p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl border border-white/5 text-center">
-                {section.icon}
+              <div className={`bg-[#0F172A] p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl border border-white/5 text-center ${section.iconColor}`}>
+                <span className="material-symbols-rounded text-4xl">{section.icon}</span>
               </div>
               <h3 className="font-display font-black text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-tight italic">{section.type}</h3>
               <div className="space-y-2 sm:space-y-3 mb-8 sm:mb-10 w-full text-center">

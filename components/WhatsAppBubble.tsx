@@ -53,7 +53,7 @@ export default function WhatsAppBubble() {
       >
         <div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-25"></div>
         <div className="w-16 h-16 bg-[#25D366] group-hover:bg-[#128C7E] text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#25D366]/40 transition-all group-hover:scale-110 active:scale-95 z-10">
-          <MessageCircle className="w-8 h-8" />
+          <span className="material-symbols-rounded text-3xl">chat</span>
         </div>
       </a>
     </div>
