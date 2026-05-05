@@ -4,6 +4,7 @@ import QuickOrderForm from '@/components/QuickOrderForm'
 import WhatsAppBubble from '@/components/WhatsAppBubble'
 import CustomCursor from '@/components/CustomCursor'
 import ScrollReveal from '@/components/ScrollReveal'
+import NewsletterForm from '@/components/NewsletterForm'
 
 export default function LandingPage() {
   return (
@@ -419,15 +420,7 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            <div className="space-y-8 text-center md:text-left">
-              <h4 className="font-display font-black text-xs uppercase tracking-[0.4em] text-white">Newsletter</h4>
-              <div className="flex gap-3">
-                <input type="email" placeholder="Email" className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xs w-full focus:outline-none focus:border-orange-500/50 transition-colors" />
-                <button className="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-2xl transition-all shadow-xl shadow-orange-500/20">
-                  <span className="material-symbols-rounded">send</span>
-                </button>
-              </div>
-            </div>
+            <NewsletterForm />
           </div>
           
           <div className="pt-12 border-t border-white/5 text-center">

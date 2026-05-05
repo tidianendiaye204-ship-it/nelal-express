@@ -204,7 +204,7 @@ export default function LoginPage() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="● ● ● ● ● ●"
-                    className="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 rounded-2xl px-5 py-5 text-center text-3xl placeholder:text-slate-200 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-black tracking-[0.5em]"
+                    className="w-full bg-white/5 border-2 border-white/5 text-white rounded-2xl px-5 py-5 text-center text-3xl placeholder:text-slate-700 focus:outline-none focus:border-orange-500 transition-all font-black tracking-[0.5em]"
                   />
                 </div>
                 {error && (
@@ -235,12 +235,12 @@ export default function LoginPage() {
               </div>
 
               {/* Toggle Email / WhatsApp */}
-              <div className="flex bg-slate-100 rounded-2xl p-1 mb-8">
+              <div className="flex bg-white/5 border border-white/5 rounded-2xl p-1 mb-8">
                 <button
                   type="button"
                   onClick={() => { setMethod('email'); setError('') }}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
-                    method === 'email' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500'
+                    method === 'email' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
                   <span className="material-symbols-rounded text-lg">mail</span> Email
@@ -249,11 +249,11 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => { setMethod('whatsapp'); setError('') }}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${
-                    method === 'whatsapp' ? 'bg-white/10 text-green-500 shadow-sm' : 'text-slate-500'
+                    method === 'whatsapp' ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
                   <span className="material-symbols-rounded text-lg">chat</span> WhatsApp
-                  <span className="absolute -top-2 -right-1 bg-orange-500 text-white text-[8px] px-2 py-1 rounded-full shadow-sm font-black uppercase tracking-tighter">SOON</span>
+                  <span className="absolute -top-2 -right-1 bg-white text-orange-600 text-[8px] px-2 py-0.5 rounded-full shadow-sm font-black uppercase tracking-tighter">SOON</span>
                 </button>
               </div>
 
@@ -321,7 +321,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <Link href="/" className="mt-8 flex items-center justify-center gap-2 text-slate-400 hover:text-slate-600 transition-colors font-bold text-sm group">
+        <Link href="/" className="mt-8 flex items-center justify-center gap-2 text-slate-500 hover:text-white transition-colors font-bold text-sm group">
           <span className="group-hover:-translate-x-1 transition-transform">←</span>
           Retour à l&apos;accueil
         </Link>
