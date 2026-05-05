@@ -1,7 +1,7 @@
 // app/t/[token]/page.tsx
 import { createClient } from '@/utils/supabase/server'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
-import { Package, Truck, CheckCircle, Clock, MapPin, Camera } from 'lucide-react'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import LiveTracker from '@/components/LiveTracker'
@@ -46,10 +46,10 @@ export default async function PublicTrackingPage({ params }: { params: Promise<{
   if (!order) return null
 
   const steps = [
-    { key: 'en_attente', label: 'Pris en compte', icon: <Clock className="w-4 h-4" /> },
-    { key: 'confirme', label: 'Assigné', icon: <Package className="w-4 h-4" /> },
-    { key: 'en_cours', label: 'En route', icon: <Truck className="w-4 h-4" /> },
-    { key: 'livre', label: 'Livré', icon: <CheckCircle className="w-4 h-4" /> },
+    { key: 'en_attente', label: 'Pris en compte', icon: 'inventory_2' },
+    { key: 'confirme', label: 'Assigné', icon: 'order_approve' },
+    { key: 'en_cours', label: 'En route', icon: 'local_shipping' },
+    { key: 'livre', label: 'Livré', icon: 'verified' },
   ]
 
   const currentIdx = steps.findIndex(s => s.key === order.status)
@@ -102,7 +102,9 @@ export default async function PublicTrackingPage({ params }: { params: Promise<{
                         <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
                             i <= currentIdx ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20' : 'bg-white border-slate-100 text-slate-300'
                         }`}>
-                            {step.icon}
+                            <span className="material-symbols-rounded text-base">
+                              {step.icon}
+                            </span>
                         </div>
                         <span className={`text-[9px] font-bold uppercase tracking-tighter ${i <= currentIdx ? 'text-orange-600' : 'text-slate-300'}`}>
                             {step.label}
@@ -138,7 +140,9 @@ export default async function PublicTrackingPage({ params }: { params: Promise<{
         {/* DÉTAILS TRAJET */}
         <section className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
             <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-500 shrink-0"><MapPin className="w-4 h-4" /></div>
+                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-500 shrink-0">
+                    <span className="material-symbols-rounded text-lg text-slate-400">location_on</span>
+                </div>
                 <div>
                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trajet</div>
                    <div className="text-sm font-bold">{order.quartier_depart?.nom} → {order.quartier_arrivee?.nom}</div>
@@ -148,7 +152,7 @@ export default async function PublicTrackingPage({ params }: { params: Promise<{
             {order.pickup_photo_url && (
                 <div className="mt-4">
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <Camera className="w-3 h-3" /> Photo de prise en charge
+                        <span className="material-symbols-rounded text-xs">photo_camera</span> Photo de prise en charge
                     </div>
                     <Image 
                         src={order.pickup_photo_url} 
