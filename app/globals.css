@@ -28,10 +28,19 @@
 
 @layer utilities {
   .font-display {
-    font-family: var(--font-syne), sans-serif;
+    font-family: var(--font-outfit), sans-serif;
   }
-  .font-dm {
-    font-family: var(--font-dm), sans-serif;
+  .font-inter {
+    font-family: var(--font-inter), sans-serif;
+  }
+  .glass {
+    @apply backdrop-blur-xl bg-white/10 border border-white/10;
+  }
+  .glass-dark {
+    @apply backdrop-blur-xl bg-slate-900/40 border border-white/5;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-600;
   }
   .shadow-soft {
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
@@ -45,6 +54,16 @@
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+  
+  /* Premium Animations */
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 }
 

@@ -1,19 +1,19 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from 'next'
-import { Syne, DM_Sans } from 'next/font/google'
+import { Outfit, Inter } from 'next/font/google'
 import './globals.css'
 
 
-const syne = Syne({
+const outfit = Outfit({
   subsets: ['latin'],
-  variable: '--font-syne',
-  weight: ['400', '600', '700', '800'],
+  variable: '--font-outfit',
+  weight: ['400', '600', '700', '800', '900'],
 })
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-dm',
-  weight: ['400', '500', '600'],
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
 })
 
 const appUrl = 'https://www.nelalexpress.com';
@@ -71,11 +71,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${syne.variable} ${dmSans.variable}`}>
+    <html lang="fr" className={`${outfit.variable} ${inter.variable}`}>
       <head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
       </head>
-      <body className="font-dm bg-slate-50 text-slate-900 antialiased">
+      <body className="font-inter bg-slate-50 text-slate-900 antialiased">
         {children}
         <script
           dangerouslySetInnerHTML={{
