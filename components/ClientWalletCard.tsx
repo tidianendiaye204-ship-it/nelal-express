@@ -1,5 +1,4 @@
 // components/ClientWalletCard.tsx
-import { Wallet, Info, Sparkles } from 'lucide-react'
 
 interface ClientWalletCardProps {
   balance: number
@@ -11,11 +10,11 @@ export default function ClientWalletCard({ balance }: ClientWalletCardProps) {
       <div className="mx-2 mb-6 bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm">
-            <Wallet className="w-5 h-5" />
+            <span className="material-symbols-rounded">account_balance_wallet</span>
           </div>
           <div>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-tight">Mon Portefeuille</p>
-            <p className="text-slate-400 text-xs font-medium">Aucun avoir pour le moment</p>
+            <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Mon Solde</p>
+            <p className="text-slate-400 text-[10px] font-medium">0 F disponible</p>
           </div>
         </div>
       </div>
@@ -30,10 +29,10 @@ export default function ClientWalletCard({ balance }: ClientWalletCardProps) {
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white shadow-inner">
-            <Sparkles className="w-6 h-6 animate-pulse" />
+            <span className="material-symbols-rounded text-2xl animate-pulse">payments</span>
           </div>
           <div>
-            <p className="text-orange-100 text-[10px] font-black uppercase tracking-widest mb-1">Votre avoir cumulé</p>
+            <p className="text-orange-100 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Mon Argent (Monnaie & Gains)</p>
             <p className="text-3xl font-display font-black text-white leading-none">
               {balance.toLocaleString('fr-FR')} <span className="text-sm font-normal opacity-80">F</span>
             </p>
@@ -42,9 +41,9 @@ export default function ClientWalletCard({ balance }: ClientWalletCardProps) {
         
         <div className="flex flex-col items-end gap-2">
           <div className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-colors cursor-help group/info relative">
-            <Info className="w-4 h-4 text-white" />
-            <div className="absolute bottom-full right-0 mb-2 w-48 bg-slate-900 text-white text-[8px] p-2 rounded-lg opacity-0 pointer-events-none group-hover/info:opacity-100 transition-opacity shadow-xl z-50">
-              Cet avoir inclut vos revenus de ventes (Nelal Pay) et les reliquats de monnaie. Vous pouvez l&apos;utiliser pour vos futurs envois ou demander un retrait.
+            <span className="material-symbols-rounded text-white text-lg">info</span>
+            <div className="absolute bottom-full right-0 mb-2 w-56 bg-slate-900 text-white text-[9px] p-3 rounded-2xl opacity-0 pointer-events-none group-hover/info:opacity-100 transition-opacity shadow-2xl z-50 border border-white/10 leading-relaxed font-medium">
+              Cet argent provient de vos ventes (Nelal Pay) et de la <strong className="text-orange-400 font-black italic underline">monnaie</strong> que les livreurs vous ont rendue virtuellement.
             </div>
           </div>
           <a 

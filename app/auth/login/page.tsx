@@ -4,7 +4,6 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { ArrowRight, ShieldCheck, Loader2, MessageCircle, Mail } from 'lucide-react'
 
 type LoginMethod = 'email' | 'whatsapp'
 type Step = 'choose' | 'otp'
@@ -168,23 +167,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-[440px]">
-        <Link href="/" className="flex items-center gap-3 mb-10 group">
-          <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform group-hover:-rotate-12 transition-transform">
+    <div className="min-h-screen bg-[#020617] text-white font-inter flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-1/4 -left-24 w-64 h-64 bg-orange-500/10 rounded-full blur-[100px]"></div>
+      <div className="absolute bottom-0 -right-24 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px]"></div>
+
+      <div className="w-full max-w-[440px] relative z-10">
+        <Link href="/" className="flex items-center gap-4 mb-10 group justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-orange-500/30 transform group-hover:-rotate-12 transition-transform">
             <span className="text-white font-display font-black text-2xl">N</span>
           </div>
-          <span className="font-display font-black text-slate-900 text-3xl tracking-tight">Nelal Express</span>
+          <span className="font-display font-black text-white text-3xl tracking-tighter">Nelal<span className="text-orange-500">Express</span></span>
         </Link>
 
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-slate-200/50">
+        <div className="bg-slate-900/40 backdrop-blur-3xl rounded-[3rem] border border-white/5 p-10 shadow-2xl">
 
           {/* ── STEP OTP : Saisie du code ─────────────── */}
           {step === 'otp' ? (
             <>
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-orange-500 rounded-[1.25rem] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange-500/20">
-                  <ShieldCheck className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-orange-500/20 border border-orange-500/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <span className="material-symbols-rounded text-3xl text-orange-500">verified_user</span>
                 </div>
                 <h1 className="font-display font-black text-2xl text-slate-900 mb-2 uppercase tracking-tight">Vérification</h1>
                 <p className="text-slate-500 text-sm font-medium">
@@ -210,8 +213,8 @@ export default function LoginPage() {
                   </div>
                 )}
                 <button type="submit" disabled={loading || code.length < 6}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white py-5 rounded-2xl font-display font-black text-xl shadow-xl shadow-orange-500/20 transition-all active:scale-95 flex items-center justify-center gap-3">
-                  {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><ArrowRight className="w-5 h-5" /> Valider</>}
+                    className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white py-5 rounded-2xl font-display font-black text-xl shadow-xl shadow-orange-500/20 transition-all active:scale-95 flex items-center justify-center gap-3">
+                  {loading ? <span className="material-symbols-rounded animate-spin">progress_activity</span> : <><span className="material-symbols-rounded">arrow_forward</span> Valider</>}
                 </button>
                 <div className="flex items-center justify-between pt-2">
                   <button type="button" onClick={() => { setStep('choose'); setCode(''); setError('') }}
@@ -236,21 +239,21 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => { setMethod('email'); setError('') }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                    method === 'email' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                    method === 'email' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500'
                   }`}
                 >
-                  <Mail className="w-4 h-4" /> Email
+                  <span className="material-symbols-rounded text-lg">mail</span> Email
                 </button>
                 <button
                   type="button"
                   onClick={() => { setMethod('whatsapp'); setError('') }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all relative ${
-                    method === 'whatsapp' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-400'
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${
+                    method === 'whatsapp' ? 'bg-white/10 text-green-500 shadow-sm' : 'text-slate-500'
                   }`}
                 >
-                  <MessageCircle className="w-4 h-4" /> WhatsApp
-                  <span className="absolute -top-2 -right-1 bg-orange-500 text-white text-[8px] px-1.5 py-0.5 rounded-full shadow-sm font-black uppercase">Bientôt</span>
+                  <span className="material-symbols-rounded text-lg">chat</span> WhatsApp
+                  <span className="absolute -top-2 -right-1 bg-orange-500 text-white text-[8px] px-2 py-1 rounded-full shadow-sm font-black uppercase tracking-tighter">SOON</span>
                 </button>
               </div>
 
@@ -258,21 +261,21 @@ export default function LoginPage() {
               {method === 'email' && (
                 <form onSubmit={handleEmailLogin} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-black text-slate-700 mb-2 ml-1 uppercase tracking-widest">Email</label>
+                    <label className="block text-[10px] font-black text-slate-500 mb-2 ml-1 uppercase tracking-widest">Email</label>
                     <div className="relative group">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 group-focus-within:opacity-100 transition-opacity">📧</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-rounded text-slate-500 group-focus-within:text-orange-500 transition-colors">alternate_email</span>
                       <input name="email" type="email" required autoComplete="email" placeholder="votre@email.com"
                         value={email} onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl pl-12 pr-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium" />
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-12 pr-5 py-4 text-sm placeholder:text-slate-600 focus:outline-none focus:border-orange-500/50 transition-all font-medium" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-black text-slate-700 mb-2 ml-1 uppercase tracking-widest">Mot de passe</label>
+                    <label className="block text-[10px] font-black text-slate-500 mb-2 ml-1 uppercase tracking-widest">Mot de passe</label>
                     <div className="relative group">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 group-focus-within:opacity-100 transition-opacity">🔑</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-rounded text-slate-500 group-focus-within:text-orange-500 transition-colors">lock</span>
                       <input name="password" type="password" required autoComplete="current-password" placeholder="••••••••"
                         value={password} onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-slate-50 border-2 border-slate-50 text-slate-900 rounded-2xl pl-12 pr-5 py-4 text-base placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white transition-all font-medium" />
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-12 pr-5 py-4 text-sm placeholder:text-slate-600 focus:outline-none focus:border-orange-500/50 transition-all font-medium" />
                     </div>
                   </div>
                   {error && (
@@ -287,13 +290,12 @@ export default function LoginPage() {
                 </form>
               )}
 
-              {/* ── WHATSAPP FORM (Coming Soon) ───────────────────── */}
               {method === 'whatsapp' && (
-                <div className="py-10 text-center space-y-4 animate-in fade-in zoom-in duration-300">
-                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageCircle className="w-10 h-10 text-green-500 opacity-40" />
+                <div className="py-10 text-center space-y-4">
+                  <div className="w-20 h-20 bg-white/5 border border-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-rounded text-4xl text-slate-700">forum</span>
                   </div>
-                  <h3 className="font-display font-black text-xl text-slate-800 uppercase tracking-tight">Bientôt disponible</h3>
+                  <h3 className="font-display font-black text-xl text-white uppercase tracking-tight">Bientôt disponible</h3>
                   <p className="text-slate-500 text-sm px-4">
                     La connexion simplifiée via WhatsApp arrive très prochainement. 
                     En attendant, merci d&apos;utiliser votre <span className="font-bold text-orange-500">email</span>.
@@ -307,11 +309,11 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <div className="mt-10 pt-8 border-t border-slate-50 text-center">
-                <p className="text-slate-500 font-medium">
+              <div className="mt-10 pt-8 border-t border-white/5 text-center">
+                <p className="text-slate-500 font-medium text-xs">
                   Pas encore de compte ?{' '}
-                  <Link href="/auth/signup" className="text-orange-600 hover:text-orange-700 font-black underline decoration-orange-200 decoration-4 underline-offset-4">
-                    S&apos;inscrire gratuitement
+                  <Link href="/auth/signup" className="text-orange-500 hover:text-orange-400 font-black uppercase tracking-widest ml-1">
+                    S&apos;inscrire
                   </Link>
                 </p>
               </div>
