@@ -13,15 +13,15 @@ export default async function AdminWalletPage() {
   
   if (profile?.role !== 'admin') redirect('/dashboard')
 
-  // Fetch all livreurs with their cash_held
-  const { data: livreurs } = await supabase
+  // Fetch all partners (livreurs and agents) with their cash_held
+  const { data: partners } = await supabase
     .from('profiles')
     .select('*')
-    .eq('role', 'livreur')
+    .in('role', ['livreur', 'agent'])
     .order('cash_held', { ascending: false })
 
-  const totalCashHeld = (livreurs || []).reduce((sum, l) => sum + (l.cash_held || 0), 0) || 0
-  const blockedCount = (livreurs || []).filter(l => (l.cash_held || 0) >= (l.max_cash_limit || 25000)).length || 0
+  const totalCashHeld = (partners || []).reduce((sum, l) => sum + (l.cash_held || 0), 0) || 0
+  const blockedCount = (partners || []).filter(l => (l.cash_held || 0) >= (l.max_cash_limit || 25000)).length || 0
 
   return (
     <div className="max-w-4xl mx-auto pb-10 px-4">
@@ -54,7 +54,7 @@ export default async function AdminWalletPage() {
         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
           <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Partenaires actifs</p>
           <p className="text-3xl font-display font-black text-slate-900 leading-none mb-2">
-            {livreurs?.length || 0}
+            {partners?.length || 0}
           </p>
           <div className="flex items-center gap-2 text-blue-500 text-[10px] font-bold">
             <Users className="w-3 h-3" /> Chiffre d&apos;affaires en attente
@@ -86,10 +86,10 @@ export default async function AdminWalletPage() {
         </div>
 
         <div className="divide-y divide-slate-50">
-          {!livreurs?.length ? (
-            <div className="p-10 text-center text-slate-400">Aucun livreur enregistré.</div>
+          {!partners?.length ? (
+            <div className="p-10 text-center text-slate-400">Aucun partenaire enregistré.</div>
           ) : (
-            livreurs.map((l) => {
+            partners.map((l) => {
               const isOverLimit = (l.cash_held || 0) >= (l.max_cash_limit || 25000)
               
               return (

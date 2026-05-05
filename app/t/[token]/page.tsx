@@ -16,7 +16,7 @@ export default async function PublicTrackingPage({ params }: { params: Promise<{
   const { data: trackData, error: trackError } = await supabase
     .from('tracking_tokens')
     .select('order_id')
-    .eq('token', token)
+    .ilike('token', token)
     .single()
 
   if (trackError || !trackData) {

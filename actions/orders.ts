@@ -397,7 +397,7 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
     .eq('id', orderId)
     .single()
   
-  if (orderOriginal?.payment_method === 'cash') {
+  if (orderOriginal?.payment_method === 'cash' || orderOriginal?.payment_method === 'wave' || orderOriginal?.payment_method === 'orange_money') {
     // 1. On incrémente le cash_held dans le profil du livreur
     const { data: profile } = await supabase.from('profiles').select('cash_held').eq('id', user.id).single()
     const newCashHeld = (profile?.cash_held || 0) + encaissementReel

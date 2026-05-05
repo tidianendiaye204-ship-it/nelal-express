@@ -12,7 +12,8 @@ export async function searchQuartiers(query: string = ''): Promise<{ data: Quart
       .select('*, zone:zones(*)')
     
     if (query.trim().length > 0) {
-      dbQuery = dbQuery.ilike('nom', `%${query}%`)
+      // Use or for better matching
+      dbQuery = dbQuery.or(`nom.ilike.%${query}%,nom.ilike.%${query.replace(/ /g, '%')}%`)
     }
     
     // Sort by name or predefined logic
