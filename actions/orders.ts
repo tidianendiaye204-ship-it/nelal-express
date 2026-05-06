@@ -70,7 +70,8 @@ export async function createOrder(formData: FormData) {
 
   // 🎫 Génération du Token de suivi court (ex: NEL-XJ)
   const shortToken = Math.random().toString(36).substring(2, 8).toUpperCase()
-  await supabase.from('tracking_tokens').insert({
+  const adminSupabase = createAdminClient()
+  await adminSupabase.from('tracking_tokens').insert({
     order_id: order.id,
     token: shortToken
   })
@@ -287,7 +288,8 @@ export async function createQuickOrder(formData: FormData): Promise<{ success?: 
 
   // 🎫 Génération du Token de suivi court
   const shortToken = Math.random().toString(36).substring(2, 8).toUpperCase()
-  await supabase.from('tracking_tokens').insert({
+  const adminSupabase = createAdminClient()
+  await adminSupabase.from('tracking_tokens').insert({
     order_id: order.id,
     token: shortToken
   })
