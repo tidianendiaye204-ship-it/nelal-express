@@ -154,39 +154,52 @@ async function deleteSession(phone: string) {
 
 // ── Trouver une zone dans la DB ───────────────────────────
 async function findZone(query: string) {
-  const { data: zones } = await getSupabase()
+  console.log(`[Chatbot] findZone appelé avec: "${query}"`)
+  const { data: zones, error: zonesError } = await getSupabase()
     .from('zones')
     .select('id, name, type, tarif_base')
 
+  if (zonesError) {
+    console.error('[Chatbot] Erreur récupération zones:', zonesError)
+    return null
+  }
   if (!zones) return null
+  console.log(`[Chatbot] ${zones.length} zones récupérées`)
 
-  // Utiliser Claude pour matcher la zone
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY!,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-3-5-sonnet-20240620',
-      max_tokens: 200,
-      system: `Tu es un assistant expert de la géographie du Sénégal. 
-Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
+    console.log('[Chatbot] Appel à Claude AI...')
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20240620',
+        max_tokens: 200,
+        system: `Tu es un assistant expert de la géographie du Sénégal. 
+  Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
 
-Voici les zones disponibles : ${JSON.stringify(zones.map((z: any) => ({ id: z.id, name: z.name })))}
+  Voici les zones disponibles : ${JSON.stringify(zones.map((z: any) => ({ id: z.id, name: z.name })))}
 
-Règles de matching :
-1. Sois indulgent sur l'orthographe et les accents (ex: "Guediawaye" ou "Guediaway" pour "Guédiawaye").
-2. Si l'utilisateur cite un quartier spécifique qui appartient à une zone plus large dans la liste, choisis cette zone.
-3. Réponds UNIQUEMENT avec le JSON suivant : {"zone_id": "ID", "zone_name": "NOM_ZONE_TROUVÉE"}.
-4. Si vraiment aucune zone ne correspond, réponds {"zone_id": null}.
-Ne donne aucune explication, juste le JSON.`,
-      messages: [{ role: 'user', content: `L'utilisateur a écrit : "${query}"` }],
-    }),
-  })
+  Règles de matching :
+  1. Sois indulgent sur l'orthographe et les accents.
+  2. Si l'utilisateur cite un quartier spécifique qui appartient à une zone plus large dans la liste, choisis cette zone.
+  3. Réponds UNIQUEMENT avec le JSON suivant : {"zone_id": "ID", "zone_name": "NOM_ZONE_TROUVÉE"}.
+  4. Si vraiment aucune zone ne correspond, réponds {"zone_id": null}.
+  Ne donne aucune explication, juste le JSON.`,
+        messages: [{ role: 'user', content: `L'utilisateur a écrit : "${query}"` }],
+      }),
+    })
 
-  const result = await response.json()
+    if (!response.ok) {
+      const errText = await response.text()
+      console.error('[Chatbot] Erreur API Anthropic:', response.status, errText)
+      return null
+    }
+
+    const result = await response.json()
+    console.log('[Chatbot] Réponse reçue de Claude')
   try {
     let text = result.content[0].text.trim()
     
