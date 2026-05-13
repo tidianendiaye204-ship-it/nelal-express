@@ -63,11 +63,7 @@ export default function AdminOrderTable({
     }
   }
 
-  const handleCancel = async (orderId: string) => {
-    if (confirm('Annuler cette commande ?')) {
-      await adminCancelOrder(orderId, 'Annulation admin')
-    }
-  }
+
 
   const handleDelete = async (orderId: string) => {
     if (confirm('SUPPRESSION DÉFINITIVE : Êtes-vous sûr de vouloir supprimer cette commande de la base de données ?')) {

@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import FleetMonitor from '../../../../components/FleetMonitor'
-import { ShieldAlert, Map as MapIcon } from 'lucide-react'
+import { Map as MapIcon } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 

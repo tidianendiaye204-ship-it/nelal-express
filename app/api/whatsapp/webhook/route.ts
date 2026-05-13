@@ -7,6 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { processMessage } from '@/lib/chatbot/engine'
 
+export const dynamic = 'force-dynamic'
+
 // Twilio envoie les messages en POST avec form-data
 export async function POST(req: NextRequest) {
   try {

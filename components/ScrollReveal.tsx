@@ -13,25 +13,26 @@ export default function ScrollReveal({ children, className = '', delay = 0 }: Sc
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const node = ref.current
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setTimeout(() => {
             setIsVisible(true)
           }, delay)
-          observer.unobserve(entry.target)
+          if (node) observer.unobserve(node)
         }
       },
       { threshold: 0.1 }
     )
 
-    if (ref.current) {
-      observer.observe(ref.current)
+    if (node) {
+      observer.observe(node)
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current)
+      if (node) {
+        observer.unobserve(node)
       }
     }
   }, [delay])

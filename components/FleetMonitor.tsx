@@ -3,8 +3,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import FleetMap from './FleetMap'
-import { Bike, Package, Filter, Users, MapPin } from 'lucide-react'
-import { Profile, Order } from '@/lib/types'
+import { Package, Filter, Users } from 'lucide-react'
+import { Profile } from '@/lib/types'
 
 interface FleetMonitorProps {
   initialLivreurs: Profile[]
@@ -16,6 +16,20 @@ export default function FleetMonitor({ initialLivreurs, initialOrders }: FleetMo
   const [orders, setOrders] = useState<any[]>(initialOrders)
   const [filter, setFilter] = useState<'all' | 'free' | 'busy'>('all')
   const supabase = createClient()
+
+  const fetchOrders = useMemo(() => async () => {
+    const { data } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        client:profiles!orders_client_id_fkey(full_name, phone),
+        livreur:profiles!orders_livreur_id_fkey(full_name, phone),
+        zone_from:zones!orders_zone_from_id_fkey(name, type),
+        zone_to:zones!orders_zone_to_id_fkey(name, type)
+      `)
+      .in('status', ['confirme', 'en_cours'])
+    if (data) setOrders(data)
+  }, [supabase])
 
   // Real-time position updates
   useEffect(() => {
@@ -44,21 +58,7 @@ export default function FleetMonitor({ initialLivreurs, initialOrders }: FleetMo
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase])
-
-  const fetchOrders = async () => {
-    const { data } = await supabase
-      .from('orders')
-      .select(`
-        *,
-        client:profiles!orders_client_id_fkey(full_name, phone),
-        livreur:profiles!orders_livreur_id_fkey(full_name, phone),
-        zone_from:zones!orders_zone_from_id_fkey(name, type),
-        zone_to:zones!orders_zone_to_id_fkey(name, type)
-      `)
-      .in('status', ['confirme', 'en_cours'])
-    if (data) setOrders(data)
-  }
+  }, [supabase, fetchOrders])
 
   const enrichedLivreurs = useMemo(() => {
     return livreurs.map(l => {

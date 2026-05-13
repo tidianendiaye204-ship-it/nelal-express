@@ -1,6 +1,6 @@
 // app/t/[token]/page.tsx
 import { createClient } from '@/utils/supabase/server'
-import { STATUS_LABELS, STATUS_COLORS } from '@/lib/types'
+import { STATUS_LABELS } from '@/lib/types'
 import Link from 'next/link'
 import Image from 'next/image'
 import LiveTracker from '@/components/LiveTracker'

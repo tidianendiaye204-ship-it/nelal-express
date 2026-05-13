@@ -7,10 +7,20 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Client Supabase avec service role (accès total)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+let _supabase: any = null
+function getSupabase() {
+  if (_supabase) return _supabase
+  
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    throw new Error("Supabase URL and Service Role Key are required")
+  }
+
+  _supabase = createClient(url, key)
+  return _supabase
+}
 
 // ── Types ──────────────────────────────────────────────────
 interface Session {
@@ -109,7 +119,7 @@ Tapez *COMMANDE* quand vous voulez recommencer.`,
 
 // ── Récupérer ou créer une session ───────────────────────
 async function getSession(phone: string): Promise<Session> {
-  const { data } = await supabase
+  const { data } = await getSupabase()
     .from('chatbot_sessions')
     .select('*')
     .eq('phone', phone)
@@ -124,7 +134,7 @@ async function getSession(phone: string): Promise<Session> {
 
 // ── Sauvegarder la session ────────────────────────────────
 async function saveSession(session: Session) {
-  await supabase
+  await getSupabase()
     .from('chatbot_sessions')
     .upsert({
       phone:      session.phone,
@@ -136,7 +146,7 @@ async function saveSession(session: Session) {
 
 // ── Supprimer la session ──────────────────────────────────
 async function deleteSession(phone: string) {
-  await supabase
+  await getSupabase()
     .from('chatbot_sessions')
     .delete()
     .eq('phone', phone)
@@ -144,7 +154,7 @@ async function deleteSession(phone: string) {
 
 // ── Trouver une zone dans la DB ───────────────────────────
 async function findZone(query: string) {
-  const { data: zones } = await supabase
+  const { data: zones } = await getSupabase()
     .from('zones')
     .select('id, name, type, tarif_base')
 
@@ -162,7 +172,7 @@ async function findZone(query: string) {
       model: 'claude-3-5-sonnet-20240620',
       max_tokens: 200,
       system: `Tu es un assistant qui identifie des zones au Sénégal.
-Voici la liste des zones disponibles : ${JSON.stringify(zones.map(z => ({ id: z.id, name: z.name })))}
+Voici la liste des zones disponibles : ${JSON.stringify(zones.map((z: any) => ({ id: z.id, name: z.name })))}
 L'utilisateur a écrit : "${query}"
 Réponds UNIQUEMENT avec le JSON : {"zone_id": "uuid", "zone_name": "nom"} ou {"zone_id": null} si aucune zone ne correspond.
 Ne réponds rien d'autre, juste ce JSON.`,
@@ -175,7 +185,7 @@ Ne réponds rien d'autre, juste ce JSON.`,
     const text = result.content[0].text.trim()
     const parsed = JSON.parse(text)
     if (!parsed.zone_id) return null
-    const zone = zones.find(z => z.id === parsed.zone_id)
+    const zone = zones.find((z: any) => z.id === parsed.zone_id)
     return zone ? { ...zone, matched_name: parsed.zone_name } : null
   } catch {
     return null
@@ -187,7 +197,7 @@ async function createOrder(session: Session, clientPhone: string) {
   const d = session.data as OrderData
 
   // Récupérer ou créer le profil client
-  const { data: profile } = await supabase
+  const { data: profile } = await getSupabase()
     .from('profiles')
     .select('id')
     .eq('phone', clientPhone)
@@ -201,7 +211,7 @@ async function createOrder(session: Session, clientPhone: string) {
     '1': 'wave', '2': 'orange_money', '3': 'cash'
   }
 
-  const { data: order, error } = await supabase
+  const { data: order, error } = await getSupabase()
     .from('orders')
     .insert({
       client_id:       profile.id,

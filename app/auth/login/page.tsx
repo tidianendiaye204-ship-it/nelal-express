@@ -18,13 +18,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  // WhatsApp OTP state
-  const [phone, setPhone] = useState('')
-  const [fullName, setFullName] = useState('')
+  // WhatsApp OTP state (Work in progress)
+  const [phone] = useState('')
+  // const [fullName, setFullName] = useState('')
   const [code, setCode] = useState('')
-  const [isNewUser, setIsNewUser] = useState(false)
+  // const [isNewUser, setIsNewUser] = useState(false)
   const [countdown, setCountdown] = useState(0)
 
+  /*
   function formatPhone(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 9)
     if (digits.length <= 2) return digits
@@ -32,6 +33,7 @@ export default function LoginPage() {
     if (digits.length <= 7) return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`
     return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 7)} ${digits.slice(7)}`
   }
+  */
 
   function startCountdown() {
     setCountdown(60)
@@ -73,6 +75,7 @@ export default function LoginPage() {
   }
 
   // ── WHATSAPP OTP ───────────────────────────────────────
+  /*
   async function handleSendOTP(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -103,6 +106,7 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
+  */
 
   async function handleVerifyOTP(e: React.FormEvent) {
     e.preventDefault()

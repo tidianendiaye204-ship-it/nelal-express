@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import 'leaflet/dist/leaflet.css'
-import { Profile } from '@/lib/types'
+
 
 // Dynamic import for Leaflet components to avoid SSR issues
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false })
@@ -80,12 +80,8 @@ export default function FleetMap({ livreurs, orders }: FleetMapProps) {
         ))}
 
         {/* ORDERS (Points de ramassage/livraison) */}
-        {orders.map(o => (
+        {orders.map((_) => (
           // In a real app, we might want to show both pickup and delivery if they have GPS
-          // For now let's assume we use zone centers or specific addresses if they had coords
-          // Since the database currently mostly has zone IDs and text addresses, 
-          // a full fleet map would need Geocoding. 
-          // For this demo, we'll focus on Livreurs positions.
           null
         ))}
       </MapContainer>
