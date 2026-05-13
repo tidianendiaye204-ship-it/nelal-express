@@ -175,7 +175,7 @@ async function findZone(query: string) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20240620',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 200,
         system: `Tu es un assistant expert de la géographie du Sénégal. 
   Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
@@ -199,9 +199,15 @@ async function findZone(query: string) {
     }
 
     const result = await response.json()
-    console.log('[Chatbot] Réponse reçue de Claude')
-  try {
-    let text = result.content[0].text.trim()
+    console.log('[Chatbot] Réponse reçue de Claude:', result)
+
+    if (!result.content || !result.content[0]) {
+      console.error('[Chatbot] Format de réponse Claude invalide:', result)
+      return null
+    }
+
+    try {
+      let text = result.content[0].text.trim()
     
     // Nettoyage au cas où Claude ajoute des balises Markdown ```json ... ```
     if (text.includes('```')) {
