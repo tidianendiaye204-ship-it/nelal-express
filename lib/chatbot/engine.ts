@@ -171,23 +171,39 @@ async function findZone(query: string) {
     body: JSON.stringify({
       model: 'claude-3-5-sonnet-20240620',
       max_tokens: 200,
-      system: `Tu es un assistant qui identifie des zones au Sénégal.
-Voici la liste des zones disponibles : ${JSON.stringify(zones.map((z: any) => ({ id: z.id, name: z.name })))}
-L'utilisateur a écrit : "${query}"
-Réponds UNIQUEMENT avec le JSON : {"zone_id": "uuid", "zone_name": "nom"} ou {"zone_id": null} si aucune zone ne correspond.
-Ne réponds rien d'autre, juste ce JSON.`,
-      messages: [{ role: 'user', content: query }],
+      system: `Tu es un assistant expert de la géographie du Sénégal. 
+Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
+
+Voici les zones disponibles : ${JSON.stringify(zones.map((z: any) => ({ id: z.id, name: z.name })))}
+
+Règles de matching :
+1. Sois indulgent sur l'orthographe et les accents (ex: "Guediawaye" ou "Guediaway" pour "Guédiawaye").
+2. Si l'utilisateur cite un quartier spécifique qui appartient à une zone plus large dans la liste, choisis cette zone.
+3. Réponds UNIQUEMENT avec le JSON suivant : {"zone_id": "ID", "zone_name": "NOM_ZONE_TROUVÉE"}.
+4. Si vraiment aucune zone ne correspond, réponds {"zone_id": null}.
+Ne donne aucune explication, juste le JSON.`,
+      messages: [{ role: 'user', content: `L'utilisateur a écrit : "${query}"` }],
     }),
   })
 
   const result = await response.json()
   try {
-    const text = result.content[0].text.trim()
+    let text = result.content[0].text.trim()
+    
+    // Nettoyage au cas où Claude ajoute des balises Markdown ```json ... ```
+    if (text.includes('```')) {
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim()
+    }
+    
+    console.log(`[Chatbot] Matching zone pour "${query}":`, text)
+    
     const parsed = JSON.parse(text)
     if (!parsed.zone_id) return null
+    
     const zone = zones.find((z: any) => z.id === parsed.zone_id)
     return zone ? { ...zone, matched_name: parsed.zone_name } : null
-  } catch {
+  } catch (err) {
+    console.error('[Chatbot] Erreur parsing réponse Claude:', err, result)
     return null
   }
 }
