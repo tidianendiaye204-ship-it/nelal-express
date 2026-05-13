@@ -1,93 +1,76 @@
+// app/api/whatsapp/webhook/route.ts
+// ─────────────────────────────────────────────────────────
+// Webhook Twilio — reçoit les messages WhatsApp entrants
+// et renvoie la réponse du chatbot
+// ─────────────────────────────────────────────────────────
+
 import { NextRequest, NextResponse } from 'next/server'
-import { handleWhatsAppMessage } from '@/lib/conversation'
-import { sendWhatsAppNotification } from '@/lib/whatsapp'
-import { createAdminClient } from '@/utils/supabase/admin'
+import { processMessage } from '@/lib/chatbot/engine'
 
-export const dynamic = 'force-dynamic'
-
-/**
- * RÉCEPTION DES WEBHOOKS (Meta Cloud API & Green-API)
- */
+// Twilio envoie les messages en POST avec form-data
 export async function POST(req: NextRequest) {
-  const adminSupabase = createAdminClient()
   try {
-    const body = await req.json()
+    // Parser le body form-data de Twilio
+    const formData = await req.formData()
+    const body     = formData.get('Body') as string | null
+    const from     = formData.get('From') as string | null  // ex: "whatsapp:+221770000000"
 
-    // --- LOGGING ---
-    try {
-      await adminSupabase.from('whatsapp_logs').insert({
-        type_webhook: body.object || body.typeWebhook || 'unknown',
-        payload: body,
-        wa_id: 'webhook-received'
-      })
-    } catch (logErr) {
-      console.error('[Logging Error]', logErr)
+    if (!body || !from) {
+      return new NextResponse('Missing fields', { status: 400 })
     }
 
-    // --- CAS A : META CLOUD API ---
-    if (body.object === 'whatsapp_business_account') {
-      const entry = body.entry?.[0]
-      const change = entry?.changes?.[0]
-      const value = change?.value
-      
-      if (value?.messages?.[0]) {
-        const message = value.messages[0]
-        const waId = message.from
-        const text = message.text?.body
+    // Extraire le numéro propre (sans "whatsapp:")
+    const phone = from.replace('whatsapp:', '').replace('+', '')
 
-        if (waId && text) {
-          const responseText = await handleWhatsAppMessage(waId, text)
-          if (responseText) {
-            await sendWhatsAppNotification(waId, responseText)
-          }
-        }
-      }
-      return NextResponse.json({ status: 'success' })
-    }
+    console.log(`[Chatbot] Reçu de ${phone}: "${body}"`)
 
-    // --- CAS B : GREEN-API (Ancien système) ---
-    const type = body.typeWebhook
-    if (type === 'incomingMessageReceived') {
-      const chatId = body.senderData?.chatId
-      const text = body.messageData?.textMessageData?.textMessage || body.messageData?.extendedTextMessageData?.text
-      
-      if (chatId && text) {
-        const waId = chatId.split('@')[0]
-        const responseText = await handleWhatsAppMessage(waId, text)
-        if (responseText) {
-          await sendWhatsAppNotification(waId, responseText)
-        }
-      }
-    }
+    // Traiter le message
+    const replyText = await processMessage(phone, body)
 
-    if (type === 'outgoingMessageReceived' && !body.sendByApi) {
-      const waId = body.chatId?.split('@')[0]
-      if (waId) {
-        await adminSupabase.from('conversations').update({ state: 'PAUSED' }).eq('wa_id', waId)
-      }
-    }
+    console.log(`[Chatbot] Réponse: "${replyText.slice(0, 80)}..."`)
 
-    return NextResponse.json({ status: 'success' })
+    // Répondre en TwiML (format Twilio)
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>
+    <Body>${escapeXml(replyText)}</Body>
+  </Message>
+</Response>`
+
+    return new NextResponse(twiml, {
+      status: 200,
+      headers: { 'Content-Type': 'text/xml' },
+    })
 
   } catch (error: any) {
-    console.error('[Webhook Error]', error.message)
-    return NextResponse.json({ status: 'error' }, { status: 200 })
+    console.error('[Chatbot] Erreur webhook:', error)
+
+    // En cas d'erreur on répond quand même à l'utilisateur
+    const errorTwiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>
+    <Body>⚠️ Une erreur est survenue. Réessayez dans un instant ou appelez le 77 036 26 16.</Body>
+  </Message>
+</Response>`
+
+    return new NextResponse(errorTwiml, {
+      status: 200,
+      headers: { 'Content-Type': 'text/xml' },
+    })
   }
 }
 
-/**
- * VÉRIFICATION DU WEBHOOK (Requis par Meta)
- */
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const mode = searchParams.get('hub.mode')
-  const token = searchParams.get('hub.verify_token')
-  const challenge = searchParams.get('hub.challenge')
+// Twilio vérifie parfois avec GET
+export async function GET() {
+  return new NextResponse('Nelal Express WhatsApp Bot — OK', { status: 200 })
+}
 
-  if (mode === 'subscribe' && token === process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN) {
-    console.log('[Webhook] Meta Verification Success')
-    return new NextResponse(challenge, { status: 200 })
-  }
-
-  return new NextResponse('Verification Failed', { status: 403 })
+// Échapper les caractères XML
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
 }

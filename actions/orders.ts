@@ -395,17 +395,18 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
   // Si paiement en cash, on met à jour le portefeuille (wallet) du livreur
   const { data: orderOriginal } = await supabase
     .from('orders')
-    .select('payment_method, type, valeur_colis, client_id')
+    .select('payment_method, type, valeur_colis, client_id, livreur_id')
     .eq('id', orderId)
     .single()
   
   if (orderOriginal?.payment_method === 'cash' || orderOriginal?.payment_method === 'wave' || orderOriginal?.payment_method === 'orange_money') {
-    // 1. On incrémente le cash_held dans le profil du livreur
-    const { data: profile } = await supabase.from('profiles').select('cash_held').eq('id', user.id).single()
+    // 1. On incrémente le cash_held dans le profil du livreur (celui qui a fait la course)
+    const walletUserId = orderOriginal.livreur_id || user.id
+    const { data: profile } = await supabase.from('profiles').select('cash_held').eq('id', walletUserId).single()
     const newCashHeld = (profile?.cash_held || 0) + encaissementReel
     
     const adminSupabase = createAdminClient()
-    await adminSupabase.from('profiles').update({ cash_held: newCashHeld }).eq('id', user.id)
+    await adminSupabase.from('profiles').update({ cash_held: newCashHeld }).eq('id', walletUserId)
 
     // 2. Crédit du solde du client (Ardoise + Valeur Colis si vendeur)
     let amountToCredit = ardoise
@@ -420,7 +421,8 @@ export async function completeDelivery(orderId: string, ardoise: number, totalEx
     }
   }
 
-  const { error: updateError } = await supabase.from('orders').update({ 
+  const adminSupabase = createAdminClient()
+  const { error: updateError } = await adminSupabase.from('orders').update({ 
     status: statusToSet,
     ardoise_livreur: ardoise > 0 ? ardoise : 0,
     encaissement_reel: encaissementReel,
