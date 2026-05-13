@@ -38,6 +38,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/t/') ||
     pathname.startsWith('/suivi/')
   ) {
+    if (pathname.startsWith('/api/whatsapp')) {
+      console.log(`[Middleware] Webhook autorisé: ${pathname} (${request.method})`)
+    }
     return NextResponse.next()
   }
 
