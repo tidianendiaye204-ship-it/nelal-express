@@ -167,15 +167,18 @@ async function findZone(query: string) {
   console.log(`[Chatbot] ${zones.length} zones récupérées`)
 
     console.log('[Chatbot] Appel à Claude AI...')
+    const apiKey = process.env.ANTHROPIC_API_KEY || ''
+    console.log(`[Chatbot] Appel Claude avec API Key: ${apiKey ? 'PRÉSENTE (' + apiKey.slice(0, 8) + '...)' : 'MANQUANTE'}`)
+    
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-haiku-20240307',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 200,
         system: `Tu es un assistant expert de la géographie du Sénégal. 
   Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
@@ -208,13 +211,12 @@ async function findZone(query: string) {
 
     try {
       let text = result.content[0].text.trim()
+      console.log(`[Chatbot] Texte brut reçu de Claude: "${text}"`)
     
-    // Nettoyage au cas où Claude ajoute des balises Markdown ```json ... ```
-    if (text.includes('```')) {
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim()
-    }
+    // Nettoyage robuste (insensible à la casse, gère les espaces)
+    text = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim()
     
-    console.log(`[Chatbot] Matching zone pour "${query}":`, text)
+    console.log(`[Chatbot] Texte nettoyé pour parsing: "${text}"`)
     
     const parsed = JSON.parse(text)
     if (!parsed.zone_id) return null
