@@ -12,36 +12,39 @@ export const dynamic = 'force-dynamic'
 // Twilio envoie les messages en POST avec form-data
 export async function POST(req: NextRequest) {
   try {
-    // Parser le body form-data de Twilio
-    const formData = await req.formData()
-    const body     = formData.get('Body') as string | null
-    const from     = formData.get('From') as string | null  // ex: "whatsapp:+221770000000"
+    // Twilio envoie les données en x-www-form-urlencoded
+    const text = await req.text()
+    const params = new URLSearchParams(text)
+    
+    const body = params.get('Body')
+    const from = params.get('From')
 
     if (!body || !from) {
+      console.error('[Chatbot] Webhook: Body ou From manquant dans la requête')
       return new NextResponse('Missing fields', { status: 400 })
     }
 
     // Extraire le numéro propre (sans "whatsapp:")
     const phone = from.replace('whatsapp:', '').replace('+', '')
 
-    console.log(`[Chatbot] Reçu de ${phone}: "${body}"`)
+    console.log(`[Chatbot] Message de ${phone}: "${body}"`)
 
     // Traiter le message
     const replyText = await processMessage(phone, body)
 
-    console.log(`[Chatbot] Réponse: "${replyText.slice(0, 80)}..."`)
+    console.log(`[Chatbot] Envoi réponse (${replyText.length} chars)`)
 
-    // Répondre en TwiML (format Twilio)
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>
-    <Body>${escapeXml(replyText)}</Body>
-  </Message>
-</Response>`
+    // Répondre en TwiML (format Twilio) - Strictement AUCUN espace avant le XML
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>${escapeXml(replyText)}</Body></Message></Response>`
+
+    console.log(`[Chatbot] Webhook terminé avec succès pour ${phone}`)
 
     return new NextResponse(twiml, {
       status: 200,
-      headers: { 'Content-Type': 'text/xml' },
+      headers: { 
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'no-cache'
+      },
     })
 
   } catch (error: any) {

@@ -175,7 +175,7 @@ async function findZone(query: string) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 200,
         system: `Tu es un assistant expert de la géographie du Sénégal. 
   Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
@@ -275,6 +275,7 @@ export async function processMessage(
 
   const msg = message.trim().toLowerCase()
   const session = await getSession(phone)
+  console.log(`[Chatbot] Session récupérée pour ${phone}: Etape=${session.step}`)
 
   // Commandes globales
   if (msg === 'aide' || msg === 'help') {
