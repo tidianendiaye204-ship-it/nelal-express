@@ -5,6 +5,7 @@ import WhatsAppBubble from '@/components/WhatsAppBubble'
 import CustomCursor from '@/components/CustomCursor'
 import ScrollReveal from '@/components/ScrollReveal'
 import NewsletterForm from '@/components/NewsletterForm'
+import PWAInstallButton from '@/components/PWAInstallButton'
 
 export default function LandingPage() {
   return (
@@ -91,7 +92,7 @@ export default function LandingPage() {
               Nelal Express n&apos;est pas juste une application. C&apos;est une infrastructure humaine ancrée localement pour sécuriser vos envois entre la capitale et le Fouta.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
               <Link href="/commander"
                 className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-10 py-5 rounded-2xl font-display font-black text-lg transition-all shadow-2xl shadow-orange-500/30 flex items-center justify-center gap-3 group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-3">
@@ -104,6 +105,10 @@ export default function LandingPage() {
                 className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 text-white px-10 py-5 rounded-2xl font-display font-black text-lg transition-all flex items-center justify-center gap-3">
                 Voir nos tarifs
               </Link>
+            </div>
+
+            <div className="max-w-md mx-auto">
+              <PWAInstallButton />
             </div>
           </ScrollReveal>
         </div>

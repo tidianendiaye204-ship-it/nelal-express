@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Outfit, Inter } from 'next/font/google'
 import './globals.css'
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
 
 
 const outfit = Outfit({
@@ -77,20 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-inter bg-slate-50 text-slate-900 antialiased">
         {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                  for (const registration of registrations) {
-                    registration.unregister();
-                    console.log('Service Worker désinstallé avec succès');
-                  }
-                });
-              }
-            `,
-          }}
-        />
+        <PWAInstallPrompt />
       </body>
     </html>
   )
