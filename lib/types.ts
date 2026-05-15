@@ -11,6 +11,7 @@ export interface Zone {
   name: string
   type: ZoneType
   tarif_base: number
+  tarif_local: number // Added for intra-zone pricing
   created_at: string
 }
 

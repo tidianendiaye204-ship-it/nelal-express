@@ -7,20 +7,21 @@ export function calculateDynamicPrice(params: {
   quartierToId?: string | null,
   isExpress?: boolean,
   parcelSize?: ParcelSize,
-  basePrice?: number
+  basePrice?: number,
+  localPrice?: number // New: specific price for intra-zone
 }) {
-  const { zoneFromId, zoneToId, quartierFromId, quartierToId, isExpress, parcelSize, basePrice } = params
+  const { zoneFromId, zoneToId, quartierFromId, quartierToId, isExpress, parcelSize, basePrice, localPrice } = params
   
   // 1. Same Quartier (Ultra-Local)
   if (quartierFromId && quartierToId && quartierFromId === quartierToId) {
-    return 500 // Flat price for neighborhood, no express surcharge
+    return localPrice || 500 // Use localPrice if set, fallback to 500
   }
 
   let price = basePrice || 2000
 
   // 2. Same Zone (Local)
   if (zoneFromId && zoneToId && zoneFromId === zoneToId) {
-    price = 1000
+    price = localPrice || 1000 // Use localPrice if set, fallback to 1000
   }
 
   // 3. Parcel Size Surcharge

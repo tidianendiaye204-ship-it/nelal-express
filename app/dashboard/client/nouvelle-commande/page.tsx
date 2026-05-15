@@ -12,6 +12,10 @@ export default async function NouvelleCommandePage() {
     .order('type')
     .order('name')
 
+  const { data: quartiers } = await supabase
+    .from('quartiers')
+    .select('*')
+    .order('nom')
 
   return (
     <div className="max-w-2xl mx-auto pb-20">
@@ -25,7 +29,7 @@ export default async function NouvelleCommandePage() {
         </div>
       </div>
 
-      <OrderForm zones={zones || []} />
+      <OrderForm zones={zones || []} quartiers={quartiers || []} />
     </div>
   )
 }

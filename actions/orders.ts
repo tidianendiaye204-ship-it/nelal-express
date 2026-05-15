@@ -22,13 +22,15 @@ export async function createOrder(formData: FormData) {
 
   const zone_from_id = formData.get('zone_from_id') as string
   const zone_to_id = formData.get('zone_to_id') as string
+  const quartier_depart_id = formData.get('quartier_depart_id') as string || null
+  const quartier_arrivee_id = formData.get('quartier_arrivee_id') as string || null
   const isExpress = formData.get('is_express') === '1'
   const parcel_size = (formData.get('parcel_size') as ParcelSize) || 'petit'
 
   // Récupérer les tarifs des deux zones
   const { data: zones } = await supabase
     .from('zones')
-    .select('id, tarif_base')
+    .select('id, tarif_base, tarif_local')
     .in('id', [zone_from_id, zone_to_id])
 
   // Tarif de base par défaut
@@ -40,9 +42,12 @@ export async function createOrder(formData: FormData) {
   const price = calculateDynamicPrice({
     zoneFromId: zone_from_id,
     zoneToId: zone_to_id,
+    quartierFromId: quartier_depart_id,
+    quartierToId: quartier_arrivee_id,
     isExpress,
     parcelSize: parcel_size,
-    basePrice
+    basePrice,
+    localPrice: zones?.find(z => z.id === zone_from_id)?.tarif_local
   })
 
   const deliveryCode = Math.floor(1000 + Math.random() * 9000)
@@ -51,6 +56,8 @@ export async function createOrder(formData: FormData) {
     client_id: user.id,
     zone_from_id,
     zone_to_id,
+    quartier_depart_id,
+    quartier_arrivee_id,
     parcel_size,
     type: (formData.get('type') as OrderType) || 'particulier',
     description: (formData.get('description') as string) || 'Colis',
@@ -259,7 +266,8 @@ export async function createQuickOrder(formData: FormData): Promise<{ success?: 
     quartierToId: quartier_arrivee_id,
     isExpress,
     parcelSize: parcel_size,
-    basePrice: Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0)
+    basePrice: Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0),
+    localPrice: qDepart?.zone_id === qArrivee?.zone_id ? qDepart?.frais_livraison_base : undefined
   })
 
   const deliveryCode = Math.floor(1000 + Math.random() * 9000)
@@ -810,10 +818,10 @@ export async function createLivreur(formData: FormData) {
   }
 }
 
-export async function updateZoneTarif(zoneId: string, tarifBase: number) {
+export async function updateZoneTarif(zoneId: string, updates: { tarif_base?: number; tarif_local?: number }) {
   const supabase = await createClient()
   const { error } = await supabase
-    .from('zones').update({ tarif_base: tarifBase }).eq('id', zoneId)
+    .from('zones').update(updates).eq('id', zoneId)
   if (error) return { error: error.message }
   revalidatePath('/dashboard/admin/zones')
   return { success: true }

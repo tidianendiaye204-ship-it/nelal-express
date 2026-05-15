@@ -15,7 +15,7 @@ const STEPS = [
   { id: 'confirm', title: 'Paiement', icon: <Wallet className="w-5 h-5" /> }
 ]
 
-export default function OrderForm({ zones }: { zones: any[] }) {
+export default function OrderForm({ zones, quartiers }: { zones: any[], quartiers: any[] }) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -24,6 +24,8 @@ export default function OrderForm({ zones }: { zones: any[] }) {
   const [formData, setFormData] = useState({
     zone_from_id: '',
     zone_to_id: '',
+    quartier_depart_id: '',
+    quartier_arrivee_id: '',
     description: '',
     is_express: false,
     parcel_size: 'petit' as 'petit' | 'moyen' | 'gros',
@@ -94,27 +96,60 @@ export default function OrderForm({ zones }: { zones: any[] }) {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Départ</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Départ (Zone)</label>
                 <select 
                   value={formData.zone_from_id} 
-                  onChange={e => setFormData(p => ({ ...p, zone_from_id: e.target.value }))}
+                  onChange={e => setFormData(p => ({ ...p, zone_from_id: e.target.value, quartier_depart_id: '' }))}
                   className="w-full bg-slate-50 border-none rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
                 >
                   <option value="">Choisir la zone de départ...</option>
                   {zones.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
                 </select>
               </div>
+
+              {formData.zone_from_id && quartiers.filter(q => q.zone_id === formData.zone_from_id).length > 0 && (
+                <div className="animate-in slide-in-from-top-2 duration-300">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Quartier de départ précis</label>
+                  <select 
+                    value={formData.quartier_depart_id} 
+                    onChange={e => setFormData(p => ({ ...p, quartier_depart_id: e.target.value }))}
+                    className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
+                  >
+                    <option value="">Précisez le quartier (facultatif)...</option>
+                    {quartiers.filter(q => q.zone_id === formData.zone_from_id).map(q => (
+                      <option key={q.id} value={q.id}>{q.nom}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Arrivée</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Arrivée (Zone)</label>
                 <select 
                   value={formData.zone_to_id} 
-                  onChange={e => setFormData(p => ({ ...p, zone_to_id: e.target.value }))}
+                  onChange={e => setFormData(p => ({ ...p, zone_to_id: e.target.value, quartier_arrivee_id: '' }))}
                   className="w-full bg-slate-50 border-none rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
                 >
                   <option value="">Choisir la destination...</option>
                   {zones.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
                 </select>
               </div>
+
+              {formData.zone_to_id && quartiers.filter(q => q.zone_id === formData.zone_to_id).length > 0 && (
+                <div className="animate-in slide-in-from-top-2 duration-300">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Quartier d&apos;arrivée précis</label>
+                  <select 
+                    value={formData.quartier_arrivee_id} 
+                    onChange={e => setFormData(p => ({ ...p, quartier_arrivee_id: e.target.value }))}
+                    className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
+                  >
+                    <option value="">Précisez le quartier (facultatif)...</option>
+                    {quartiers.filter(q => q.zone_id === formData.zone_to_id).map(q => (
+                      <option key={q.id} value={q.id}>{q.nom}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <button type="button" onClick={nextStep} disabled={!formData.zone_from_id || !formData.zone_to_id} className="w-full bg-slate-900 text-white rounded-2xl py-5 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-orange-500 transition-all active:scale-95 disabled:opacity-20">
               Continuer <ArrowRight className="w-4 h-4" />
