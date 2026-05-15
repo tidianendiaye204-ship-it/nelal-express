@@ -220,20 +220,71 @@ export default function NouvelleCommandePage() {
                    className="w-full bg-slate-50 border-none rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none h-32 resize-none"
                  />
               </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block ml-1">Type de colis</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { id: 'petit', label: 'Petit', desc: 'Doc, Plats', icon: <Package className="w-5 h-5" />, color: 'orange' },
+                    { id: 'moyen', label: 'Moyen', desc: 'Carton, Sac', icon: <Package className="w-6 h-6" />, color: 'blue' },
+                    { id: 'gros', label: 'Gros', desc: 'Valise, 50kg', icon: <Package className="w-7 h-7" />, color: 'indigo' }
+                  ].map((size) => (
+                    <div 
+                      key={size.id}
+                      onClick={() => setFormData(p => ({ ...p, parcel_size: size.id as any }))}
+                      className={`relative p-5 rounded-[2rem] border-2 cursor-pointer transition-all duration-500 flex flex-col items-center text-center gap-3 group ${
+                        formData.parcel_size === size.id 
+                          ? 'border-orange-500 bg-orange-50/50 shadow-xl shadow-orange-500/10 -translate-y-1' 
+                          : 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-lg'
+                      }`}
+                    >
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                        formData.parcel_size === size.id ? 'bg-orange-500 text-white rotate-0' : 'bg-slate-50 text-slate-400 group-hover:rotate-6'
+                      }`}>
+                        {size.icon}
+                      </div>
+                      <div>
+                        <p className={`text-[11px] font-black uppercase tracking-tight ${formData.parcel_size === size.id ? 'text-orange-600' : 'text-slate-900'}`}>{size.label}</p>
+                        <p className="text-[9px] font-bold text-slate-400 mt-0.5">{size.desc}</p>
+                      </div>
+                      {formData.parcel_size === size.id && (
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center animate-in zoom-in">
+                          <CheckCircle className="w-3 h-3 text-white" strokeWidth={4} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
-                 <div onClick={() => setFormData(p => ({...p, is_express: !p.is_express}))} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${formData.is_express ? 'border-orange-500 bg-orange-50' : 'border-slate-100 bg-slate-50'}`}>
+                 <div 
+                   onClick={() => setFormData(p => ({...p, is_express: !p.is_express}))} 
+                   className={`p-5 rounded-[2rem] border-2 transition-all duration-500 cursor-pointer relative overflow-hidden group ${
+                     formData.is_express 
+                       ? 'border-orange-500 bg-orange-50/50 shadow-lg' 
+                       : 'border-slate-100 bg-white hover:border-slate-200'
+                   }`}
+                 >
                    <div className="flex items-center gap-3 mb-2">
-                     <Zap className={`w-4 h-4 ${formData.is_express ? 'text-orange-500' : 'text-slate-400'}`} />
-                     <span className="text-[10px] font-black uppercase tracking-widest">Express</span>
+                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${formData.is_express ? 'bg-orange-500 text-white' : 'bg-slate-50 text-slate-400'}`}>
+                        <Zap className="w-4 h-4" />
+                     </div>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${formData.is_express ? 'text-orange-600' : 'text-slate-900'}`}>Express</span>
                    </div>
-                   <p className="text-[9px] text-slate-500">Livraison prioritaire (+1.000 F)</p>
+                   <p className="text-[9px] font-bold text-slate-400 leading-tight">Priorité maximale (+1.000 F)</p>
+                   {formData.is_express && (
+                     <div className="absolute -right-2 -bottom-2 w-12 h-12 bg-orange-500/10 rounded-full blur-2xl" />
+                   )}
                  </div>
-                 <div className="p-4 rounded-2xl border-2 border-slate-100 bg-slate-50">
+
+                 <div className="p-5 rounded-[2rem] border-2 border-slate-100 bg-white opacity-60">
                    <div className="flex items-center gap-3 mb-2">
-                     <Truck className="w-4 h-4 text-slate-400" />
-                     <span className="text-[10px] font-black uppercase tracking-widest">Standard</span>
+                     <div className="w-8 h-8 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center">
+                        <Truck className="w-4 h-4" />
+                     </div>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">Standard</span>
                    </div>
-                   <p className="text-[9px] text-slate-500">Délai normal (2h - 4h)</p>
+                   <p className="text-[9px] font-bold text-slate-400 leading-tight">Délai normal (2h - 4h)</p>
                  </div>
               </div>
               <div className="flex gap-3 pt-4">
