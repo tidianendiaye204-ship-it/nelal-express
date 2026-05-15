@@ -113,7 +113,7 @@ export default function QuartierSearchInput({
   }, [])
 
   return (
-    <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-500" ref={containerRef}>
+    <div className={`space-y-2 animate-in fade-in slide-in-from-top-4 duration-500 ${isOpen ? 'relative z-[100]' : 'relative z-10'}`} ref={containerRef}>
       {label && (
         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">
           {label}
@@ -157,8 +157,8 @@ export default function QuartierSearchInput({
         <input type="hidden" name={name} value={selectedQuartier?.id || ''} />
 
         {isOpen && filteredQuartiers.length > 0 && (
-          <div className="absolute z-[60] w-full mt-2 bg-white rounded-2xl border border-orange-50 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="max-h-48 overflow-y-auto p-1">
+          <div className="absolute z-[100] w-full mt-2 bg-white/95 backdrop-blur-md rounded-2xl border border-orange-100 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="max-h-48 overflow-y-auto p-1 custom-scrollbar">
               {filteredQuartiers.map((q, idx) => {
                 const isSelected = selectedQuartier?.id === q.id
                 const isFocused = selectedIndex === idx

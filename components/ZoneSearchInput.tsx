@@ -158,7 +158,7 @@ export default function ZoneSearchInput({
   }
 
   return (
-    <div className="space-y-2" ref={containerRef}>
+    <div className={`space-y-2 transition-all duration-300 ${isOpen ? 'relative z-[100]' : 'relative z-10'}`} ref={containerRef}>
       {label && (
         <div className="flex items-center justify-between mb-1">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">
@@ -233,8 +233,8 @@ export default function ZoneSearchInput({
 
         {/* Dropdown Results */}
         {isOpen && flatFilteredZones.length > 0 && (
-          <div className="absolute z-50 w-full mt-3 bg-white/95 backdrop-blur-xl rounded-[2rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-300">
-            <div className="max-h-[320px] overflow-y-auto p-3 space-y-5 custom-scrollbar">
+          <div className="absolute z-[100] w-full mt-3 bg-white/95 backdrop-blur-xl rounded-[2rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-300">
+            <div className="max-h-[280px] md:max-h-[320px] overflow-y-auto p-3 space-y-5 custom-scrollbar">
               {(Object.entries(groupedZones) as [string, Zone[]][]).map(([type, groupZones]) => {
                 if (groupZones.length === 0) return null
                 return (

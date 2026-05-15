@@ -143,7 +143,7 @@ export default function NouvelleCommandePage() {
                 <p className="text-slate-400 text-xs font-bold">Sélectionnez les zones de départ et d&apos;arrivée.</p>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-10">
                 <ZoneSearchInput 
                   zones={zones} 
                   name="zone_from_id" 
