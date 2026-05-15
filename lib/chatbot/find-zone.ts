@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { Zone } from '@/lib/types'
+import { Zone, Quartier } from '@/lib/types'
 import { findZoneByText, getZoneSuggestions } from './zone-matcher'
 
 // Cache simple des zones pour éviter de requêter Supabase trop souvent
@@ -59,4 +59,35 @@ export async function findZoneWithSuggestions(query: string): Promise<{
   
   const suggestions = getZoneSuggestions(query, zones)
   return { found: null, suggestions }
+}
+
+/**
+ * Récupère les quartiers d'une zone spécifique
+ */
+export async function getQuartiersForZone(zoneId: string): Promise<Quartier[]> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return []
+
+  const supabase = createClient(url, key)
+  const { data } = await supabase
+    .from('quartiers')
+    .select('*')
+    .eq('zone_id', zoneId)
+    .order('nom')
+
+  return data || []
+}
+
+/**
+ * Trouve un quartier par texte dans une zone donnée
+ */
+export async function findQuartier(query: string, zoneId: string): Promise<Quartier | null> {
+  const quartiers = await getQuartiersForZone(zoneId)
+  const normQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+  
+  // Match exact ou contient
+  return quartiers.find(q => 
+    q.nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normQuery)
+  ) || null
 }

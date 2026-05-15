@@ -10,7 +10,8 @@ import { useRouter } from 'next/navigation'
 import { createOrder } from '@/actions/orders'
 import { 
   Package, User, Wallet, Navigation, CheckCircle, 
-  MessageCircle, ArrowRight, Zap, Truck, ArrowLeft
+  MessageCircle, ArrowRight, Zap, Truck, ArrowLeft,
+  MapPin, ChevronDown
 } from 'lucide-react'
 
 const STEPS = [
@@ -155,18 +156,24 @@ export default function NouvelleCommandePage() {
                 />
 
                 {formData.zone_from_id && quartiers.filter(q => q.zone_id === formData.zone_from_id).length > 0 && (
-                  <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Quartier de départ précis</label>
-                    <select 
-                      value={formData.quartier_depart_id} 
-                      onChange={e => setFormData(p => ({ ...p, quartier_depart_id: e.target.value }))}
-                      className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
-                    >
-                      <option value="">Précisez le quartier (facultatif)...</option>
-                      {quartiers.filter(q => q.zone_id === formData.zone_from_id).map(q => (
-                        <option key={q.id} value={q.id}>{q.nom}</option>
-                      ))}
-                    </select>
+                  <div className="animate-in slide-in-from-top-4 duration-500 delay-150">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block ml-1">Quartier de départ précis</label>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <select 
+                        value={formData.quartier_depart_id} 
+                        onChange={e => setFormData(p => ({ ...p, quartier_depart_id: e.target.value }))}
+                        className="w-full bg-white border-2 border-orange-100 rounded-[1.5rem] pl-14 pr-4 py-4 text-xs font-bold focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none appearance-none shadow-sm"
+                      >
+                        <option value="">Précisez le quartier (facultatif)...</option>
+                        {quartiers.filter(q => q.zone_id === formData.zone_from_id).map(q => (
+                          <option key={q.id} value={q.id}>{q.nom}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    </div>
                   </div>
                 )}
 
@@ -183,18 +190,24 @@ export default function NouvelleCommandePage() {
                 />
 
                 {formData.zone_to_id && quartiers.filter(q => q.zone_id === formData.zone_to_id).length > 0 && (
-                  <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Quartier d&apos;arrivée précis</label>
-                    <select 
-                      value={formData.quartier_arrivee_id} 
-                      onChange={e => setFormData(p => ({ ...p, quartier_arrivee_id: e.target.value }))}
-                      className="w-full bg-orange-50/50 border-2 border-orange-100 rounded-2xl p-4 text-xs font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
-                    >
-                      <option value="">Précisez le quartier (facultatif)...</option>
-                      {quartiers.filter(q => q.zone_id === formData.zone_to_id).map(q => (
-                        <option key={q.id} value={q.id}>{q.nom}</option>
-                      ))}
-                    </select>
+                  <div className="animate-in slide-in-from-top-4 duration-500 delay-150">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block ml-1">Quartier d&apos;arrivée précis</label>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500">
+                        <Navigation className="w-4 h-4" />
+                      </div>
+                      <select 
+                        value={formData.quartier_arrivee_id} 
+                        onChange={e => setFormData(p => ({ ...p, quartier_arrivee_id: e.target.value }))}
+                        className="w-full bg-white border-2 border-orange-100 rounded-[1.5rem] pl-14 pr-4 py-4 text-xs font-bold focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all outline-none appearance-none shadow-sm"
+                      >
+                        <option value="">Précisez le quartier (facultatif)...</option>
+                        {quartiers.filter(q => q.zone_id === formData.zone_to_id).map(q => (
+                          <option key={q.id} value={q.id}>{q.nom}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    </div>
                   </div>
                 )}
               </div>

@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────
 
 import { createClient } from '@supabase/supabase-js'
-import { findZoneWithSuggestions } from './find-zone'
+import { findZoneWithSuggestions, getQuartiersForZone, findQuartier } from './find-zone'
 
 // Client Supabase avec service role (accès total)
 let _supabase: any = null
@@ -35,8 +35,12 @@ interface OrderData {
   client_name:      string
   zone_from_id:     string
   zone_from_name:   string
+  quartier_depart_id?: string
+  quartier_depart_name?: string
   zone_to_id:       string
   zone_to_name:     string
+  quartier_arrivee_id?: string
+  quartier_arrivee_name?: string
   description:      string
   recipient_name:   string
   recipient_phone:  string
@@ -50,8 +54,10 @@ type ConversationStep =
   | 'ask_type'
   | 'ask_zone_from'
   | 'ask_zone_from_suggest'
+  | 'ask_quartier_from'
   | 'ask_zone_to'
   | 'ask_zone_to_suggest'
+  | 'ask_quartier_to'
   | 'ask_description'
   | 'ask_recipient_name'
   | 'ask_recipient_phone'
@@ -192,6 +198,8 @@ async function createOrder(session: Session, clientPhone: string) {
       client_id:       profile.id,
       zone_from_id:    d.zone_from_id,
       zone_to_id:      d.zone_to_id,
+      quartier_depart_id: d.quartier_depart_id || null,
+      quartier_arrivee_id: d.quartier_arrivee_id || null,
       type:            d.type === '1' ? 'particulier' : 'vendeur',
       description:     d.description,
       recipient_name:  d.recipient_name,
@@ -252,6 +260,19 @@ export async function processMessage(
       if (found) {
         session.data.zone_from_id   = found.id
         session.data.zone_from_name = found.name
+        
+        // Check if zone has quartiers
+        const qList = await getQuartiersForZone(found.id)
+        if (qList.length > 0) {
+          session.step = 'ask_quartier_from'
+          session.temp_suggestions = qList
+          await saveSession(session)
+          let response = `✅ Zone : *${found.name}*\n\n📍 *Précisez le quartier de départ :*\n\n`
+          qList.forEach((q, i) => { response += `*${i+1}* — ${q.nom}\n` })
+          response += `*${qList.length + 1}* — Autre / Ignorer`
+          return response
+        }
+
         session.step = 'ask_zone_to'
         await saveSession(session)
         return `✅ Départ : *${found.name}*\n\n` + MSG.ask_zone_to
@@ -288,10 +309,56 @@ export async function processMessage(
       const zone = session.temp_suggestions![index]
       session.data.zone_from_id   = zone.id
       session.data.zone_from_name = zone.name
+      
+      const qList = await getQuartiersForZone(zone.id)
+      if (qList.length > 0) {
+        session.step = 'ask_quartier_from'
+        session.temp_suggestions = qList
+        await saveSession(session)
+        let response = `✅ Zone : *${zone.name}*\n\n📍 *Précisez le quartier de départ :*\n\n`
+        qList.forEach((q, i) => { response += `*${i+1}* — ${q.nom}\n` })
+        response += `*${qList.length + 1}* — Autre / Ignorer`
+        return response
+      }
+
       session.temp_suggestions = [] // Clear suggestions
       session.step = 'ask_zone_to'
       await saveSession(session)
       return `✅ Départ : *${zone.name}*\n\n` + MSG.ask_zone_to
+    }
+
+    case 'ask_quartier_from': {
+      const index = parseInt(msg) - 1
+      const qList = session.temp_suggestions || []
+      
+      // Si l'utilisateur tape un nom au lieu d'un chiffre
+      if (isNaN(index)) {
+        const foundQ = await findQuartier(message, session.data.zone_from_id!)
+        if (foundQ) {
+          session.data.quartier_depart_id = foundQ.id
+          session.data.quartier_depart_name = foundQ.nom
+          session.step = 'ask_zone_to'
+          session.temp_suggestions = []
+          await saveSession(session)
+          return `✅ Quartier : *${foundQ.nom}*\n\n` + MSG.ask_zone_to
+        }
+      }
+
+      if (!isNaN(index) && index >= 0 && index < qList.length) {
+        const q = qList[index]
+        session.data.quartier_depart_id = q.id
+        session.data.quartier_depart_name = q.nom
+        session.step = 'ask_zone_to'
+        session.temp_suggestions = []
+        await saveSession(session)
+        return `✅ Quartier : *${q.nom}*\n\n` + MSG.ask_zone_to
+      }
+
+      // "Autre / Ignorer"
+      session.step = 'ask_zone_to'
+      session.temp_suggestions = []
+      await saveSession(session)
+      return MSG.ask_zone_to
     }
 
     case 'ask_zone_to': {
@@ -300,6 +367,18 @@ export async function processMessage(
         session.data.zone_to_id   = found.id
         session.data.zone_to_name = found.name
         session.data.price        = found.tarif_base
+
+        const qList = await getQuartiersForZone(found.id)
+        if (qList.length > 0) {
+          session.step = 'ask_quartier_to'
+          session.temp_suggestions = qList
+          await saveSession(session)
+          let response = `✅ Destination : *${found.name}*\n\n📍 *Précisez le quartier de livraison :*\n\n`
+          qList.forEach((q, i) => { response += `*${i+1}* — ${q.nom}\n` })
+          response += `*${qList.length + 1}* — Autre / Ignorer`
+          return response
+        }
+
         session.step = 'ask_description'
         await saveSession(session)
         return `✅ Destination : *${found.name}*\n💰 Tarif estimé : *${found.tarif_base.toLocaleString('fr-FR')} FCFA*\n\n` + MSG.ask_description
@@ -337,10 +416,61 @@ export async function processMessage(
       session.data.zone_to_id   = zone.id
       session.data.zone_to_name = zone.name
       session.data.price        = zone.tarif_base
+
+      const qList = await getQuartiersForZone(zone.id)
+      if (qList.length > 0) {
+        session.step = 'ask_quartier_to'
+        session.temp_suggestions = qList
+        await saveSession(session)
+        let response = `✅ Destination : *${zone.name}*\n\n📍 *Précisez le quartier de livraison :*\n\n`
+        qList.forEach((q, i) => { response += `*${i+1}* — ${q.nom}\n` })
+        response += `*${qList.length + 1}* — Autre / Ignorer`
+        return response
+      }
+
       session.temp_suggestions = [] // Clear suggestions
       session.step = 'ask_description'
       await saveSession(session)
       return `✅ Destination : *${zone.name}*\n💰 Tarif estimé : *${zone.tarif_base.toLocaleString('fr-FR')} FCFA*\n\n` + MSG.ask_description
+    }
+
+    case 'ask_quartier_to': {
+      const index = parseInt(msg) - 1
+      const qList = session.temp_suggestions || []
+      
+      if (isNaN(index)) {
+        const foundQ = await findQuartier(message, session.data.zone_to_id!)
+        if (foundQ) {
+          session.data.quartier_arrivee_id = foundQ.id
+          session.data.quartier_arrivee_name = foundQ.nom
+          // Si le quartier a son propre tarif_base, on l'utilise
+          if (foundQ.frais_livraison_base) {
+            session.data.price = foundQ.frais_livraison_base
+          }
+          session.step = 'ask_description'
+          session.temp_suggestions = []
+          await saveSession(session)
+          return `✅ Quartier : *${foundQ.nom}*\n💰 Tarif ajusté : *${(session.data.price || 0).toLocaleString('fr-FR')} FCFA*\n\n` + MSG.ask_description
+        }
+      }
+
+      if (!isNaN(index) && index >= 0 && index < qList.length) {
+        const q = qList[index]
+        session.data.quartier_arrivee_id = q.id
+        session.data.quartier_arrivee_name = q.nom
+        if (q.frais_livraison_base) {
+          session.data.price = q.frais_livraison_base
+        }
+        session.step = 'ask_description'
+        session.temp_suggestions = []
+        await saveSession(session)
+        return `✅ Quartier : *${q.nom}*\n💰 Tarif ajusté : *${(session.data.price || 0).toLocaleString('fr-FR')} FCFA*\n\n` + MSG.ask_description
+      }
+
+      session.step = 'ask_description'
+      session.temp_suggestions = []
+      await saveSession(session)
+      return MSG.ask_description
     }
 
     case 'ask_description': {
@@ -383,8 +513,8 @@ export async function processMessage(
       return `📋 *Récapitulatif de votre commande*
 
 📦 Type : ${typeLabel}
-📍 Départ : ${session.data.zone_from_name}
-📍 Destination : ${session.data.zone_to_name}
+📍 Départ : ${session.data.zone_from_name}${session.data.quartier_depart_name ? ' (' + session.data.quartier_depart_name + ')' : ''}
+📍 Destination : ${session.data.zone_to_name}${session.data.quartier_arrivee_name ? ' (' + session.data.quartier_arrivee_name + ')' : ''}
 📝 Colis : ${session.data.description}
 👤 Destinataire : ${session.data.recipient_name}
 📞 Tél. destinataire : ${session.data.recipient_phone}
