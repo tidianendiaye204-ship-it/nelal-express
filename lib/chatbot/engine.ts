@@ -1,10 +1,11 @@
 // lib/chatbot/engine.ts
 // ─────────────────────────────────────────────────────────
-// Moteur de conversation WhatsApp propulsé par Claude AI
+// Moteur de conversation WhatsApp (Algorithme Local + Cache)
 // Gère l'état de chaque conversation et crée les commandes
 // ─────────────────────────────────────────────────────────
 
 import { createClient } from '@supabase/supabase-js'
+import { findZoneWithSuggestions } from './find-zone'
 
 // Client Supabase avec service role (accès total)
 let _supabase: any = null
@@ -27,6 +28,7 @@ interface Session {
   phone: string
   step: ConversationStep
   data: Partial<OrderData>
+  temp_suggestions?: any[]
 }
 
 interface OrderData {
@@ -47,7 +49,9 @@ type ConversationStep =
   | 'start'
   | 'ask_type'
   | 'ask_zone_from'
+  | 'ask_zone_from_suggest'
   | 'ask_zone_to'
+  | 'ask_zone_to_suggest'
   | 'ask_description'
   | 'ask_recipient_name'
   | 'ask_recipient_phone'
@@ -126,7 +130,12 @@ async function getSession(phone: string): Promise<Session> {
     .maybeSingle()
 
   if (data) {
-    return { phone: data.phone, step: data.step, data: data.data }
+    return { 
+      phone: data.phone, 
+      step: data.step, 
+      data: data.data || {}, 
+      temp_suggestions: data.data?.temp_suggestions || [] 
+    }
   }
 
   return { phone, step: 'start', data: {} }
@@ -134,12 +143,18 @@ async function getSession(phone: string): Promise<Session> {
 
 // ── Sauvegarder la session ────────────────────────────────
 async function saveSession(session: Session) {
+  // On stocke les suggestions temporaires dans le JSONB 'data' pour éviter de modifier le schéma SQL
+  const dataToSave = {
+    ...session.data,
+    temp_suggestions: session.temp_suggestions || []
+  }
+
   await getSupabase()
     .from('chatbot_sessions')
     .upsert({
       phone:      session.phone,
       step:       session.step,
-      data:       session.data,
+      data:       dataToSave,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'phone' })
 }
@@ -150,83 +165,6 @@ async function deleteSession(phone: string) {
     .from('chatbot_sessions')
     .delete()
     .eq('phone', phone)
-}
-
-// ── Trouver une zone dans la DB ───────────────────────────
-async function findZone(query: string) {
-  console.log(`[Chatbot] findZone appelé avec: "${query}"`)
-  const { data: zones, error: zonesError } = await getSupabase()
-    .from('zones')
-    .select('id, name, type, tarif_base')
-
-  if (zonesError) {
-    console.error('[Chatbot] Erreur récupération zones:', zonesError)
-    return null
-  }
-  if (!zones) return null
-  console.log(`[Chatbot] ${zones.length} zones récupérées`)
-
-    console.log('[Chatbot] Appel à Claude AI...')
-    const apiKey = process.env.ANTHROPIC_API_KEY || ''
-    console.log(`[Chatbot] Appel Claude avec API Key: ${apiKey ? 'PRÉSENTE (' + apiKey.slice(0, 8) + '...)' : 'MANQUANTE'}`)
-    
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 200,
-        system: `Tu es un assistant expert de la géographie du Sénégal. 
-  Ton rôle est d'associer la zone ou le quartier cité par l'utilisateur à l'une de nos zones de livraison.
-
-  Voici les zones disponibles : ${JSON.stringify(zones.map((z: any) => ({ id: z.id, name: z.name })))}
-
-  Règles de matching :
-  1. Sois indulgent sur l'orthographe et les accents.
-  2. Si l'utilisateur cite un quartier spécifique qui appartient à une zone plus large dans la liste, choisis cette zone.
-  3. Réponds UNIQUEMENT avec le JSON suivant : {"zone_id": "ID", "zone_name": "NOM_ZONE_TROUVÉE"}.
-  4. Si vraiment aucune zone ne correspond, réponds {"zone_id": null}.
-  Ne donne aucune explication, juste le JSON.`,
-        messages: [{ role: 'user', content: `L'utilisateur a écrit : "${query}"` }],
-      }),
-    })
-
-    if (!response.ok) {
-      const errText = await response.text()
-      console.error('[Chatbot] Erreur API Anthropic:', response.status, errText)
-      return null
-    }
-
-    const result = await response.json()
-    console.log('[Chatbot] Réponse reçue de Claude:', result)
-
-    if (!result.content || !result.content[0]) {
-      console.error('[Chatbot] Format de réponse Claude invalide:', result)
-      return null
-    }
-
-    try {
-      let text = result.content[0].text.trim()
-      console.log(`[Chatbot] Texte brut reçu de Claude: "${text}"`)
-    
-    // Nettoyage robuste (insensible à la casse, gère les espaces)
-    text = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim()
-    
-    console.log(`[Chatbot] Texte nettoyé pour parsing: "${text}"`)
-    
-    const parsed = JSON.parse(text)
-    if (!parsed.zone_id) return null
-    
-    const zone = zones.find((z: any) => z.id === parsed.zone_id)
-    return zone ? { ...zone, matched_name: parsed.zone_name } : null
-  } catch (err) {
-    console.error('[Chatbot] Erreur parsing réponse Claude:', err, result)
-    return null
-  }
 }
 
 // ── Créer la commande dans Supabase ──────────────────────
@@ -310,25 +248,96 @@ export async function processMessage(
     }
 
     case 'ask_zone_from': {
-      const zone = await findZone(message)
-      if (!zone) {
-        return `⚠️ Je n'ai pas trouvé la zone *"${message}"*.\n\nVeuillez réessayer avec un quartier de Dakar ou une ville du Sénégal.`
+      const { found, suggestions } = await findZoneWithSuggestions(message)
+      if (found) {
+        session.data.zone_from_id   = found.id
+        session.data.zone_from_name = found.name
+        session.step = 'ask_zone_to'
+        await saveSession(session)
+        return `✅ Départ : *${found.name}*\n\n` + MSG.ask_zone_to
       }
+      
+      if (suggestions.length > 0) {
+        session.temp_suggestions = suggestions
+        session.step = 'ask_zone_from_suggest'
+        await saveSession(session)
+        let response = `Je n'ai pas trouvé précisément "${message}". Voulez-vous dire :\n\n`
+        suggestions.forEach((s, i) => {
+          response += `*${i+1}* — ${s.name}\n`
+        })
+        response += `*${suggestions.length + 1}* — Autre zone\n\nRépondez avec le chiffre correspondant.`
+        return response
+      }
+
+      return `⚠️ Je n'ai pas trouvé la zone *"${message}"*.\n\nVeuillez réessayer avec un quartier de Dakar ou une ville du Sénégal.`
+    }
+
+    case 'ask_zone_from_suggest': {
+      const index = parseInt(msg) - 1
+      if (isNaN(index) || index < 0 || index > (session.temp_suggestions?.length || 0)) {
+        return MSG.error + "\n\nVeuillez choisir un chiffre de la liste."
+      }
+
+      if (index === (session.temp_suggestions?.length || 0)) {
+        session.step = 'ask_zone_from'
+        session.temp_suggestions = []
+        await saveSession(session)
+        return MSG.ask_zone_from
+      }
+
+      const zone = session.temp_suggestions![index]
       session.data.zone_from_id   = zone.id
       session.data.zone_from_name = zone.name
+      session.temp_suggestions = [] // Clear suggestions
       session.step = 'ask_zone_to'
       await saveSession(session)
       return `✅ Départ : *${zone.name}*\n\n` + MSG.ask_zone_to
     }
 
     case 'ask_zone_to': {
-      const zone = await findZone(message)
-      if (!zone) {
-        return `⚠️ Je n'ai pas trouvé la zone *"${message}"*.\n\nVeuillez réessayer.`
+      const { found, suggestions } = await findZoneWithSuggestions(message)
+      if (found) {
+        session.data.zone_to_id   = found.id
+        session.data.zone_to_name = found.name
+        session.data.price        = found.tarif_base
+        session.step = 'ask_description'
+        await saveSession(session)
+        return `✅ Destination : *${found.name}*\n💰 Tarif estimé : *${found.tarif_base.toLocaleString('fr-FR')} FCFA*\n\n` + MSG.ask_description
       }
+
+      if (suggestions.length > 0) {
+        session.temp_suggestions = suggestions
+        session.step = 'ask_zone_to_suggest'
+        await saveSession(session)
+        let response = `Je n'ai pas trouvé précisément "${message}". Voulez-vous dire :\n\n`
+        suggestions.forEach((s, i) => {
+          response += `*${i+1}* — ${s.name}\n`
+        })
+        response += `*${suggestions.length + 1}* — Autre zone\n\nRépondez avec le chiffre correspondant.`
+        return response
+      }
+
+      return `⚠️ Je n'ai pas trouvé la zone *"${message}"*.\n\nVeuillez réessayer.`
+    }
+
+    case 'ask_zone_to_suggest': {
+      const index = parseInt(msg) - 1
+      if (isNaN(index) || index < 0 || index > (session.temp_suggestions?.length || 0)) {
+        return MSG.error + "\n\nVeuillez choisir un chiffre de la liste."
+      }
+
+      if (index === (session.temp_suggestions?.length || 0)) {
+        session.step = 'ask_zone_to'
+        session.temp_suggestions = []
+        await saveSession(session)
+        return MSG.ask_zone_to
+      }
+
+      const zone = session.temp_suggestions![index]
       session.data.zone_to_id   = zone.id
       session.data.zone_to_name = zone.name
       session.data.price        = zone.tarif_base
+      session.temp_suggestions = [] // Clear suggestions
       session.step = 'ask_description'
       await saveSession(session)
       return `✅ Destination : *${zone.name}*\n💰 Tarif estimé : *${zone.tarif_base.toLocaleString('fr-FR')} FCFA*\n\n` + MSG.ask_description
