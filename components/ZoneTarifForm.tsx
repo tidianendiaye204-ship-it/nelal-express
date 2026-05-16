@@ -18,10 +18,16 @@ export default function ZoneTarifForm({ zone }: { zone: any }) {
     const tarif = parseInt(formData.get('tarif') as string)
     const local = parseInt(formData.get('local') as string)
 
-    await updateZoneTarif(zone.id, { 
+    const res = await updateZoneTarif(zone.id, { 
       tarif_base: !isNaN(tarif) ? tarif : undefined,
       tarif_local: !isNaN(local) ? local : undefined 
     })
+    
+    if (res?.error) {
+      alert("Erreur lors de la mise à jour : " + res.error)
+      setLoading(false)
+      return
+    }
     
     setSuccess(true)
     setTimeout(() => setSuccess(false), 2000)

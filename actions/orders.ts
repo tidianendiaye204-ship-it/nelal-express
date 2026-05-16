@@ -820,8 +820,15 @@ export async function createLivreur(formData: FormData) {
 
 export async function updateZoneTarif(zoneId: string, updates: { tarif_base?: number; tarif_local?: number }) {
   const supabase = await createClient()
-  const { error } = await supabase
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non connecté' }
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin' && profile?.role !== 'agent') return { error: 'Accès refusé' }
+
+  const adminSupabase = createAdminClient()
+  const { error } = await adminSupabase
     .from('zones').update(updates).eq('id', zoneId)
+  
   if (error) return { error: error.message }
   revalidatePath('/dashboard/admin/zones')
   return { success: true }
