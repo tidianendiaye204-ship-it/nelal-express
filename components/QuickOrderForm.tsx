@@ -257,6 +257,19 @@ export default function QuickOrderForm() {
             <p className="text-slate-400 text-xs font-bold mb-8">Plus que quelques secondes pour valider.</p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 text-red-600 px-4 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center border border-red-100">
+                  {error === 'Non connecté' ? (
+                    <div className="flex flex-col gap-3">
+                      <span>Vous devez être connecté pour commander.</span>
+                      <button type="button" onClick={() => router.push('/auth/login')} className="bg-red-600 text-white px-4 py-2 rounded-xl inline-block w-max mx-auto hover:bg-red-700 transition-colors">Se connecter</button>
+                    </div>
+                  ) : (
+                    error
+                  )}
+                </div>
+              )}
+              
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contenu du colis</label>
@@ -265,7 +278,7 @@ export default function QuickOrderForm() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Ex: 2kg de riz, vêtement, déjeuner..."
-                    className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none h-24 resize-none transition-all"
+                    className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 outline-none h-24 resize-none transition-all"
                   />
                 </div>
 
@@ -293,14 +306,14 @@ export default function QuickOrderForm() {
                       type="text" required value={recipientName}
                       onChange={(e) => setRecipientName(e.target.value)}
                       placeholder="Nom complet"
-                      className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                      className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 outline-none"
                     />
                    </div>
                    <input
                       type="tel" required value={recipientPhone}
                       onChange={(e) => setRecipientPhone(e.target.value)}
                       placeholder="Téléphone (7X XXX XX XX)"
-                      className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                      className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-orange-500 outline-none"
                     />
                 </div>
               </div>
