@@ -245,7 +245,7 @@ export async function createQuickOrder(formData: FormData): Promise<{ success?: 
   // Fetch the quartiers to get the base price and mapping zones
   const { data: quartiers } = await supabase
     .from('quartiers')
-    .select('id, frais_livraison_base, zone_id, nom')
+    .select('id, frais_livraison_base, zone_id, nom, zone:zones(tarif_base, tarif_local)')
     .in('id', [quartier_depart_id, quartier_arrivee_id])
 
   if (!quartiers || quartiers.length < 2) {
@@ -266,8 +266,8 @@ export async function createQuickOrder(formData: FormData): Promise<{ success?: 
     quartierToId: quartier_arrivee_id,
     isExpress,
     parcelSize: parcel_size,
-    basePrice: Math.max(qDepart?.frais_livraison_base || 0, qArrivee?.frais_livraison_base || 0),
-    localPrice: qDepart?.zone_id === qArrivee?.zone_id ? qDepart?.frais_livraison_base : undefined
+    basePrice: Math.max((qDepart?.zone as any)?.tarif_base || qDepart?.frais_livraison_base || 0, (qArrivee?.zone as any)?.tarif_base || qArrivee?.frais_livraison_base || 0),
+    localPrice: qDepart?.zone_id === qArrivee?.zone_id ? ((qDepart?.zone as any)?.tarif_local || qDepart?.frais_livraison_base) : undefined
   })
 
   const deliveryCode = Math.floor(1000 + Math.random() * 9000)

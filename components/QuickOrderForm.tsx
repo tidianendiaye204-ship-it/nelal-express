@@ -39,7 +39,8 @@ export default function QuickOrderForm() {
       quartierToId: arrivee.id,
       isExpress,
       parcelSize,
-      basePrice: Math.max(depart.frais_livraison_base, arrivee.frais_livraison_base)
+      basePrice: Math.max(depart.zone?.tarif_base || depart.frais_livraison_base || 0, arrivee.zone?.tarif_base || arrivee.frais_livraison_base || 0),
+      localPrice: depart.zone_id === arrivee.zone_id ? depart.zone?.tarif_local || depart.frais_livraison_base : undefined
     })
   }, [depart, arrivee, isExpress, parcelSize])
 
